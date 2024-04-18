@@ -3,7 +3,12 @@
     "dappcon_backend": {
       "candid": "src/dappcon_backend/dappcon_backend.did",
       "package": "dappcon_backend",
-      "type": "rust"
+      "type": "rust",
+      "dependencies": ["evm_rpc"]
+    },
+    "evm_rpc": {
+      "type": "pull",
+      "id": "7hfb6-caaaa-aaaar-qadga-cai"
     }
   },
   "defaults": {

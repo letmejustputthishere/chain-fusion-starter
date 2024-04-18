@@ -1,0 +1,13 @@
+{
+  "canisters": {
+    "7hfb6-caaaa-aaaar-qadga-cai": {
+      "name": "evm_rpc",
+      "wasm_hash": "4634ff3b558f9299595ef10f0dedb02c271422d089cc335275968bf2fb97c64c",
+      "wasm_hash_download": "4634ff3b558f9299595ef10f0dedb02c271422d089cc335275968bf2fb97c64c",
+      "init_guide": "Number of nodes in the subnet, e.g. '(record {nodesInSubnet = 28})'",
+      "init_arg": null,
+      "candid_args": "(InitArgs)",
+      "gzip": true
+    }
+  }
+}
