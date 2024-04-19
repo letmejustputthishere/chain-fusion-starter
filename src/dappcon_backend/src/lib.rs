@@ -4,14 +4,14 @@ mod fees;
 mod guard;
 mod job;
 mod lifecycle;
-mod logs;
+mod eth_logs;
 mod state;
 mod storage;
 mod transaction;
 
 use std::time::Duration;
 
-use logs::scrape_eth_logs;
+use eth_logs::scrape_eth_logs;
 
 use ic_canisters_http_types::{HttpRequest, HttpResponse, HttpResponseBuilder};
 use ic_cdk::println;
