@@ -1,13 +1,14 @@
+mod eth_logs;
 mod evm_rpc;
 mod evm_signer;
 mod fees;
 mod guard;
 mod job;
 mod lifecycle;
-mod eth_logs;
 mod state;
 mod storage;
-mod transaction;
+mod transactions;
+mod utils;
 
 use std::time::Duration;
 
@@ -60,7 +61,7 @@ async fn transfer_eth(value: u128, to: String) {
         ic_cdk::trap("only the controller can send transactions");
     }
     println!("transfer_eth: value={}, to={}", value, to);
-    transaction::transfer_eth_from_canister(value, to).await;
+    transactions::transfer_eth_from_canister(value, to).await;
 }
 
 #[ic_cdk::query]
