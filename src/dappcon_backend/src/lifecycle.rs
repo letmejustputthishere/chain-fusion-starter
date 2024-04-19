@@ -54,7 +54,7 @@ impl TryFrom<InitArg> for State {
             ecdsa_pub_key: None,
             ecdsa_key_id,
             evm_address: None,
-            nonce: 1,
+            nonce: 0,
         };
         Ok(state)
     }

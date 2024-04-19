@@ -6,8 +6,7 @@ use ethers_core::types::{Bytes, Signature};
 use ethers_core::utils::keccak256;
 
 use ic_cdk::api::management_canister::ecdsa::{
-    ecdsa_public_key, sign_with_ecdsa, EcdsaPublicKeyArgument,
-    SignWithEcdsaArgument,
+    ecdsa_public_key, sign_with_ecdsa, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
 use serde::Serialize;
 use std::str::FromStr;
@@ -26,13 +25,14 @@ pub struct SignatureReply {
 
 #[derive(Deserialize)]
 pub struct SignRequest {
-    pub chain_id: u64,
-    pub to: String,
-    pub gas: U256,
-    pub max_fee_per_gas: U256,
-    pub max_priority_fee_per_gas: U256,
-    pub value: U256,
-    pub nonce: U256,
+    pub chain_id: Option<U64>,
+    pub from: Option<String>,
+    pub to: Option<String>,
+    pub gas: Option<U256>,
+    pub max_fee_per_gas: Option<U256>,
+    pub max_priority_fee_per_gas: Option<U256>,
+    pub value: Option<U256>,
+    pub nonce: Option<U256>,
     pub data: Option<Vec<u8>>,
 }
 
@@ -55,20 +55,22 @@ pub async fn sign_transaction(req: SignRequest) -> String {
     let data = req.data.as_ref().map(|d| Bytes::from(d.clone()));
 
     let tx = Eip1559TransactionRequest {
-        chain_id: Some(U64::from(req.chain_id)),
-        from: None,
-        to: Some(
-            Address::from_str(&req.to)
-                .expect("failed to parse the destination address")
-                .into(),
-        ),
-        gas: Some(req.gas),
-        value: Some(req.value),
-        nonce: Some(req.nonce),
+        from: req
+            .from
+            .map(|from| Address::from_str(&from).expect("failed to parse the source address")),
+        to: req.to.map(|from| {
+            Address::from_str(&from)
+                .expect("failed to parse the source address")
+                .into()
+        }),
+        gas: req.gas,
+        value: req.value,
         data,
+        nonce: req.nonce,
         access_list: Default::default(),
-        max_priority_fee_per_gas: Some(req.max_priority_fee_per_gas),
-        max_fee_per_gas: Some(req.max_fee_per_gas),
+        max_priority_fee_per_gas: req.max_priority_fee_per_gas,
+        max_fee_per_gas: req.max_fee_per_gas,
+        chain_id: req.chain_id,
     };
 
     let mut unsigned_tx_bytes = tx.rlp().to_vec();

@@ -1,7 +1,7 @@
 use candid::Nat;
-use ethers_core::types::U256;
+use ethers_core::types::{U256, U64};
 use ic_cdk::println;
-use std::ops::Add;
+use serde_bytes::ByteBuf;
 
 use crate::{
     evm_rpc::{
@@ -14,24 +14,46 @@ use crate::{
 };
 
 pub async fn transfer_eth_from_canister(value: u128, to: String) {
-    let fee_history = fees::fee_history(Nat::from(10u32), BlockTag::Latest, None).await;
-    let base_fee = fee_history.baseFeePerGas.last().unwrap().clone();
+    // we are setting the `max_priority_fee_per_gas` based on this article:
+    // https://docs.alchemy.com/docs/maxpriorityfeepergas-vs-maxfeepergas
+    // following this logic, the base fee will be derived from the block history automatically
+    // and we only specify the maximum priority fee per gas (tip).
+    // the tip is derived from the fee history of the last 9 blocks, more specifically
+    // from the 95th percentile of the tip.
+    let mut fee_history = fees::fee_history(
+        Nat::from(9u32),
+        BlockTag::Latest,
+        Some(ByteBuf::from(vec![95])),
+    )
+    .await;
 
-    let max_priority_fee_per_gas = 100u32;
-    let max_fee_per_gas = base_fee.add(max_priority_fee_per_gas).0;
+    // obtain the 95th percentile of the tips for the past 9 blocks
+    let percentile_95 = fee_history
+        .reward
+        .first_mut()
+        .expect("the rewards should be present as we supply the 95th percentile to `fee_history`");
+    // sort the tips in ascending order
+    percentile_95.sort_unstable();
+    // get the median by accessing the element in the middle
+    let max_priority_fee_per_gas = percentile_95
+        .get(4)
+        .expect("the 95th percentile should have 9 elements");
 
     let nonce = read_state(|s| s.nonce);
     let rpc_providers = read_state(|s| s.rpc_services.clone());
 
     let req = SignRequest {
-        chain_id: rpc_providers.chain_id(),
-        to,
-        gas: U256::from(50000),
-        max_fee_per_gas: U256::from(u128::try_from(max_fee_per_gas).unwrap()),
-        max_priority_fee_per_gas: U256::from(max_priority_fee_per_gas),
+        chain_id: Some(rpc_providers.chain_id()),
+        to: Some(to),
+        from: None,
+        gas: Some(U256::from(21000)),
+        max_fee_per_gas: None,
+        max_priority_fee_per_gas: Some(U256::from_big_endian(
+            &max_priority_fee_per_gas.0.to_bytes_be(),
+        )),
         data: None,
-        value: U256::from(value),
-        nonce: U256::from(nonce),
+        value: Some(U256::from(value)),
+        nonce: Some(U256::from(nonce)),
     };
 
     let tx = evm_signer::sign_transaction(req).await;
@@ -83,14 +105,14 @@ pub async fn send_raw_transaction(tx: String) -> SendRawTransactionStatus {
 }
 
 impl RpcServices {
-    pub fn chain_id(&self) -> u64 {
+    pub fn chain_id(&self) -> U64 {
         match self {
-            RpcServices::EthSepolia(_) => 11155111,
+            RpcServices::EthSepolia(_) => U64::from(11155111),
             RpcServices::Custom {
                 chainId,
                 services: _,
-            } => *chainId,
-            RpcServices::EthMainnet(_) => 1,
+            } => U64::from(*chainId),
+            RpcServices::EthMainnet(_) => U64::from(1),
         }
     }
 }
