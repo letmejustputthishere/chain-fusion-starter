@@ -175,10 +175,11 @@ pub async fn scrape_eth_logs() {
 
 async fn update_last_observed_block_number() -> Option<Nat> {
     let rpc_providers = read_state(|s| s.rpc_services.clone());
+    let block_tag = read_state(|s| s.block_tag.clone());
 
     let cycles = 10_000_000_000;
     let (result,) = EVM_RPC
-        .eth_get_block_by_number(rpc_providers, None, BlockTag::Finalized, cycles)
+        .eth_get_block_by_number(rpc_providers, None, block_tag, cycles)
         .await
         .expect("Call failed");
 

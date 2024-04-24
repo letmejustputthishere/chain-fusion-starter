@@ -1,0 +1,4 @@
+localhost:8546 {
+  tls internal
+  reverse_proxy localhost:8545
+}

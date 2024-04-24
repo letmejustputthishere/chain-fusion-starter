@@ -1,4 +1,4 @@
-use crate::evm_rpc::{LogEntry, RpcServices};
+use crate::evm_rpc::{BlockTag, LogEntry, RpcServices};
 use crate::storage::AssetKey;
 
 use candid::Nat;
@@ -26,6 +26,7 @@ pub struct State {
     pub ecdsa_key_id: EcdsaKeyId,
     pub evm_address: Option<String>,
     pub nonce: u128,
+    pub block_tag: BlockTag,
 }
 
 #[derive(Debug, Eq, PartialEq)]

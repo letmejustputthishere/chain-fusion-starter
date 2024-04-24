@@ -266,6 +266,7 @@ dependencies = [
  "minicbor-derive",
  "serde",
  "serde_bytes",
+ "serde_json",
 ]
 
 [[package]]
