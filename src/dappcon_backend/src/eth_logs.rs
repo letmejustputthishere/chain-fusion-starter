@@ -25,23 +25,9 @@ async fn process_logs() {
 
     let logs_to_process = read_state(|s| (s.logs_to_process.clone()));
 
-    let mut error_count = 0;
-
     for (event_source, event) in logs_to_process {
         println!("running job");
-        match job(event_source, event).await {
-            Ok(()) => {}
-            Err(()) => {
-                error_count += 1;
-            }
-        }
-    }
-
-    if error_count > 0 {
-        println!("Failed to mint {error_count} events, rescheduling the minting");
-        ic_cdk_timers::set_timer(crate::PROCESS_LOGS_RETRY_DELAY, move || {
-            ic_cdk::spawn(process_logs())
-        });
+        job(event_source, event).await
     }
 }
 

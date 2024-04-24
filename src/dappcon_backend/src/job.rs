@@ -11,7 +11,7 @@ use crate::{
 };
 use std::str::FromStr;
 
-pub async fn job(event_source: LogSource, event: LogEntry) -> Result<(), ()> {
+pub async fn job(event_source: LogSource, event: LogEntry) {
     mutate_state(|s| s.record_processed_log(event_source.clone()));
     let mint_event = MintEvent::from(event);
     println!("{:?}", &mint_event);
@@ -34,7 +34,6 @@ pub async fn job(event_source: LogSource, event: LogEntry) -> Result<(), ()> {
             body: byte_vec,
         },
     );
-    Ok(())
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]

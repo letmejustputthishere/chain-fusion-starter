@@ -1,5 +1,4 @@
 use crate::evm_rpc::{BlockTag, LogEntry, RpcServices};
-use crate::storage::AssetKey;
 
 use candid::Nat;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
@@ -94,12 +93,6 @@ impl LogEntry {
 pub struct LogSource {
     pub transaction_hash: String,
     pub log_index: Nat,
-}
-
-impl LogSource {
-    pub fn to_asset_key(&self) -> AssetKey {
-        format!("/{}-{}", self.transaction_hash, self.log_index)
-    }
 }
 
 pub fn read_state<R>(f: impl FnOnce(&State) -> R) -> R {
