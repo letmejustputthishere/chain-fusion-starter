@@ -11,6 +11,8 @@ use crate::{
     utils,
 };
 
+const MIN_SUGGEST_MAX_PRIORITY_FEE_PER_GAS: u32 = 1_500_000_000;
+
 pub async fn fee_history(
     block_count: Nat,
     newest_block: BlockTag,
@@ -67,15 +69,8 @@ pub async fn estimate_transaction_fees(block_count: u8) -> FeeEstimates {
 
     let median_index = median_index(block_count.into());
 
-    // baseFeePerGas median over the past 9 blocks
-    let mut base_fee_per_gas = fee_history.baseFeePerGas;
-    // sort the base fees in ascending order
-    base_fee_per_gas.sort_unstable();
-    // get the median by accessing the element in the middle
-    let base_fee = base_fee_per_gas
-        .get(median_index)
-        .expect("the base_fee_per_gas should have 9 elements")
-        .clone();
+    // baseFeePerGas
+    let base_fee_per_gas = fee_history.baseFeePerGas.last().unwrap().clone();
 
     // obtain the 95th percentile of the tips for the past 9 blocks
     let mut percentile_95: Vec<Nat> = fee_history
@@ -86,15 +81,18 @@ pub async fn estimate_transaction_fees(block_count: u8) -> FeeEstimates {
     // sort the tips in ascending order
     percentile_95.sort_unstable();
     // get the median by accessing the element in the middle
-    let max_priority_fee_per_gas = percentile_95
+    let median_reward = percentile_95
         .get(median_index)
         .expect("the 95th percentile should have 9 elements")
         .clone();
 
-    let max_fee_per_gas = max_priority_fee_per_gas.clone().add(base_fee);
+    let max_priority_fee_per_gas = median_reward
+        .clone()
+        .add(base_fee_per_gas)
+        .max(Nat::from(MIN_SUGGEST_MAX_PRIORITY_FEE_PER_GAS));
 
     FeeEstimates {
-        max_fee_per_gas: utils::nat_to_u256(&max_fee_per_gas),
-        max_priority_fee_per_gas: utils::nat_to_u256(&max_priority_fee_per_gas),
+        max_fee_per_gas: utils::nat_to_u256(&max_priority_fee_per_gas),
+        max_priority_fee_per_gas: utils::nat_to_u256(&median_reward),
     }
 }
