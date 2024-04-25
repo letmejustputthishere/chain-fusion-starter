@@ -1,13 +1,16 @@
+pub mod distribution;
+mod generators;
 use std::fmt;
 
 use ethers_core::types::{Address, U256};
-use ic_cdk::println;
-use serde_json::{json, to_vec};
+use ic_cdk::{api::management_canister::main::raw_rand, println};
+use rand::SeedableRng;
+use rand_chacha::ChaCha20Rng;
 
 use crate::{
     evm_rpc::LogEntry,
+    job::generators::{generate_and_store_image, generate_and_store_metadata, generate_attributes},
     state::{mutate_state, LogSource},
-    storage::store_asset,
 };
 use std::str::FromStr;
 
@@ -15,25 +18,22 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     mutate_state(|s| s.record_processed_log(event_source.clone()));
     let mint_event = MintEvent::from(event);
     println!("{:?}", &mint_event);
-    // create JSON metadata with serde_json
-    let metadata = json!({
-        "name": format!("Motoko #{}", mint_event.token_id),
-        "image": format!("https://{}.raw.icp0.io/{}.png",ic_cdk::id().to_text(), &mint_event.token_id),
-    });
-    // Serialize the JSON value to a Vec<u8>
-    let byte_vec: Vec<u8> = match to_vec(&metadata) {
-        Ok(vec) => vec,
-        Err(_) => {
-            ic_cdk::trap("Failed to serialize JSON");
-        }
-    };
-    store_asset(
-        format!("/{}", mint_event.token_id),
-        crate::storage::Asset {
-            headers: vec![(String::from("Content-Type"), String::from("text/json"))],
-            body: byte_vec,
-        },
-    );
+    let random_bytes = get_random_bytes().await;
+    let mut rng = ChaCha20Rng::from_seed(random_bytes);
+    let attributes = generate_attributes(&mut rng);
+    generate_and_store_metadata(&mint_event, &attributes);
+    generate_and_store_image(&mint_event, &attributes);
+}
+
+async fn get_random_bytes() -> [u8; 32] {
+    let (raw_rand,): (Vec<u8>,) = raw_rand()
+        .await
+        // TODO: make sure its safe to trap here
+        .unwrap_or_else(|_e| ic_cdk::trap("call to raw_rand failed"));
+    let raw_rand_32_bytes: [u8; 32] = raw_rand
+        .try_into()
+        .unwrap_or_else(|_e| panic!("raw_rand not 32 bytes"));
+    raw_rand_32_bytes
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]

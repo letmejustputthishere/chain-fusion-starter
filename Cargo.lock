@@ -264,9 +264,12 @@ dependencies = [
  "ic-stable-structures",
  "minicbor",
  "minicbor-derive",
+ "rand",
+ "rand_chacha",
  "serde",
  "serde_bytes",
  "serde_json",
+ "svg",
 ]
 
 [[package]]
@@ -1402,6 +1405,12 @@ name = "subtle"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
+
+[[package]]
+name = "svg"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "700efb40f3f559c23c18b446e8ed62b08b56b2bb3197b36d57e0470b4102779e"
 
 [[package]]
 name = "syn"

@@ -1,13 +1,36 @@
-# Checking if any process is listening on port 8545 (default for anvil)
-if lsof -i :8545 | grep -q ":8545 "; then
-    echo "Anvil is running."
+#!/bin/bash
+
+# Find process IDs listening on port 8545 (anvil)
+anvil=$(lsof -t -i:8545)
+
+# Check if any PIDs were found
+if [ -z "$anvil" ]; then
+    echo "Anvil not running."
 else
-    echo "Anvil is not running."
-    exit 1  # Exit with a status code of 1, indicating an error
+    # Kill the processes
+    kill $anvil && echo "Terminated running Anvil process."
+    sleep 3
 fi
+
+# start anvil with slots in an epoch send to 1 for faster finalised blocks
+anvil --slots-in-an-epoch 1 &
+# kill caddyserver
+caddy stop
+# start caddyserver
+caddy start
 # deploy the contract and mint one nft
 forge script script/NFT.s.sol:MyScript --fork-url http://localhost:8545 --broadcast
 dfx stop
+# Find process IDs listening on port 4943 (dfx)
+dfx=$(lsof -t -i:4943)
+# Check if any PIDs were found
+if [ -z "$dfx" ]; then
+    echo "dfx not running."
+else
+    # Kill the processes
+    kill $dfx && echo "Terminating running dfx instance."
+    sleep 3
+fi
 dfx start --clean --background
 dfx ledger fabricate-cycles --icp 10000 --canister $(dfx identity get-wallet)
 dfx deps pull                                                              
