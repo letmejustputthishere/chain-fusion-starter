@@ -7,12 +7,15 @@ use crate::{
         SendRawTransactionStatus, EVM_RPC,
     },
     evm_signer::{self, SignRequest},
-    fees,
+    fees::{self, FeeEstimates},
     state::{mutate_state, read_state},
 };
 
 pub async fn transfer_eth_from_canister(value: u128, to: String) {
-    let (max_fee_per_gas, max_priority_fee_per_gas) = fees::estimate_transaction_fees().await;
+    let FeeEstimates {
+        max_fee_per_gas,
+        max_priority_fee_per_gas,
+    } = fees::estimate_transaction_fees(9).await;
     let nonce = read_state(|s| s.nonce);
     let rpc_providers = read_state(|s| s.rpc_services.clone());
 

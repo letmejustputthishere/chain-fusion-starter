@@ -14,13 +14,13 @@ use crate::{
 pub async fn fee_history(
     block_count: Nat,
     newest_block: BlockTag,
-    reward_percentiles: Option<ByteBuf>,
+    reward_percentiles: Option<Vec<u8>>,
 ) -> FeeHistory {
     let rpc_providers = read_state(|s| s.rpc_services.clone());
     let fee_history_args: FeeHistoryArgs = FeeHistoryArgs {
         blockCount: block_count,
         newestBlock: newest_block,
-        rewardPercentiles: reward_percentiles,
+        rewardPercentiles: reward_percentiles.map(ByteBuf::from),
     };
 
     let cycles = 10_000_000_000;
@@ -44,19 +44,28 @@ pub async fn fee_history(
     }
 }
 
-pub async fn estimate_transaction_fees() -> (U256, U256) {
+pub struct FeeEstimates {
+    pub max_fee_per_gas: U256,
+    pub max_priority_fee_per_gas: U256,
+}
+
+fn median_index(length: usize) -> usize {
+    if length == 0 {
+        panic!("Cannot find a median index for an array of length zero.");
+    }
+    (length - 1) / 2
+}
+
+pub async fn estimate_transaction_fees(block_count: u8) -> FeeEstimates {
     // we are setting the `max_priority_fee_per_gas` based on this article:
     // https://docs.alchemy.com/docs/maxpriorityfeepergas-vs-maxfeepergas
     // following this logic, the base fee will be derived from the block history automatically
     // and we only specify the maximum priority fee per gas (tip).
     // the tip is derived from the fee history of the last 9 blocks, more specifically
     // from the 95th percentile of the tip.
-    let fee_history = fee_history(
-        Nat::from(9u32),
-        BlockTag::Latest,
-        Some(ByteBuf::from(vec![95])),
-    )
-    .await;
+    let fee_history = fee_history(Nat::from(block_count), BlockTag::Latest, Some(vec![95])).await;
+
+    let median_index = median_index(block_count.into());
 
     // baseFeePerGas median over the past 9 blocks
     let mut base_fee_per_gas = fee_history.baseFeePerGas;
@@ -64,7 +73,7 @@ pub async fn estimate_transaction_fees() -> (U256, U256) {
     base_fee_per_gas.sort_unstable();
     // get the median by accessing the element in the middle
     let base_fee = base_fee_per_gas
-        .get(4)
+        .get(median_index)
         .expect("the base_fee_per_gas should have 9 elements")
         .clone();
 
@@ -78,14 +87,14 @@ pub async fn estimate_transaction_fees() -> (U256, U256) {
     percentile_95.sort_unstable();
     // get the median by accessing the element in the middle
     let max_priority_fee_per_gas = percentile_95
-        .get(4)
+        .get(median_index)
         .expect("the 95th percentile should have 9 elements")
         .clone();
 
     let max_fee_per_gas = max_priority_fee_per_gas.clone().add(base_fee);
 
-    (
-        utils::nat_to_u256(&max_fee_per_gas),
-        utils::nat_to_u256(&max_priority_fee_per_gas),
-    )
+    FeeEstimates {
+        max_fee_per_gas: utils::nat_to_u256(&max_fee_per_gas),
+        max_priority_fee_per_gas: utils::nat_to_u256(&max_priority_fee_per_gas),
+    }
 }
