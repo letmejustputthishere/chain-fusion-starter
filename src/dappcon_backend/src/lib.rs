@@ -22,7 +22,6 @@ use state::read_state;
 use crate::state::{mutate_state, State, STATE};
 
 pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(3 * 60);
-pub const PROCESS_LOGS_RETRY_DELAY: Duration = Duration::from_secs(3 * 60);
 
 fn setup_timers() {
     // // Start scraping logs immediately after the install, then repeat with the interval.

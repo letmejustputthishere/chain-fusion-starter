@@ -4,7 +4,8 @@
       "candid": "src/dappcon_backend/dappcon_backend.did",
       "package": "dappcon_backend",
       "type": "rust",
-      "dependencies": ["evm_rpc"]
+      "dependencies": ["evm_rpc"],
+      "specified_id": "2222s-4iaaa-aaaaf-ax2uq-cai"
     },
     "evm_rpc": {
       "type": "pull",

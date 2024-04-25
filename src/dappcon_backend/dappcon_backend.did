@@ -1,3 +1,11 @@
+type BlockTag = variant {
+  Earliest;
+  Safe;
+  Finalized;
+  Latest;
+  Number : nat;
+  Pending;
+};
 type EcdsaCurve = variant { secp256k1 };
 type EcdsaKeyId = record { name : text; curve : EcdsaCurve };
 type EthMainnetService = variant {
@@ -25,6 +33,7 @@ type InitArg = record {
   get_logs_topics : opt vec vec text;
   last_scraped_block_number : nat;
   rpc_services : RpcServices;
+  block_tag : BlockTag;
   get_logs_address : vec text;
 };
 type RpcApi = record { url : text; headers : opt vec HttpHeader };

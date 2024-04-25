@@ -25,23 +25,9 @@ async fn process_logs() {
 
     let logs_to_process = read_state(|s| (s.logs_to_process.clone()));
 
-    let mut error_count = 0;
-
     for (event_source, event) in logs_to_process {
         println!("running job");
-        match job(event_source, event).await {
-            Ok(()) => {}
-            Err(()) => {
-                error_count += 1;
-            }
-        }
-    }
-
-    if error_count > 0 {
-        println!("Failed to mint {error_count} events, rescheduling the minting");
-        ic_cdk_timers::set_timer(crate::PROCESS_LOGS_RETRY_DELAY, move || {
-            ic_cdk::spawn(process_logs())
-        });
+        job(event_source, event).await
     }
 }
 
@@ -175,10 +161,11 @@ pub async fn scrape_eth_logs() {
 
 async fn update_last_observed_block_number() -> Option<Nat> {
     let rpc_providers = read_state(|s| s.rpc_services.clone());
+    let block_tag = read_state(|s| s.block_tag.clone());
 
     let cycles = 10_000_000_000;
     let (result,) = EVM_RPC
-        .eth_get_block_by_number(rpc_providers, None, BlockTag::Finalized, cycles)
+        .eth_get_block_by_number(rpc_providers, None, block_tag, cycles)
         .await
         .expect("Call failed");
 

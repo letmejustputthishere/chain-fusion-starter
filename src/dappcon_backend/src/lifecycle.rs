@@ -5,7 +5,7 @@ use ethers_core::types::H256;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::str::FromStr;
 
-use crate::evm_rpc::RpcServices;
+use crate::evm_rpc::{BlockTag, RpcServices};
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct InitArg {
@@ -14,6 +14,7 @@ pub struct InitArg {
     pub get_logs_topics: Option<Vec<Vec<String>>>,
     pub last_scraped_block_number: Nat,
     pub ecdsa_key_id: EcdsaKeyId,
+    pub block_tag: BlockTag,
 }
 
 impl TryFrom<InitArg> for State {
@@ -26,6 +27,7 @@ impl TryFrom<InitArg> for State {
             get_logs_topics,
             last_scraped_block_number,
             ecdsa_key_id,
+            block_tag,
         }: InitArg,
     ) -> Result<Self, Self::Error> {
         // validate contract addresses
@@ -55,6 +57,7 @@ impl TryFrom<InitArg> for State {
             ecdsa_key_id,
             evm_address: None,
             nonce: 0,
+            block_tag,
         };
         Ok(state)
     }

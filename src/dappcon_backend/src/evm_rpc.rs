@@ -63,7 +63,7 @@ pub struct RpcConfig {
     pub responseSizeEstimate: Option<u64>,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum BlockTag {
     Earliest,
     Safe,
