@@ -1,4 +1,3 @@
-use candid::CandidType;
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
     storable::Bound,
@@ -19,7 +18,7 @@ type HeaderField = (String, String);
 type Headers = Vec<HeaderField>;
 type Bytes = Vec<u8>;
 
-#[derive(CandidType, Clone, Deserialize, PartialEq, Debug, Encode, Decode)]
+#[derive(Clone, Deserialize, PartialEq, Debug, Encode, Decode)]
 pub struct Asset {
     #[n(0)]
     pub headers: Headers,

@@ -1,5 +1,3 @@
-use candid::{CandidType, Deserialize};
-
 use ethers_core::abi::ethereum_types::{Address, U256, U64};
 use ethers_core::types::transaction::eip1559::Eip1559TransactionRequest;
 use ethers_core::types::{Bytes, Signature};
@@ -8,22 +6,10 @@ use ethers_core::utils::keccak256;
 use ic_cdk::api::management_canister::ecdsa::{
     ecdsa_public_key, sign_with_ecdsa, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
-use serde::Serialize;
 use std::str::FromStr;
 
 use crate::state::read_state;
 
-#[derive(CandidType, Serialize, Debug)]
-pub struct PublicKeyReply {
-    pub public_key: Vec<u8>,
-}
-
-#[derive(CandidType, Serialize, Debug)]
-pub struct SignatureReply {
-    pub signature: Vec<u8>,
-}
-
-#[derive(Deserialize)]
 pub struct SignRequest {
     pub chain_id: Option<U64>,
     pub from: Option<String>,
