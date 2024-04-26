@@ -5,7 +5,6 @@ use ic_stable_structures::{
     DefaultMemoryImpl, StableBTreeMap,
 };
 use minicbor_derive::{Decode, Encode};
-use serde::Deserialize;
 use std::borrow::Cow;
 use std::cell::RefCell;
 
@@ -18,7 +17,7 @@ type HeaderField = (String, String);
 type Headers = Vec<HeaderField>;
 type Bytes = Vec<u8>;
 
-#[derive(Clone, Deserialize, PartialEq, Debug, Encode, Decode)]
+#[derive(Clone, PartialEq, Debug, Encode, Decode)]
 pub struct Asset {
     #[n(0)]
     pub headers: Headers,
