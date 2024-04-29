@@ -38,7 +38,7 @@ dfx deploy evm_rpc
 # the `get_logs_address` here. in our case we are listening for mint events,
 # that is transfer events with the `from` field being the zero address.
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
-dfx deploy dappcon_backend --with-cycles 10_000_000_000_000 --argument '(
+dfx deploy chainfusion_backend --with-cycles 10_000_000_000_000 --argument '(
   record {
     ecdsa_key_id = record {
       name = "dfx_test_key";
