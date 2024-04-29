@@ -89,5 +89,5 @@ fn http_request(req: HttpRequest) -> HttpResponse {
     }
 }
 
-// Enable Candid export
+// Enable Candid export, read more [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid/)
 ic_cdk::export_candid!();
