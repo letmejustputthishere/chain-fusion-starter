@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/dappcon_backend"
+    "src/chainfusion_backend"
 ]
 resolver = "2"
