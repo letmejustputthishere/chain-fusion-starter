@@ -49,13 +49,13 @@ impl State {
     pub fn record_processed_log(&mut self, source: LogSource) {
         let log_entry = match self.logs_to_process.remove(&source) {
             Some(event) => event,
-            None => panic!("attempted to mint ckETH for an unknown event {source:?}"),
+            None => panic!("attempted to run job for an unknown event {source:?}"),
         };
 
         assert_eq!(
             self.processed_logs.insert(source.clone(), log_entry),
             None,
-            "attempted to mint ckETH twice for the same event {source:?}"
+            "attempted to run job twice for the same event {source:?}"
         );
     }
 
