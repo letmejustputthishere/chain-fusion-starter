@@ -6,7 +6,7 @@ mod guard;
 mod job;
 mod lifecycle;
 mod state;
-mod storage;
+// mod storage;
 mod transactions;
 mod utils;
 
@@ -14,7 +14,6 @@ use std::time::Duration;
 
 use eth_logs::scrape_eth_logs;
 
-use ic_canisters_http_types::{HttpRequest, HttpResponse, HttpResponseBuilder};
 use ic_cdk::println;
 use lifecycle::InitArg;
 use state::read_state;
@@ -24,9 +23,6 @@ use crate::state::{mutate_state, State, STATE};
 pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(3 * 60);
 
 fn setup_timers() {
-    // // Start scraping logs immediately after the install, then repeat with the interval.
-    ic_cdk_timers::set_timer(Duration::ZERO, || ic_cdk::spawn(scrape_eth_logs()));
-    ic_cdk_timers::set_timer_interval(SCRAPING_LOGS_INTERVAL, || ic_cdk::spawn(scrape_eth_logs()));
     // as timers are synchronous, we need to spawn a new async task to get the public key
     ic_cdk_timers::set_timer(Duration::ZERO, || {
         ic_cdk::spawn(async {
@@ -38,6 +34,9 @@ fn setup_timers() {
             });
         })
     });
+    // // Start scraping logs almost immediately after the install, then repeat with the interval.
+    ic_cdk_timers::set_timer(Duration::from_secs(10), || ic_cdk::spawn(scrape_eth_logs()));
+    ic_cdk_timers::set_timer_interval(SCRAPING_LOGS_INTERVAL, || ic_cdk::spawn(scrape_eth_logs()));
 }
 
 #[ic_cdk::init]
@@ -60,33 +59,7 @@ async fn transfer_eth(value: u128, to: String) {
         ic_cdk::trap("only the controller can send transactions");
     }
     println!("transfer_eth: value={}, to={}", value, to);
-    transactions::transfer_eth_from_canister(value, to).await;
-}
-
-#[ic_cdk::query]
-fn http_request(req: HttpRequest) -> HttpResponse {
-    // disable update calls for this method
-    if ic_cdk::api::data_certificate().is_none() {
-        ic_cdk::trap("update call rejected");
-    }
-
-    // check if the asset is in the stable memory
-    if let Some(asset) = storage::get_asset(&req.path().to_string()) {
-        let mut response_builder = HttpResponseBuilder::ok();
-
-        // Apply headers
-        for (key, value) in asset.headers {
-            response_builder = response_builder.header(key, value);
-        }
-
-        // Set body and content length, then build the response
-        response_builder
-            .with_body_and_content_length(asset.body)
-            .build()
-    } else {
-        // return 404
-        HttpResponseBuilder::not_found().build()
-    }
+    transactions::transfer_eth(value, to).await;
 }
 
 // Enable Candid export, read more [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid/)

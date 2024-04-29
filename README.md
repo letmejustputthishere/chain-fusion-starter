@@ -84,13 +84,42 @@ For more context on how ICP can extend Ethereum, check out [this presentation](h
 
 ### EVM Smart contract
 
-The contract `Coprocessor.sol` emits an event `NewJob` when the `newJob` function is called. The `newJob` function sends all funds to the account controlled by the `chainfusion_backend` canister and emits the event.
+The contract `Coprocessor.sol` emits an event `NewJob` when the `newJob` function is called. The `newJob` function transfers the ETH sent with the call to `newJob` to the account controlled by the `chainfusion_backend` canister and emits the event.
+
+```solidity
+    function newJob() public payable {
+        // Require at least 0.01 ETH to be sent with the call
+        require(msg.value >= 0.01 ether, "Minimum 0.01 ETH not met");
+
+        // Forward the ETH received to the coprocessor address
+        // To pay for the submission of the job result back to the EVM 
+        // contract.
+        (bool success, ) = coprocessor.call{value: msg.value}("");
+        require(success, "Failed to send Ether");
+
+        // Emit the new job event
+        emit NewJob(job_id);
+
+        // Increment job counter
+        job_id++;
+    }
+```
 
 The contract also has a `callback` function that can only be called by the `chainfusion_backend` canister. This function is called by the `chainfusion_backend` canister to send the results of the processing back to the contract.
 
+```solidity
+    function callback(string calldata _result, uint256 _job_id) public {
+        require(
+            msg.sender == coprocessor,
+            "Only the coprocessor can call this function"
+        );
+        jobs[_job_id] = _result;
+    }
+```
+
 The source code of the contract can be found in `src/foundry/Coprocessor.sol`.
 
-For local deployment of the EVM smart contract and submitting transactions we use [foundry](https://github.com/foundry-rs/foundry). You can take a look at the steps needed to deploy the contract locally in the `deploy.sh` script which runs `script/Coprocessor.s.sol`.
+For local deployment of the EVM smart contract and submitting transactions we use [foundry](https://github.com/foundry-rs/foundry). You can take a look at the steps needed to deploy the contract locally in the `deploy.sh` script which runs `script/Coprocessor.s.sol`. Make sure to check both files to understand the deployment process.
 
 ### Chainfusion canister
 
