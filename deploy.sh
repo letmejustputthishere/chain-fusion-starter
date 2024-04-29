@@ -33,9 +33,7 @@ else
 fi
 dfx start --clean --background
 dfx ledger fabricate-cycles --icp 10000 --canister $(dfx identity get-wallet)
-dfx deps pull                                                              
-dfx deps init evm_rpc --argument '(record { nodesInSubnet = 28 })'
-dfx deps deploy
+dfx deploy evm_rpc
 # because our local NFT contract deployment is deterministic, we can hardcode the 
 # the `get_logs_address` here. in our case we are listening for mint events,
 # that is transfer events with the `from` field being the zero address.

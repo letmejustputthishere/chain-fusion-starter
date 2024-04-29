@@ -1,0 +1,20 @@
+{
+    "name": "Chainfusion",
+    "build": { "dockerfile": "Dockerfile" },
+    "forwardPorts": [4943],
+    "portsAttributes": {
+        "4943": {
+            "label": "dfx",
+            "onAutoForward": "ignore"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dfinity-foundation.vscode-motoko",
+                "tamasfe.even-better-toml",
+                "rust-lang.rust-analyzer"
+            ]
+        }
+    }
+}
