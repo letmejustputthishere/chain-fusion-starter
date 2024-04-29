@@ -20,7 +20,6 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     // Transfer events with the from topic set to the zero address
     // we can safely assume that the event is a mint event.
     let mint_event = MintEvent::from(event);
-    println!("{:?}", &mint_event);
     // we get secure random bytes from the IC to seed the RNG
     // for every mint event.
     // you can read more [here](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/randomness/)
@@ -36,6 +35,7 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     generate_and_store_metadata(&mint_event, &attributes);
     // last, based on the attributes we generate and store the image in the canisters stable memory.
     generate_and_store_image(&mint_event, &attributes);
+    println!("Assets & Metadata successfully generated: http://2222s-4iaaa-aaaaf-ax2uq-cai.localhost:4943/{:?}", &mint_event.token_id);
 }
 
 // This function asynchronously retrieves a random byte array of length 32.
