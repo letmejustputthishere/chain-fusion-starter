@@ -251,7 +251,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "dappcon_backend"
+name = "chainfusion_backend"
 version = "0.1.0"
 dependencies = [
  "candid",
