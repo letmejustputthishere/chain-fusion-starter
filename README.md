@@ -142,6 +142,8 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
 }
 ```
 
+While not in use for this specific example, there is a `src/chainfusion_backend/src/storage.rs` module that can be used to [write data to the canisters stable memory](https://github.com/dfinity/stable-structures/tree/main). This can be useful for storing big amounts of data (up to 400 GiB) in a canister. In our example, it can be used to store assets that are then served from the canister via [HTTP](https://internetcomputer.org/how-it-works/smart-contracts-serve-the-web/).
+
 ## Develop
 
 The Chainfusion canister has been structured in a way that all the coprocessing logic lives in `src/chainfusion_backend/src/job.rs` and developers don't need to recreate or touch the code responsible for fetching new events, creating signatures or sending transactions. They can solely focus on writing jobs to run upon receiving a new event from an EVM smart contract.
@@ -154,7 +156,7 @@ You can find the full flow in the following sequence diagram with Ethereum as an
 
 Here you can find a number of examples leveraging the Chainfusion starter logic:
 
--   On-chain asset and metadata creation for ERC721 NFT contracts
+-   [On-chain asset and metadata creation for ERC721 NFT contracts](https://github.com/letmejustputthishere/chainfusion-nft-creator)
 
 Build your own use-case on top of the Chainfusion starter and [share it with the community](https://github.com/letmejustputthishere/chainfusion-starter/discussions/10)! Some ideas you could explore:
 
