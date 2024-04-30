@@ -2,7 +2,7 @@
 
 ## Get started:
 
-No matter what setup you pick from below, run `./deploys.sh` from the project root to deploy the EVM contract, generate a couple of events and deploy the chainfusion starter canister. To understand the steps involved in deploying the project locally, examine the comments in `deploy.sh`. This script will
+No matter what setup you pick from below, run `./deploys.sh` from the project root to deploy the project. To understand the steps involved in deploying the project locally, examine the comments in `deploy.sh`. This script will
 
 -   start anvil
 -   start dfx
@@ -52,7 +52,7 @@ Here you can find a number of examples leveraging the Chainfusion starter logic:
 
 -   On-chain asset and metadata creation for ERC721 NFT contracts
 
-Build your own use-case on top of the Chainfusion starter and share it with the community! Some ideas you could explore:
+Build your own use-case on top of the Chainfusion starter and [share it with the community](https://github.com/letmejustputthishere/chainfusion-starter/discussions/10)! Some ideas you could explore:
 
 -   A referral canister that distributes rewards to users based on their interactions with an EVM smart contract
 -   A ckNFT canister that mints an NFT on the ICP when an EVM helper smart contract emits an `ReceivedNft`, similar to the [`EthDepositHelper`](https://github.com/dfinity/ic/blob/master/rs/ethereum/cketh/minter/EthDepositHelper.sol) contract the ckETH minter uses. This could enable users to trade NFTs on the ICP without having to pay gas fees on Ethereum.
