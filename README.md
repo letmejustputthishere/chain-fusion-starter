@@ -25,6 +25,14 @@ You can learn more about how to use cast [here](https://book.getfoundry.sh/refer
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/letmejustputthishere/chainfusion-starter/?quickstart=1)
 
+This is the setup we recommend for the codespace
+
+<img width="935" alt="Screenshot 2024-04-30 at 15 32 36" src="https://github.com/letmejustputthishere/chainfusion-starter/assets/32162112/2c008ccf-8b83-49ec-a05d-2c72bb8f4d78">
+
+For the best performance, connect to the codespace from your local VS Code installation. To do this, click on the three dots next to the codespace name and then "Open in Visual Studio Code"
+
+<img width="867" alt="Screenshot 2024-04-30 at 15 40 01" src="https://github.com/letmejustputthishere/chainfusion-starter/assets/32162112/9be72243-5f3e-43f6-9f15-3091bc8d961e">
+
 ### Locally:
 
 Make sure you have you have Docker and VS Code installed and running, then click the button below
