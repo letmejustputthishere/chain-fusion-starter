@@ -7,6 +7,10 @@ RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | t
 RUN apt -yq update
 RUN apt -yqq install --no-install-recommends caddy
 
+RUN rustup install stable
+RUN rustup default stable
+RUN rustup component add clippy
+
 # Install foundry
 RUN curl -L https://foundry.paradigm.xyz | bash
 # has to be in the same RUN as changes made to shell profile do not affect subsequent RUNs
