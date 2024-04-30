@@ -1,5 +1,9 @@
 # [Chainfusion](https://internetcomputer.org/chainfusion) starter
 
+## Join the discussion
+
+[![Join Discussion](https://img.shields.io/github/discussions/letmejustputthishere/chainfusion-starter)](https://github.com/letmejustputthishere/chainfusion-starter/discussions)
+
 ## Get started:
 
 No matter what setup you pick from below, run `./deploys.sh` from the project root to deploy the project. To understand the steps involved in deploying the project locally, examine the comments in `deploy.sh`. This script will
@@ -37,25 +41,6 @@ Run the following commands in a new, empty project directory:
 git clone https://github.com/letmejustputthishere/chainfusion-starter.git # Download this starter project
 cd chainfusion-starter # Navigate to the project directory
 ```
-
-## Develop
-
-The Chainfusion canister has been structured in a way that all the coprocessing logic lives in `src/dappcon_backend/src/job.rs` and developers don't need to recreate or touch the code responsible for fetching new events, creating signatures or sending transactions. They can solely focus on writing jobs to run upon receiving a new event from an EVM smart contract.
-
-You can find the full flow in the following sequence diagram with Ethereum as an example EVM chain (note that this flow can be applied to any EVM chain):
-
-![image](https://github.com/letmejustputthishere/chainfusion-starter/assets/32162112/22272844-016c-43a0-a087-a861e930726c)
-
-## Chainfusion starter use-cases
-
-Here you can find a number of examples leveraging the Chainfusion starter logic:
-
--   On-chain asset and metadata creation for ERC721 NFT contracts
-
-Build your own use-case on top of the Chainfusion starter and [share it with the community](https://github.com/letmejustputthishere/chainfusion-starter/discussions/10)! Some ideas you could explore:
-
--   A referral canister that distributes rewards to users based on their interactions with an EVM smart contract
--   A ckNFT canister that mints an NFT on the ICP when an EVM helper smart contract emits an `ReceivedNft`, similar to the [`EthDepositHelper`](https://github.com/dfinity/ic/blob/master/rs/ethereum/cketh/minter/EthDepositHelper.sol) contract the ckETH minter uses. This could enable users to trade NFTs on the ICP without having to pay gas fees on Ethereum.
 
 ## Overview
 
@@ -156,3 +141,22 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     println!("Successfully ran job #{:?}", &new_job_event.job_id);
 }
 ```
+
+## Develop
+
+The Chainfusion canister has been structured in a way that all the coprocessing logic lives in `src/dappcon_backend/src/job.rs` and developers don't need to recreate or touch the code responsible for fetching new events, creating signatures or sending transactions. They can solely focus on writing jobs to run upon receiving a new event from an EVM smart contract.
+
+You can find the full flow in the following sequence diagram with Ethereum as an example EVM chain (note that this flow can be applied to any EVM chain):
+
+![image](https://github.com/letmejustputthishere/chainfusion-starter/assets/32162112/22272844-016c-43a0-a087-a861e930726c)
+
+## Chainfusion starter use-cases
+
+Here you can find a number of examples leveraging the Chainfusion starter logic:
+
+-   On-chain asset and metadata creation for ERC721 NFT contracts
+
+Build your own use-case on top of the Chainfusion starter and [share it with the community](https://github.com/letmejustputthishere/chainfusion-starter/discussions/10)! Some ideas you could explore:
+
+-   A referral canister that distributes rewards to users based on their interactions with an EVM smart contract
+-   A ckNFT canister that mints an NFT on the ICP when an EVM helper smart contract emits an `ReceivedNft`, similar to the [`EthDepositHelper`](https://github.com/dfinity/ic/blob/master/rs/ethereum/cketh/minter/EthDepositHelper.sol) contract the ckETH minter uses. This could enable users to trade NFTs on the ICP without having to pay gas fees on Ethereum.
