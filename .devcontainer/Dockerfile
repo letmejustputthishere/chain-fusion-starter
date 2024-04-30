@@ -9,6 +9,7 @@ RUN apt -yqq install --no-install-recommends caddy
 
 RUN rustup install stable
 RUN rustup default stable
+RUN rustup target add wasm32-unknown-unknown
 RUN rustup component add clippy
 
 # Install foundry
@@ -16,4 +17,4 @@ RUN curl -L https://foundry.paradigm.xyz | bash
 # has to be in the same RUN as changes made to shell profile do not affect subsequent RUNs
 RUN . ~/.bashrc && foundryup 
 # mark all directories as safe
-RUN git config --global --add safe.directory '*'
+# RUN git config --global --add safe.directory '*'
