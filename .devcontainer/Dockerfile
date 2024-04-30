@@ -17,4 +17,4 @@ RUN curl -L https://foundry.paradigm.xyz | bash
 # has to be in the same RUN as changes made to shell profile do not affect subsequent RUNs
 RUN . ~/.bashrc && foundryup 
 # mark all directories as safe
-# RUN git config --global --add safe.directory '*'
+RUN git config --global --add safe.directory '*'
