@@ -1,7 +1,7 @@
 use crate::state::{InvalidStateError, State};
 use candid::types::number::Nat;
 use candid::{CandidType, Deserialize};
-use ethers_core::types::H256;
+use ethers_core::types::{H256, U256};
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::str::FromStr;
 
@@ -56,7 +56,7 @@ impl TryFrom<InitArg> for State {
             ecdsa_pub_key: None,
             ecdsa_key_id,
             evm_address: None,
-            nonce: 0,
+            nonce: U256::zero(),
             block_tag,
         };
         Ok(state)

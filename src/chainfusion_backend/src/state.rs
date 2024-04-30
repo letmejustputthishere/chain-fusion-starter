@@ -1,6 +1,7 @@
 use crate::evm_rpc::{BlockTag, LogEntry, RpcServices};
 
 use candid::Nat;
+use ethers_core::types::U256;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
@@ -24,7 +25,7 @@ pub struct State {
     pub ecdsa_pub_key: Option<Vec<u8>>,
     pub ecdsa_key_id: EcdsaKeyId,
     pub evm_address: Option<String>,
-    pub nonce: u128,
+    pub nonce: U256,
     pub block_tag: BlockTag,
 }
 

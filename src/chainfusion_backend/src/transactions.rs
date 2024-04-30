@@ -11,27 +11,17 @@ use crate::{
     state::{mutate_state, read_state},
 };
 
-pub async fn transfer_eth_from_canister(value: u128, to: String) {
-    let FeeEstimates {
-        max_fee_per_gas,
-        max_priority_fee_per_gas,
-    } = fees::estimate_transaction_fees(9).await;
-    let nonce = read_state(|s| s.nonce);
-    let rpc_providers = read_state(|s| s.rpc_services.clone());
+pub async fn transfer_eth(value: u128, to: String) {
+    let request = create_sign_request(
+        U256::from(value),
+        Some(to),
+        None,
+        Some(U256::from(21000)),
+        None,
+    )
+    .await;
 
-    let req = SignRequest {
-        chain_id: Some(rpc_providers.chain_id()),
-        to: Some(to),
-        from: None,
-        gas: Some(U256::from(21000)),
-        max_fee_per_gas: Some(max_fee_per_gas),
-        max_priority_fee_per_gas: Some(max_priority_fee_per_gas),
-        data: None,
-        value: Some(U256::from(value)),
-        nonce: Some(U256::from(nonce)),
-    };
-
-    let tx = evm_signer::sign_transaction(req).await;
+    let tx = evm_signer::sign_transaction(request).await;
 
     let status = send_raw_transaction(tx.clone()).await;
 
@@ -41,7 +31,7 @@ pub async fn transfer_eth_from_canister(value: u128, to: String) {
         SendRawTransactionStatus::Ok(transaction_hash) => {
             println!("Success {transaction_hash:?}");
             mutate_state(|s| {
-                s.nonce += 1;
+                s.nonce += U256::from(1);
             });
         }
         SendRawTransactionStatus::NonceTooLow => {
@@ -53,6 +43,33 @@ pub async fn transfer_eth_from_canister(value: u128, to: String) {
         SendRawTransactionStatus::InsufficientFunds => {
             println!("Insufficient funds");
         }
+    }
+}
+
+pub async fn create_sign_request(
+    value: U256,
+    to: Option<String>,
+    from: Option<String>,
+    gas: Option<U256>,
+    data: Option<Vec<u8>>,
+) -> SignRequest {
+    let FeeEstimates {
+        max_fee_per_gas,
+        max_priority_fee_per_gas,
+    } = fees::estimate_transaction_fees(9).await;
+    let nonce = read_state(|s| s.nonce);
+    let rpc_providers = read_state(|s| s.rpc_services.clone());
+
+    SignRequest {
+        chain_id: Some(rpc_providers.chain_id()),
+        to,
+        from,
+        gas,
+        max_fee_per_gas: Some(max_fee_per_gas),
+        max_priority_fee_per_gas: Some(max_priority_fee_per_gas),
+        data,
+        value: Some(value),
+        nonce: Some(nonce),
     }
 }
 
