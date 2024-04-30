@@ -11,7 +11,5 @@ RUN apt -yqq install --no-install-recommends caddy
 RUN curl -L https://foundry.paradigm.xyz | bash
 # has to be in the same RUN as changes made to shell profile do not affect subsequent RUNs
 RUN . ~/.bashrc && foundryup 
-# install dependencies
-RUN . ~/.bashrc forge install
 # mark all directories as safe
 RUN git config --global --add safe.directory '*'

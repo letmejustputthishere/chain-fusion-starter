@@ -62,5 +62,7 @@ dfx deploy chainfusion_backend --with-cycles 10_000_000_000_000 --argument '(
 sleep 3
 # safe the chainfusion canisters evm address
 export EVM_ADDRESS=$(dfx canister call chainfusion_backend get_evm_address | awk -F'"' '{print $2}')
+# install dependencies
+forge install
 # deploy the contract passing the chainfusion canisters evm address to receive the fees and create a couple of new jobs
 forge script script/Coprocessor.s.sol:MyScript --fork-url http://localhost:8545 --broadcast --sig "run(address)" $EVM_ADDRESS
