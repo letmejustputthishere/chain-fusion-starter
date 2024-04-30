@@ -16,6 +16,9 @@
                 "rust-lang.rust-analyzer",
                 "JuanBlanco.solidity"
             ]
+        },
+        "codespaces": {
+            "openFiles": ["README.md"]
         }
     }
 }
