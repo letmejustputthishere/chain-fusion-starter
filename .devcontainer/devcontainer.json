@@ -13,7 +13,8 @@
             "extensions": [
                 "dfinity-foundation.vscode-motoko",
                 "tamasfe.even-better-toml",
-                "rust-lang.rust-analyzer"
+                "rust-lang.rust-analyzer",
+                "JuanBlanco.solidity"
             ]
         }
     }
