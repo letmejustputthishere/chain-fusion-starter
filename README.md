@@ -144,7 +144,7 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
 
 ## Develop
 
-The Chainfusion canister has been structured in a way that all the coprocessing logic lives in `src/dappcon_backend/src/job.rs` and developers don't need to recreate or touch the code responsible for fetching new events, creating signatures or sending transactions. They can solely focus on writing jobs to run upon receiving a new event from an EVM smart contract.
+The Chainfusion canister has been structured in a way that all the coprocessing logic lives in `src/chainfusion_backend/src/job.rs` and developers don't need to recreate or touch the code responsible for fetching new events, creating signatures or sending transactions. They can solely focus on writing jobs to run upon receiving a new event from an EVM smart contract.
 
 You can find the full flow in the following sequence diagram with Ethereum as an example EVM chain (note that this flow can be applied to any EVM chain):
 
