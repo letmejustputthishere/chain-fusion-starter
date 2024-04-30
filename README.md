@@ -44,7 +44,7 @@ cd chainfusion-starter # Navigate to the project directory
 
 ## Overview
 
-This project demonstrates how to use the Internet Computer as a coprocessor for EVM smart contracts. The coprocessor listens to events emitted by an EVM smart contract, processes them, and optionally sends the results back. Note that way say EVM smart contracts, as you can not only interact with the Ethereum network, but other networks that are using the Ethereum Virtual Machine (EVM), such as Polygon and Avalanche.
+This project demonstrates how to use the Internet Computer as a coprocessor for EVM smart contracts. The coprocessor listens to events emitted by an EVM smart contract, processes them, and optionally sends the results back. Note that we say EVM smart contracts, as you can not only interact with the Ethereum network, but other networks that are using the Ethereum Virtual Machine (EVM), such as Polygon and Avalanche.
 
 This is an early project and should be considered as a proof of concept. It is not production-ready and should not be used in production environments. There are quite some TODOs in the code which will be addressed over time. If you have any questions or suggestions, feel free to open an issue, start a [discussion](https://github.com/letmejustputthishere/chainfusion-starter/discussions) or reach out to me on the [DFINITY Developer Forum](https://forum.dfinity.org/u/cryptoschindler/summary) or [X](https://twitter.com/cryptoschindler).
 
@@ -82,7 +82,7 @@ For more context on how ICP can extend Ethereum, check out [this presentation](h
 
 ### EVM Smart contract
 
-The contract `Coprocessor.sol` emits an event `NewJob` when the `newJob` function is called. The `newJob` function transfers the ETH sent with the call to `newJob` to the account controlled by the `chainfusion_backend` canister and emits the event. We send ETH to the `chainfusion_backend` canister to pay for the processing of the job result and the transaction fees for sending the result back to the EVM smart contract.
+The contract `src/foundry/Coprocessor.sol` emits an event `NewJob` when the `newJob` function is called. The `newJob` function transfers the ETH sent with the call to `newJob` to the account controlled by the `chainfusion_backend` canister and emits the event. We send ETH to the `chainfusion_backend` canister to pay for the processing of the job result and the transaction fees for sending the result back to the EVM smart contract.
 
 ```solidity
     function newJob() public payable {
