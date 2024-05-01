@@ -6,10 +6,6 @@
 
 ## Get started:
 
-> [!WARNING]
-> Please first click the green "Use this template" button in the upper right corner and then "Create a new repository" before proceeding with the following steps.
-> Foundry relies on Git submodules to manage dependencies and they don't work well with GitHub repository templates and codespaces.
-
 No matter what setup you pick from below, run `./deploys.sh` from the project root to deploy the project. To understand the steps involved in deploying the project locally, examine the comments in `deploy.sh`. This script will
 
 -   start anvil
@@ -27,7 +23,11 @@ You can learn more about how to use cast [here](https://book.getfoundry.sh/refer
 
 ### In the cloud:
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/letmejustputthishere/chainfusion-starter/?quickstart=1)
+> [!WARNING]
+> Please first click the green "Use this template" button in the upper right corner and then "Create a new repository" before proceeding with the following steps.
+> Foundry relies on Git submodules to manage dependencies and they don't work well with GitHub repository templates and codespaces.
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/?quickstart=1)
 
 This is the setup we recommend for the codespace
 
