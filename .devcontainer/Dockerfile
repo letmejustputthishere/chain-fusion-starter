@@ -16,7 +16,5 @@ RUN rustup component add clippy
 RUN curl -L https://foundry.paradigm.xyz | bash
 # has to be in the same RUN as changes made to shell profile do not affect subsequent RUNs
 RUN . ~/.bashrc && foundryup 
-# unfortunatel this is needed to make foundry dependncies work in template github repos with dev containers
-RUN rm -rf lib
 # mark all directories as safe
 RUN git config --global --add safe.directory '*'
