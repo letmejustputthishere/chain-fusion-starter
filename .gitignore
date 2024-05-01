@@ -35,6 +35,3 @@ out/
 
 # Docs
 docs/
-
-# this is needed so dev containers work with submodules 
-lib/
