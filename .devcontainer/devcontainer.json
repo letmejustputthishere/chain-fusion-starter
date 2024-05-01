@@ -20,5 +20,6 @@
         "codespaces": {
             "openFiles": ["README.md"]
         }
-    }
+    },
+    "postCreateCommand": "rm -rf lib"
 }
