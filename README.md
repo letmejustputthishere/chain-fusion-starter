@@ -1,4 +1,5 @@
 # [Chain Fusion](https://internetcomputer.org/chainfusion) Starter
+![hero3](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/e787cf9c-0bfc-4ce3-8211-8df61cf06a0b)
 
 ## Join the discussion
 
