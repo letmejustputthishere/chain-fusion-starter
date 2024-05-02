@@ -1,4 +1,4 @@
-# [Chainfusion](https://internetcomputer.org/chainfusion) starter
+# [Chain Fusion](https://internetcomputer.org/chainfusion) Starter
 
 ## Join the discussion
 
