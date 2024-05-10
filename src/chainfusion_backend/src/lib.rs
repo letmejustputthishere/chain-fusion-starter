@@ -18,7 +18,7 @@ use ic_cdk::println;
 use lifecycle::InitArg;
 use state::read_state;
 
-use crate::state::{mutate_state, set_state};
+use crate::state::{mutate_state, initialize_state};
 
 pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(3 * 60);
 
@@ -42,7 +42,7 @@ fn setup_timers() {
 #[ic_cdk::init]
 fn init(arg: InitArg) {
     println!("[init]: initialized minter with arg: {:?}", arg);
-    set_state(state::State::try_from(arg).expect("BUG: failed to initialize minter"));
+    initialize_state(state::State::try_from(arg).expect("BUG: failed to initialize minter"));
     setup_timers();
 }
 

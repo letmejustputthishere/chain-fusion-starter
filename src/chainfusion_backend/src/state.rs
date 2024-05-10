@@ -111,7 +111,7 @@ where
 }
 
 /// Sets the current state to `state`.
-pub fn set_state(state: State) {
+pub fn initialize_state(state: State) {
     STATE.set(state);
 }
 
