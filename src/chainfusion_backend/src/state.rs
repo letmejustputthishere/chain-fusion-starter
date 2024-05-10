@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::cell::RefCell;
 
 thread_local! {
-    pub static STATE: RefCell<Option<State>> = RefCell::default();
+    static STATE: RefCell<State> = panic!("BUG: state is not initialized");
 }
 
 #[derive(Debug, Clone)]
@@ -97,7 +97,7 @@ pub struct LogSource {
 }
 
 pub fn read_state<R>(f: impl FnOnce(&State) -> R) -> R {
-    STATE.with(|s| f(s.borrow().as_ref().expect("BUG: state is not initialized")))
+    STATE.with_borrow(|s| f(s))
 }
 
 /// Mutates (part of) the current state using `f`.
@@ -107,11 +107,12 @@ pub fn mutate_state<F, R>(f: F) -> R
 where
     F: FnOnce(&mut State) -> R,
 {
-    STATE.with(|s| {
-        f(s.borrow_mut()
-            .as_mut()
-            .expect("BUG: state is not initialized"))
-    })
+    STATE.with_borrow_mut(|s| f(s))
+}
+
+/// Sets the current state to `state`.
+pub fn set_state(state: State) {
+    STATE.set(state);
 }
 
 #[derive(Debug, Hash, Copy, Clone, PartialEq, Eq)]
