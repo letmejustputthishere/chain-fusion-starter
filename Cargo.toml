@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/chainfusion_backend"
+    "src/chain_fusion_backend"
 ]
 resolver = "2"
