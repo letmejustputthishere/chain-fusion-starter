@@ -36,7 +36,7 @@ dfx deploy evm_rpc
 # the `get_logs_address` here. in our case we are listening for mint events,
 # that is transfer events with the `from` field being the zero address.
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
-dfx deploy chainfusion_backend --with-cycles 10_000_000_000_000 --argument '(
+dfx deploy chain_fusion_backend --with-cycles 10_000_000_000_000 --argument '(
   record {
     ecdsa_key_id = record {
       name = "dfx_test_key";
@@ -60,9 +60,9 @@ dfx deploy chainfusion_backend --with-cycles 10_000_000_000_000 --argument '(
 )'
 # sleep for 3 seconds to allow the evm address to be generated
 sleep 3
-# safe the chainfusion canisters evm address
-export EVM_ADDRESS=$(dfx canister call chainfusion_backend get_evm_address | awk -F'"' '{print $2}')
+# safe the chain_fusion canisters evm address
+export EVM_ADDRESS=$(dfx canister call chain_fusion_backend get_evm_address | awk -F'"' '{print $2}')
 # install dependencies
 forge install foundry-rs/forge-std
-# deploy the contract passing the chainfusion canisters evm address to receive the fees and create a couple of new jobs
+# deploy the contract passing the chain_fusion canisters evm address to receive the fees and create a couple of new jobs
 forge script script/Coprocessor.s.sol:MyScript --fork-url http://localhost:8545 --broadcast --sig "run(address)" $EVM_ADDRESS

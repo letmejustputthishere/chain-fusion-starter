@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "chainfusion_backend": {
-      "candid": "src/chainfusion_backend/chainfusion_backend.did",
-      "package": "chainfusion_backend",
+    "chain_fusion_backend": {
+      "candid": "src/chain_fusion_backend/chain_fusion_backend.did",
+      "package": "chain_fusion_backend",
       "type": "rust",
       "dependencies": ["evm_rpc"],
       "specified_id": "2222s-4iaaa-aaaaf-ax2uq-cai"

@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "../src/foundry/Coprocessor.sol";
 
 contract MyScript is Script {
-    function run(address chainfusion_canister_address) external {
+    function run(address chain_fusion_canister_address) external {
         // the private key of the deployer is the first private key printed by running anvil
         uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         // we use that key to broadcast all following transactions
@@ -17,7 +17,7 @@ contract MyScript is Script {
         // we can infer the canister id here because we specify it in `dfx.json`. usually one would
         // first need to create the canister, deploy the NFT contract passing the canister url as baseURI
         // and then deploying the canister passing the NFT contract address as a deploy argument.
-        Coprocessor coprocessor = new Coprocessor(chainfusion_canister_address);
+        Coprocessor coprocessor = new Coprocessor(chain_fusion_canister_address);
 
         // we can call the mint function to mint a token
         // the address we mint to belongs to the deployerPrivateKey

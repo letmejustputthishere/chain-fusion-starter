@@ -1,5 +1,5 @@
 {
-    "name": "Chainfusion",
+    "name": "chain_fusion",
     "build": { "dockerfile": "Dockerfile" },
     "forwardPorts": [4943],
     "portsAttributes": {
