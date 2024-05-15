@@ -11,6 +11,7 @@ RUN rustup install stable
 RUN rustup default stable
 RUN rustup target add wasm32-unknown-unknown
 RUN rustup component add clippy
+RUN rustup component add rustfm
 
 # Install foundry
 RUN curl -L https://foundry.paradigm.xyz | bash
