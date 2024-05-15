@@ -173,7 +173,7 @@ async fn update_last_observed_block_number() -> Option<Nat> {
         MultiGetBlockByNumberResult::Consistent(r) => match r {
             GetBlockByNumberResult::Ok(latest_block) => {
                 let block_number = Some(latest_block.number);
-                mutate_state(|s| s.last_observed_block_number = block_number.clone());
+                mutate_state(|s| s.last_observed_block_number.clone_from(&block_number));
                 block_number
             }
             GetBlockByNumberResult::Err(err) => {
