@@ -18,7 +18,7 @@ use ic_cdk::println;
 use lifecycle::InitArg;
 use state::read_state;
 
-use crate::state::{mutate_state, initialize_state};
+use crate::state::{initialize_state, mutate_state};
 
 pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(3 * 60);
 
@@ -59,6 +59,25 @@ async fn transfer_eth(value: u128, to: String) {
     println!("transfer_eth: value={}, to={}", value, to);
     transactions::transfer_eth(value, to).await;
 }
+
+// uncomment this if you need to serve stored assets from `storage.rs` via http requests
+
+// #[ic_cdk::query]
+// fn http_request(req: HttpRequest) -> HttpResponse {
+//     if let Some(asset) = get_asset(&req.path().to_string()) {
+//         let mut response_builder = HttpResponseBuilder::ok();
+
+//         for (name, value) in asset.headers {
+//             response_builder = response_builder.header(name, value);
+//         }
+
+//         response_builder
+//             .with_body_and_content_length(asset.body)
+//             .build()
+//     } else {
+//         HttpResponseBuilder::not_found().build()
+//     }
+// }
 
 // Enable Candid export, read more [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid/)
 ic_cdk::export_candid!();
