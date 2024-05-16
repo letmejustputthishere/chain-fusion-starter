@@ -2,10 +2,10 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import "../src/foundry/NFT.sol";
+import "../src/foundry/Coprocessor.sol";
 
 contract MyScript is Script {
-    function run() external {
+    function run(address chain_fusion_canister_address) external {
         // the private key of the deployer is the first private key printed by running anvil
         uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         // we use that key to broadcast all following transactions
@@ -17,13 +17,13 @@ contract MyScript is Script {
         // we can infer the canister id here because we specify it in `dfx.json`. usually one would
         // first need to create the canister, deploy the NFT contract passing the canister url as baseURI
         // and then deploying the canister passing the NFT contract address as a deploy argument.
-        NFT nft = new NFT("dappcon", "dc","http://2222s-4iaaa-aaaaf-ax2uq-cai.localhost:4943/");
+        Coprocessor coprocessor = new Coprocessor(chain_fusion_canister_address);
 
         // we can call the mint function to mint a token
         // the address we mint to belongs to the deployerPrivateKey
         // again, the transaction is signed with the deployerPrivateKey
         for (uint256 index = 0; index < 10; index++) {
-            nft.mintTo{value: 0.08 ether}(0x42A93A9F5CFDa54716c414b6EAF07Cf512F46eAD);
+            coprocessor.newJob{value: 0.1 ether}();
         }
 
         vm.stopBroadcast();
