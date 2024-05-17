@@ -1,4 +1,4 @@
-FROM ghcr.io/dfinity/icp-dev-env:6
+FROM ghcr.io/dfinity/icp-dev-env:7
 
 # Install caddy
 RUN apt -yqq install --no-install-recommends debian-keyring debian-archive-keyring apt-transport-https gpg lsof
