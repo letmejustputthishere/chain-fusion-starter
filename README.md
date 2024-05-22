@@ -5,6 +5,12 @@
 
 [![Join Discussion](https://img.shields.io/github/discussions/letmejustputthishere/chain-fusion-starter)](https://github.com/letmejustputthishere/chain-fusion-starter/discussions)
 
+## Watch workshops
+
+### DappCon24
+[![DappCon24](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/aed157f4-8677-4556-891f-4295f641a01c)](https://www.youtube.com/live/Zm3vFqbLV_Y?t=863s
+)
+
 ## Get started:
 
 No matter what setup you pick from below, run `./deploys.sh` from the project root to deploy the project. To understand the steps involved in deploying the project locally, examine the comments in `deploy.sh`. This script will
