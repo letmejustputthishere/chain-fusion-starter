@@ -12,6 +12,7 @@ RUN rustup default stable
 RUN rustup target add wasm32-unknown-unknown
 RUN rustup component add clippy
 RUN rustup component add rustfmt
+RUN cargo install candid-extractor
 
 # Install foundry
 RUN curl -L https://foundry.paradigm.xyz | bash
