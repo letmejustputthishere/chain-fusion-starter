@@ -180,3 +180,5 @@ Build your own use-case on top of the chain_fusion starter and [share it with th
 -   Price oracles for DeFi applications via [exchange rate canister](https://github.com/dfinity/exchange-rate-canister)
 -   Prediction market resolution
 -   Soulbound NFT metadata and assets stored in a canister
+-   An on-chain managed passive index fonds (e.g. top 10 ERC20 tokens trade on Uniswap)
+-   An on-chain donations stream
