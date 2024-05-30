@@ -16,9 +16,7 @@ contract MyScript is Script {
 
         Coprocessor coprocessor = new Coprocessor(chain_fusion_canister_address);
 
-        // we can call the mint function to mint a token
-        // the address we mint to belongs to the deployerPrivateKey
-        // again, the transaction is signed with the deployerPrivateKey
+       // we create 3 jobs
         for (uint256 index = 0; index < 3; index++) {
             coprocessor.newJob{value: 0.1 ether}();
         }
