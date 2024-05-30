@@ -81,9 +81,9 @@ pub async fn estimate_transaction_fees(block_count: u8) -> FeeEstimates {
     // sort the tips in ascending order
     percentile_95.sort_unstable();
     // get the median by accessing the element in the middle
+    // set tip to 0 if there are not enough blocks in case of a local testnet
     let median_reward = percentile_95
-        .get(median_index)
-        .expect("the 95th percentile should have 9 elements")
+        .get(median_index).unwrap_or(&Nat::from(0 as u8))
         .clone();
 
     let max_priority_fee_per_gas = median_reward

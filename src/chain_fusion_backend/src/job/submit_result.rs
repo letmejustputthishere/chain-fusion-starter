@@ -3,6 +3,7 @@ use ethers_core::{types::U256, utils::keccak256};
 use crate::{
     evm_rpc::SendRawTransactionStatus,
     evm_signer,
+    fees,
     state::{mutate_state, read_state},
     transactions::{create_sign_request, send_raw_transaction},
 };
@@ -12,12 +13,13 @@ pub async fn submit_result(result: String, job_id: U256) {
     //TODO: Should probably be hardcoded. Recomputing the hash every time is unnecessary
     let function_signature = "callback(string,uint256)";
 
-    // let mut data = keccak256(function_signature).as_ref()[0..4].to_vec();
-    // data.extend(ethers_core::abi::AbiEncode::encode(result));
     let selector = &keccak256(function_signature.as_bytes())[0..4];
     let args = (result, job_id).encode();
     let mut data = Vec::from(selector);
     data.extend(args);
+
+    let gas_limit = U256::from(5000000);
+    let fee_estimates = fees::estimate_transaction_fees(9).await;
 
     let contract_address = read_state(|s| s.get_logs_address[0].clone());
 
@@ -25,9 +27,9 @@ pub async fn submit_result(result: String, job_id: U256) {
         U256::from(0),
         Some(contract_address),
         None,
-        // TODO: Set gas based on the contract
-        Some(U256::from(50000)),
+        gas_limit,
         Some(data),
+        fee_estimates,
     )
     .await;
 
