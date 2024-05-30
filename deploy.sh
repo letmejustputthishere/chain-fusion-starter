@@ -32,10 +32,12 @@ fi
 dfx start --clean --background
 dfx ledger fabricate-cycles --icp 10000 --canister $(dfx identity get-wallet)
 dfx deploy evm_rpc
+cargo build --release --target wasm32-unknown-unknown --package chain_fusion_backend
+dfx canister create --with-cycles 10_000_000_000_000 chain_fusion_backend
 # because the local smart contract deployment is deterministic, we can hardcode the 
 # the `get_logs_address` here. in our case we are listening for NewJob events,
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
-dfx deploy chain_fusion_backend --with-cycles 10_000_000_000_000 --argument '(
+dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_backend.wasm chain_fusion_backend --argument '(
   record {
     ecdsa_key_id = record {
       name = "dfx_test_key";
@@ -51,6 +53,12 @@ dfx deploy chain_fusion_backend --with-cycles 10_000_000_000_000 --argument '(
       Custom = record {
         chainId = 31_337 : nat64;
         services = vec { record { url = "https://localhost:8546"; headers = null } };
+      }
+    };
+    rpc_service = variant {
+      Custom = record {
+        url = "https://localhost:8546";
+        headers = null;
       }
     };
     get_logs_address = vec { "0x5FbDB2315678afecb367f032d93F642f64180aa3" };
