@@ -32,9 +32,8 @@ fi
 dfx start --clean --background
 dfx ledger fabricate-cycles --icp 10000 --canister $(dfx identity get-wallet)
 dfx deploy evm_rpc
-# because our local NFT contract deployment is deterministic, we can hardcode the 
-# the `get_logs_address` here. in our case we are listening for mint events,
-# that is transfer events with the `from` field being the zero address.
+# because the local smart contract deployment is deterministic, we can hardcode the 
+# the `get_logs_address` here. in our case we are listening for NewJob events,
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
 dfx deploy chain_fusion_backend --with-cycles 10_000_000_000_000 --argument '(
   record {

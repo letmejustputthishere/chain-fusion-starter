@@ -14,7 +14,7 @@ pub struct SignRequest {
     pub chain_id: Option<U64>,
     pub from: Option<String>,
     pub to: Option<String>,
-    pub gas: Option<U256>,
+    pub gas: U256,
     pub max_fee_per_gas: Option<U256>,
     pub max_priority_fee_per_gas: Option<U256>,
     pub value: Option<U256>,
@@ -49,7 +49,7 @@ pub async fn sign_transaction(req: SignRequest) -> String {
                 .expect("failed to parse the source address")
                 .into()
         }),
-        gas: req.gas,
+        gas: Some(req.gas),
         value: req.value,
         data,
         nonce: req.nonce,

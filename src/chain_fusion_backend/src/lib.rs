@@ -51,15 +51,6 @@ fn get_evm_address() -> String {
     read_state(|s| s.evm_address.clone()).expect("evm address should be initialized")
 }
 
-#[ic_cdk::update]
-async fn transfer_eth(value: u128, to: String) {
-    if !ic_cdk::api::is_controller(&ic_cdk::caller()) {
-        ic_cdk::trap("only the controller can send transactions");
-    }
-    println!("transfer_eth: value={}, to={}", value, to);
-    transactions::transfer_eth(value, to).await;
-}
-
 // uncomment this if you need to serve stored assets from `storage.rs` via http requests
 
 // #[ic_cdk::query]
@@ -79,5 +70,5 @@ async fn transfer_eth(value: u128, to: String) {
 //     }
 // }
 
-// Enable Candid export, read more [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid/)
-ic_cdk::export_candid!();
+// Uncomment to enable Candid export, read more [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid/)
+// ic_cdk::export_candid!();
