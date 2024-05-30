@@ -3,10 +3,10 @@ pragma solidity 0.8.20;
 
 contract Coprocessor {
     uint job_id = 0;
-    address public coprocessor;
+    address payable private immutable coprocessor;
 
     constructor(address _coprocessor) {
-        coprocessor = _coprocessor;
+        coprocessor = payable(_coprocessor);
     }
 
     mapping(uint => string) public jobs;
@@ -19,10 +19,9 @@ contract Coprocessor {
         require(msg.value >= 0.01 ether, "Minimum 0.01 ETH not met");
 
         // Forward the ETH received to the coprocessor address
-        // To pay for the submission of the job result back to the EVM 
+        // to pay for the submission of the job result back to the EVM
         // contract.
-        (bool success, ) = coprocessor.call{value: msg.value}("");
-        require(success, "Failed to send Ether");
+        coprocessor.transfer(msg.value);
 
         // Emit the new job event
         emit NewJob(job_id);
@@ -30,7 +29,6 @@ contract Coprocessor {
         // Increment job counter
         job_id++;
     }
-
 
     function getResult(uint _job_id) public view returns (string memory) {
         return jobs[_job_id];

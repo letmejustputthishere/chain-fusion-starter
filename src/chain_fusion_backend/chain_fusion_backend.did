@@ -17,17 +17,6 @@ type EthMainnetService = variant {
 };
 type EthSepoliaService = variant { Alchemy; BlockPi; PublicNode; Ankr };
 type HttpHeader = record { value : text; name : text };
-type HttpRequest = record {
-  url : text;
-  method : text;
-  body : blob;
-  headers : vec record { text; text };
-};
-type HttpResponse = record {
-  body : blob;
-  headers : vec record { text; text };
-  status_code : nat16;
-};
 type InitArg = record {
   ecdsa_key_id : EcdsaKeyId;
   get_logs_topics : opt vec vec text;
@@ -42,8 +31,4 @@ type RpcServices = variant {
   Custom : record { chainId : nat64; services : vec RpcApi };
   EthMainnet : opt vec EthMainnetService;
 };
-service : (InitArg) -> {
-  get_evm_address : () -> (text) query;
-  http_request : (HttpRequest) -> (HttpResponse) query;
-  transfer_eth : (nat, text) -> ();
-}
+service : (InitArg) -> { get_evm_address : () -> (text) query }
