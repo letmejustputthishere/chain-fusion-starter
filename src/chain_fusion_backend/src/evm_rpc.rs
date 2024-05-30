@@ -153,7 +153,7 @@ pub enum FeeHistoryResult {
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RpcService {
     EthSepolia(EthSepoliaService),
     Custom(RpcApi),
@@ -480,8 +480,9 @@ impl Service {
         arg0: RpcService,
         arg1: String,
         arg2: u64,
+        cycles: u128,
     ) -> Result<(RequestResult,)> {
-        ic_cdk::call(self.0, "request", (arg0, arg1, arg2)).await
+        ic_cdk::api::call::call_with_payment128(self.0, "request", (arg0, arg1, arg2), cycles).await
     }
     pub async fn request_cost(
         &self,

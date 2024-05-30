@@ -1,4 +1,4 @@
-use crate::evm_rpc::{BlockTag, LogEntry, RpcServices};
+use crate::evm_rpc::{BlockTag, LogEntry, RpcService, RpcServices};
 
 use candid::Nat;
 use ethers_core::types::U256;
@@ -14,6 +14,7 @@ thread_local! {
 #[derive(Debug, Clone)]
 pub struct State {
     pub rpc_services: RpcServices,
+    pub rpc_service: RpcService,
     pub get_logs_address: Vec<String>,
     pub get_logs_topics: Option<Vec<Vec<String>>>,
     pub last_scraped_block_number: Nat,

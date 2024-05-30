@@ -5,11 +5,12 @@ use ethers_core::types::{H256, U256};
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::str::FromStr;
 
-use crate::evm_rpc::{BlockTag, RpcServices};
+use crate::evm_rpc::{BlockTag, RpcService, RpcServices};
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct InitArg {
     pub rpc_services: RpcServices,
+    pub rpc_service: RpcService,
     pub get_logs_address: Vec<String>,
     pub get_logs_topics: Option<Vec<Vec<String>>>,
     pub last_scraped_block_number: Nat,
@@ -23,6 +24,7 @@ impl TryFrom<InitArg> for State {
     fn try_from(
         InitArg {
             rpc_services,
+            rpc_service,
             get_logs_address,
             get_logs_topics,
             last_scraped_block_number,
@@ -45,6 +47,7 @@ impl TryFrom<InitArg> for State {
 
         let state = Self {
             rpc_services,
+            rpc_service,
             get_logs_address,
             get_logs_topics,
             last_scraped_block_number,

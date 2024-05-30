@@ -1,4 +1,4 @@
-mod eth_logs;
+mod eth_get_logs;
 mod evm_rpc;
 mod evm_signer;
 mod fees;
@@ -6,13 +6,15 @@ mod guard;
 mod job;
 mod lifecycle;
 mod state;
+mod eth_call;
+// uncomment to enable serving stored assets via http requests
 // mod storage;
-mod transactions;
+mod eth_send_raw_transaction;
 mod utils;
 
 use std::time::Duration;
 
-use eth_logs::scrape_eth_logs;
+use eth_get_logs::scrape_eth_logs;
 
 use ic_cdk::println;
 use lifecycle::InitArg;
