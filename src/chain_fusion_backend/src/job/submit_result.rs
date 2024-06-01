@@ -9,12 +9,13 @@ use crate::{
 };
 use ethers_core::abi::AbiEncode;
 
-pub async fn submit_result(result: String, job_id: U256) {
-    //TODO: Should probably be hardcoded. Recomputing the hash every time is unnecessary
-    let function_signature = "callback(string,uint256)";
+
+// todo: properly name this function 
+pub async fn submit_result(job_id: U256) {
+    let function_signature = "executeJob(uint256)";
 
     let selector = &keccak256(function_signature.as_bytes())[0..4];
-    let args = (result, job_id).encode();
+    let args = (job_id).encode();
     let mut data = Vec::from(selector);
     data.extend(args);
 
