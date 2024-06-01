@@ -16,13 +16,18 @@ struct job {
 contract RecurringTransactions {
     job[] public jobs;
 
-    address payable private immutable trigger;
+    address payable public trigger;
 
-    constructor(address _coprocessor) {
-        trigger = payable(_coprocessor);
+    constructor(address _trigger) {
+        trigger = payable(_trigger);
     }
 
     event NextExecutionTimestamp(uint date, uint indexed job_id);
+
+    function setTrigger(address _trigger) public {
+        require(trigger == address(0), "Trigger already set");
+        trigger = payable(_trigger);
+    }
 
     function transferToken(
         address _token,
