@@ -7,6 +7,7 @@ mod job;
 mod lifecycle;
 mod state;
 mod eth_call;
+mod execution_timer;
 // uncomment to enable serving stored assets via http requests
 // mod storage;
 mod eth_send_raw_transaction;
