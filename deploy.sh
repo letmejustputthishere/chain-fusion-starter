@@ -69,5 +69,6 @@ dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_b
 sleep 3
 # save the chain_fusion canisters evm address
 export EVM_ADDRESS=$(dfx canister call chain_fusion_backend get_evm_address | awk -F'"' '{print $2}')
+export PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 # deploy the contract passing the chain_fusion canisters evm address to receive the fees and create a couple of new jobs
-forge script script/Coprocessor.s.sol:MyScript --fork-url http://localhost:8545 --broadcast --sig "run(address)" $EVM_ADDRESS
+forge script script/DeployEnvironment.s.sol:MyScript --fork-url http://localhost:8545 --broadcast --sig "run(address)" $EVM_ADDRESS

@@ -38,7 +38,6 @@ contract RecurringTransactions {
     function createJob(
         uint256 period,
         uint256 amount,
-        address sender,
         address recipient,
         address token
     ) public payable {
