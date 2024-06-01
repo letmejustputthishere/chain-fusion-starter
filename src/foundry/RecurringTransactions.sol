@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+
+///
 pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -13,22 +15,57 @@ struct job {
     address token;
 }
 
+/**
+ * @title RecurringTransactions (..... MANAGOOOOOR)
+ * @author malteish
+ * @notice This contract allows for the creation of jobs that are executed with a fixed periodicity.
+ * The first example implementation is a contract that sends a fixed amount of tokens to a recipient every period.
+ * With very little modification, this contract could be used to do all sorts of naughty things. Be careful.
+ * @dev In order to automatically execute the jobs, the contract needs to be triggered by an external entity.
+ * This entity is expected to call the executeJob function at the right time. We leverage an Internet Computer
+ * Canister for this purpose. The entity, called "trigger" in this contract, is expected to listen to the
+ * NextExecutionTimestamp event, and call the executeJob function when THE TIME HATH COME1!1!
+ */
 contract RecurringTransactions {
     job[] public jobs;
 
     address payable public trigger;
 
+    /**
+     *
+     * @param _trigger The address of the trigger contract that will call the executeJob function. Can be 0x0, which means it will be initialized later.
+     * @dev Leaving this uninitialized is not safe, as it allows anyone to do the initializations later. We accept it as part of the MVP for now.
+     * IF YOU ARE READING THIS, YOU ARE THE TRIGGER
+     */
     constructor(address _trigger) {
         trigger = payable(_trigger);
     }
 
+    /**
+     *
+     * @param date when to trigger the next execution of this job
+     * @param job_id which job id to trigger
+     * @dev This event is emitted whenever a new job is created, and whenever a job is executed. The external trigger
+     * entity is expected to listen to this event and act accordingly.
+     */
     event NextExecutionTimestamp(uint date, uint indexed job_id);
 
+    /**
+     * Init trigger if it has not been set yet
+     * @param _trigger address of the trigger
+     */
     function setTrigger(address _trigger) public {
         require(trigger == address(0), "Trigger already set");
         trigger = payable(_trigger);
     }
 
+    /**
+     * Internal function to transfer tokens
+     * @param _token address of the ERC20 token contract
+     * @param _sender one happy address
+     * @param _recipient hope they have enough
+     * @param _amount some, at least
+     */
     function transferToken(
         address _token,
         address _sender,
@@ -39,7 +76,15 @@ contract RecurringTransactions {
         SafeERC20.safeTransferFrom(token, _sender, _recipient, _amount);
     }
 
-    // Function to create a new job
+    /**
+     * Create as in before the job is not there, afterwards it has been executed once and will be executed
+     * again in period seconds. And then again. And again. And again. And again. And again. And again. And again.
+     * @param period time interval between to executions of the same job, in seconds
+     * @param amount how many tokens to send to the recipient, in token bits (think wei for ETH)
+     * @param recipient the lucky address getting the tokens
+     * @param token the token's contract address
+     * @dev only the sender can create a job. Safer this way, you know. I know you know. I know you know I know you know. Love you.
+     */
     function createJob(
         uint256 period,
         uint256 amount,
@@ -66,6 +111,10 @@ contract RecurringTransactions {
         emit NextExecutionTimestamp(block.timestamp + period, job_id);
     }
 
+    /**
+     * Cancel a job. Can be done by the creator of the job.
+     * @param _job_id the id of the job to remove once and for all. Never will there be known such a job again. EVER. Not kidding.
+     */
     function removeJob(uint _job_id) public returns (string memory) {
         job memory _job = jobs[_job_id];
 
@@ -81,6 +130,10 @@ contract RecurringTransactions {
         return "Job removed";
     }
 
+    /**
+     * Callable by the trigger to execute a job. Why only by the trigger? Because we said so. That's why.
+     * @param _job_id the id of the job to execute
+     */
     function executeJob(uint256 _job_id) public {
         // todo: actually, anyone can call this function
         require(
