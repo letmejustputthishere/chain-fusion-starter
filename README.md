@@ -1,4 +1,6 @@
-# What IS this?
+# reTransICP: Recurring Transactions on Ethereum, powered by the Internet Computer
+
+## What IS this?
 
 This is a simple solution to a simple problem.
 Smart contracts on Etherem Virtual Machines (EVMs) can not do anything without being triggered by an external entity. This leads to absurd situations, like Alice having to **manually** transfer ERC20 tokens to BOB each week. Like a peasant. This is not the future we were promised. This is not the future we want. This is not the future we deserve. This is not the future we will accept. This is not the future we will build. This is not the future we will live in. This is not the future we will die in. This is not the future we will be buried in. This is not the future we will be remembered in. This is not the future we will be forgotten ...
@@ -7,9 +9,9 @@ Anyway. We can use the Internet Computer to trigger an EVM smart contract to do 
 
 Check it out. It's pretty cool.
 
-# How to use
+## How to use
 
-## Prerequisites
+### Prerequisites
 
 Install dfx, rust, and caddy for local development. Installation involves the old `curl | sh` **ANTI-PATTERN**. Sorry about that, I did not create this, and at 2am in the morning I can't change it. But I totally understand if you don't want to run it. I didn't want to either. NOBODY WANTS TO RUN `curl | sh`, and for good reason.
 Even worse, caddy wants to run as root. **TO INSTALL A \*\*\*\*\*\* ROOT CA CERTIFICATE**. No words here.
@@ -18,9 +20,13 @@ After that, try to calm down.
 
 Then run `./deploy.sh` to get the party going. Read the script to learn more, it's pretty nice and well documented (credits go to Moritz Fuller).
 
-## Developing
+### Developing
 
 From there, adapting the code can be done within a reasonable amount of time. The rust code is in `src/chain_fusion_backend` and the solidity code is in `src/foundry/`. The frontend is in `www/`. Just kidding, there is no frontend. But you can add one. It's a free world.
+
+#### Deploying on an EVM
+
+`forge script script/DeployContract.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier blockscout --verifier-url https://gnosis.blockscout.com/api? --broadcast`
 
 # Credits
 
@@ -32,3 +38,7 @@ Also, thanks to Dominik Wörner for lots of support during the Eth Prague hackat
 
 [maryjanyes](https://github.com/maryjanyes) did most of the rust coding.
 [malteish](https://github.com/malteish) did most of the architecture, infrastructure, documentation and solidity stuff.
+
+```
+
+```
