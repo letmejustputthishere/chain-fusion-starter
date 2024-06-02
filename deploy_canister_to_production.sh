@@ -20,7 +20,7 @@ dfx canister create --with-cycles 10_000_000_000_000 chain_fusion_backend --ic
 # the `get_logs_address` here. in our case we are listening for NextExecutionTimestamp events,
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
 # (we can use cast sig-event "NextExecutionTimestamp(uint, uint indexed)" to get the topic)
-dfx canister install --mode upgrade --ic --wasm target/wasm32-unknown-unknown/release/chain_fusion_backend.wasm chain_fusion_backend --argument '(
+dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/release/chain_fusion_backend.wasm chain_fusion_backend --argument '(
   record {
     ecdsa_key_id = record {
       name = "key_1";

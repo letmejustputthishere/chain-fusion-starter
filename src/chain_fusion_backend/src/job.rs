@@ -52,7 +52,7 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
 
     ic_cdk_timers::set_timer(std::time::Duration::from_secs(30), || {
         println!("Timer has finished, running job now.");
-        ic_cdk::spawn(submit_result(U256::from(0)))
+        ic_cdk::spawn(async { submit_result(U256::from(0)).await })
     });
 
     // todo: pass job_id from log
