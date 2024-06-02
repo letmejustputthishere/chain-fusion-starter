@@ -28,17 +28,18 @@ From there, adapting the code can be done within a reasonable amount of time. Th
 
 `forge script script/DeployContract.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier blockscout --verifier-url https://gnosis.blockscout.com/api? --broadcast`
 
+# Why to use
+
+ICP ties in with Ethereum, and this makes composability easy. Yes, you can use a bunch of other services that first require you to book demo first and a subscription later. The internet computer container can be funded through the blockchain so pay for the evm gas, and we are doing this. This is a pretty cool feature.
+
 # Credits
 
-This work is heavily inspired by (as in most of it copied from) [Chain Fusion](https://internetcomputer.org/chainfusion), particularly [this repo](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/e787cf9c-0bfc-4ce3-8211-8df61cf06a0b).
+This work is heavily inspired by (as in most of it copied from) [Chain Fusion](https://internetcomputer.org/chainfusion), particularly [this repo](https://github.com/letmejustputthishere/chain-fusion-starter).
 
 So, thanks to Moritz Fuller for the preliminary work.
 
 Also, thanks to Dominik Wörner for lots of support during the Eth Prague hackathon, where this groundbreaking work was done.
 
-[maryjanyes](https://github.com/maryjanyes) did most of the rust coding.
-[malteish](https://github.com/malteish) did most of the architecture, infrastructure, documentation and solidity stuff.
+[maryjanyes](https://github.com/maryjanyes) did some rust coding.
 
-```
-
-```
+[malteish](https://github.com/malteish) did most of the architecture, infrastructure, documentation, and solidity stuff, as well as some rust.
