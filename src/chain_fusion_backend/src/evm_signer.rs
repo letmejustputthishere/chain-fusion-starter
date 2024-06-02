@@ -2,6 +2,7 @@ use ethers_core::abi::ethereum_types::{Address, U256, U64};
 use ethers_core::types::transaction::eip1559::Eip1559TransactionRequest;
 use ethers_core::types::{Bytes, Signature};
 use ethers_core::utils::keccak256;
+use ic_cdk::println;
 
 use ic_cdk::api::management_canister::ecdsa::{
     ecdsa_public_key, sign_with_ecdsa, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
@@ -38,7 +39,11 @@ pub async fn get_public_key() -> Vec<u8> {
 pub async fn sign_transaction(req: SignRequest) -> String {
     const EIP1559_TX_ID: u8 = 2;
 
+    println! {"Starting the singing process"};
+
     let data = req.data.as_ref().map(|d| Bytes::from(d.clone()));
+
+    println! {"Creating the Transaction Request"};
 
     let tx = Eip1559TransactionRequest {
         from: req
@@ -58,6 +63,7 @@ pub async fn sign_transaction(req: SignRequest) -> String {
         max_fee_per_gas: req.max_fee_per_gas,
         chain_id: req.chain_id,
     };
+    println! {"done with this"};
 
     let mut unsigned_tx_bytes = tx.rlp().to_vec();
     unsigned_tx_bytes.insert(0, EIP1559_TX_ID);
@@ -65,6 +71,8 @@ pub async fn sign_transaction(req: SignRequest) -> String {
     let txhash = keccak256(&unsigned_tx_bytes);
 
     let key_id = read_state(|s| s.ecdsa_key_id.clone());
+
+    println! {"Calling sign with ecdsa  {:?}", key_id};
 
     let signature = sign_with_ecdsa(SignWithEcdsaArgument {
         message_hash: txhash.to_vec(),
@@ -76,7 +84,11 @@ pub async fn sign_transaction(req: SignRequest) -> String {
     .0
     .signature;
 
+    println! {"Getting pubkey"};
+
     let pubkey = read_state(|s| (s.ecdsa_pub_key.clone())).expect("public key should be set");
+
+    println! {"Generating signature"};
 
     let signature = Signature {
         v: y_parity(&txhash, &signature, &pubkey),
@@ -86,6 +98,8 @@ pub async fn sign_transaction(req: SignRequest) -> String {
 
     let mut signed_tx_bytes = tx.rlp_signed(&signature).to_vec();
     signed_tx_bytes.insert(0, EIP1559_TX_ID);
+
+    println! {"Formatting suff"};
 
     format!("0x{}", hex::encode(&signed_tx_bytes))
 }
