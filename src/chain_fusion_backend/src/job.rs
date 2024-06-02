@@ -50,11 +50,14 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     //     ic_cdk::println!("Waking up");
     // });
 
-    println!("Running job now, because we have been called by the blockchain.");
+    ic_cdk_timers::set_timer(std::time::Duration::from_secs(30), || {
+        println!("Timer has finished, running job now.");
+        ic_cdk::spawn(submit_result(U256::from(0)))
+    });
 
     // todo: pass job_id from log
-    submit_result(U256::from(0)).await;
-    println!("Successfully ran job #{:?}", 0);
+    //submit_result(U256::from(0)).await;
+    println!("Successfully started timer for job");
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
