@@ -28,6 +28,18 @@ From there, adapting the code can be done within a reasonable amount of time. Th
 
 `forge script script/DeployContract.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier blockscout --verifier-url https://gnosis.blockscout.com/api? --broadcast`
 
+#### Deploying on the Internet Computer
+
+Edit the `deploy_canister_to_production.sh` script to include your smart contracts address and topic hash.
+Do this:
+
+```
+./deploy_canister_to_production.sh
+dfx canister call chain_fusion_backend get_evm_address --ic
+```
+
+The second command will give you the address of the canister.
+
 # Why to use
 
 ICP ties in with Ethereum, and this makes composability easy. Yes, you can use a bunch of other services that first require you to book demo first and a subscription later. The internet computer container can be funded through the blockchain so pay for the evm gas, and we are doing this. This is a pretty cool feature.
