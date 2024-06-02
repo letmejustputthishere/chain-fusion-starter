@@ -9,7 +9,6 @@ use submit_result::submit_result;
 
 use crate::{
     evm_rpc::LogEntry,
-    job::calculate_result::fibonacci,
     state::{mutate_state, LogSource},
 };
 
@@ -17,15 +16,43 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     mutate_state(|s| s.record_processed_log(event_source.clone()));
     // because we deploy the canister with topics only matching
     // NewJob events we can safely assume that the event is a NewJob.
-    let new_job_event = NewJobEvent::from(event);
-    // this calculation would likely exceed an ethereum blocks gas limit
-    // but can easily be calculated on the IC
-    let result = fibonacci(20);
-    // we write the result back to the evm smart contract, creating a signature
-    // on the transaction with chain key ecdsa and sending it to the evm via the
-    // evm rpc canister
-    submit_result(new_job_event.job_id).await;
-    println!("Successfully ran job #{:?}", &new_job_event.job_id);
+
+    //let new_job_event = NewJobEvent::from(event);
+
+    // this is what the smart contract expects to know
+    //let job_id = new_job_event.job_id;
+
+    // todo: read sleep duration from the job
+
+    // sleep 30s
+    // let interval = std::time::Duration::from_secs(30);
+    // let do_it_now = false;
+    // ic_cdk::println!("Starting a periodic task with interval {interval:?}");
+    // ic_cdk_timers::set_timer(interval, || {
+    //     do_it_now = true;
+    // });
+
+    // loop {
+    //     _ = &mut do_it_now => {
+    //             // If there's another case where `do_it_now` is updated, handle it here
+    //             // This is a placeholder to show how to handle other async events
+    //             do_it_now = true;
+    //         },
+    //     if do_it_now == true {
+    //         // do it now
+    //         submit_result(U256::from(0)).await;
+    //     }
+    // }
+
+    // // sleep
+    // ic_cdk::println!("Sleeping for {interval:?}");
+    // ic_cdk_timers::set_timer(interval, || {
+    //     ic_cdk::println!("Waking up");
+    // });
+
+    // todo: pass job_id from log
+    submit_result(U256::from(0)).await;
+    println!("Successfully ran job #{:?}", 0);
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
