@@ -50,6 +50,8 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     //     ic_cdk::println!("Waking up");
     // });
 
+    println!("Running job now, because we have been called by the blockchain.");
+
     // todo: pass job_id from log
     submit_result(U256::from(0)).await;
     println!("Successfully ran job #{:?}", 0);

@@ -20,11 +20,18 @@ contract MyScript is Script {
             chain_fusion_canister_address
         );
 
+        console.log(
+            "RecurringTransactions address: ",
+            address(recurringTransactions)
+        );
+
         // deploy an erc20 token
         ERC20MintableByAnyone token = new ERC20MintableByAnyone(
             "Test Token",
             "TST"
         );
+
+        console.log("Token address: ", address(token));
 
         // mint a bunch of tokens to the deployer
         uint256 aBunchOfTokens = 1e30;
@@ -35,7 +42,7 @@ contract MyScript is Script {
 
         // create a job that will send 0,3 tokens to the deployer every 20 seconds
         recurringTransactions.createJob{value: 0.01 ether}(
-            20,
+            1,
             0.3 ether, // assuming 18 decimals here
             address(2), // some memorable address
             address(token)

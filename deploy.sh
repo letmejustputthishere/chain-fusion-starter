@@ -35,8 +35,9 @@ dfx deploy evm_rpc
 cargo build --release --target wasm32-unknown-unknown --package chain_fusion_backend
 dfx canister create --with-cycles 10_000_000_000_000 chain_fusion_backend
 # because the local smart contract deployment is deterministic, we can hardcode the 
-# the `get_logs_address` here. in our case we are listening for NewJob events,
+# the `get_logs_address` here. in our case we are listening for NextExecutionTimestamp events,
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
+# (we can use cast sig-event "NextExecutionTimestamp(uint, uint indexed)" to get the topic)
 dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_backend.wasm chain_fusion_backend --argument '(
   record {
     ecdsa_key_id = record {
@@ -45,7 +46,7 @@ dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_b
     };
     get_logs_topics = opt vec {
       vec {
-        "0x031ada964b8e520743eb9508d0ace62654b126430b7e5a92b42e78eebb61602e";
+        "0xd270de418848f07676c092e30c67a99070a18f01b8f573731322eadeea0c1ab8";
       };
     };
     last_scraped_block_number = 0: nat;
