@@ -172,6 +172,8 @@ You can find the full flow in the following sequence diagram with Ethereum as an
 Here you can find a number of examples leveraging the chain_fusion starter logic:
 
 -   [On-chain asset and metadata creation for ERC721 NFT contracts](https://github.com/letmejustputthishere/chain-fusion-nft-creator)
+-   [Ethereum Donations Streamer](https://github.com/frederikrothenberger/chain-fusion-donations)
+-   [Recurring Transactions on Ethereum](https://github.com/malteish/ReTransICP)
 
 Build your own use case on top of the chain_fusion starter and [share it with the community](https://github.com/letmejustputthishere/chain-fusion-starter/discussions/10)! Some ideas you could explore:
 
