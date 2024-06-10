@@ -1,15 +1,14 @@
 # [Chain Fusion](https://internetcomputer.org/chainfusion) Starter
 ![hero3](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/e787cf9c-0bfc-4ce3-8211-8df61cf06a0b)
 
-## Join the discussion
-
-[![Join Discussion](https://img.shields.io/github/discussions/letmejustputthishere/chain-fusion-starter)](https://github.com/letmejustputthishere/chain-fusion-starter/discussions)
-
 ## Watch workshops
 
 ### DappCon24
 [![DappCon24](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/aed157f4-8677-4556-891f-4295f641a01c)](https://www.youtube.com/live/Zm3vFqbLV_Y?t=863s
 )
+
+### ETHPrague24
+[![ETHPrague24](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/12df0288-0f65-48a0-89f6-3d6d0eadfed5)](https://live.ethprague.com/ethprague/watch?session=665833d1036a981493b0bf58)
 
 ## Get started:
 
