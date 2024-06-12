@@ -4,8 +4,7 @@
 ## Watch workshops
 
 ### DappCon24
-[![DappCon24](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/aed157f4-8677-4556-891f-4295f641a01c)](https://www.youtube.com/live/Zm3vFqbLV_Y?t=863s
-)
+[![DappCon24](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/aed157f4-8677-4556-891f-4295f641a01c)](https://www.youtube.com/watch?v=EykvCT5mgrY)
 
 ### ETHPrague24
 [![ETHPrague24](https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/12df0288-0f65-48a0-89f6-3d6d0eadfed5)](https://live.ethprague.com/ethprague/watch?session=665833d1036a981493b0bf58)
