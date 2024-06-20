@@ -20,8 +20,6 @@ pub async fn transfer_eth(value: U256, to: String, gas: Option<U256>) {
 
     let status = send_raw_transaction(tx.clone()).await;
 
-    println!("Transaction sent: {:?}", tx);
-
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
             println!("Success {transaction_hash:?}");
