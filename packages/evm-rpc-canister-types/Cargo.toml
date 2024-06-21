@@ -10,7 +10,7 @@ repository = "https://github.com/letmejustputthishere/chain-fusion-starter"
 homepage = "https://github.com/letmejustputthishere/chain-fusion-starter"
 documentation = "https://internetcomputer.org/docs/current/developer-docs/multi-chain/ethereum/evm-rpc/evm-rpc-canister"
 keywords = [
-  "evm rpc canister",
+  "evm-rpc-canister",
   "ethereum",
   "dfinity",
   "icp",
