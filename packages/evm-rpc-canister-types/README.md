@@ -7,8 +7,7 @@
 # How to use this library?
 
 -   make sure you deploy the evm rpc canister to its mainnet id locally (`7hfb6-caaaa-aaaar-qadga-cai`)
-    ```
-    /// example dfx.json canister entry
+    ```json
     "evm_rpc": {
       "type": "custom",
       "candid": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc.did",
