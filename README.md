@@ -15,6 +15,10 @@
     -   [EVM Smart Contract](#evm-smart-contract)
     -   [Chain Fusion Canister](#chain-fusion-canister)
 -   [Development](#development)
+    -   [Interacting with the EVM Smart Contract](#interacting-with-the-evm-smart-contract)
+    -   [Leveraging `storage.rs` for Stable Memory](#leveraging-storagers-for-stable-memory)
+    -   [Read from EVM Smart Contracts](#read-from-evm-smart-contracts)
+    -   [Sending Transactions to EVM Smart Contracts](#sending-transactions-to-evm-smart-contracts)
 -   [Use Cases](#use-cases)
 -   [Additional Resources](#additional-resources)
 
