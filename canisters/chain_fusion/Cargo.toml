@@ -1,5 +1,5 @@
 [package]
-name = "chain_fusion_backend"
+name = "chain_fusion"
 version = "0.1.0"
 edition = "2021"
 

@@ -98,8 +98,8 @@ cd chain-fusion-starter
 
 This starter project involves multiple canisters working together to process events emitted by EVM smart contracts. The main canisters are:
 
--   **EVM Smart Contract**: Emits events such as `NewJob` when specific functions are called. It also handles callbacks from the `chain_fusion_backend` canister with the results of the processed jobs.
--   **Chain Fusion Canister (`chain_fusion_backend`)**: Listens to events emitted by the EVM smart contract, processes them, and sends the results back to the EVM smart contract.
+-   **EVM Smart Contract**: Emits events such as `NewJob` when specific functions are called. It also handles callbacks from the `chain_fusion` canister with the results of the processed jobs.
+-   **Chain Fusion Canister (`chain_fusion`)**: Listens to events emitted by the EVM smart contract, processes them, and sends the results back to the EVM smart contract.
 -   **EVM RPC Canister**: Facilitates communication between the Internet Computer and EVM-based blockchains by making RPC calls to interact with the EVM smart contract.
 
 The full flow of how these canisters interact can be found in the following sequence diagram:
@@ -110,7 +110,7 @@ The full flow of how these canisters interact can be found in the following sequ
 
 ### EVM Smart Contract
 
-The `src/foundry/Coprocessor.sol` contract emits a `NewJob` event when the `newJob` function is called, transferring ETH to the `chain_fusion_backend` canister for job processing and transaction fees.
+The `contracts/Coprocessor.sol` contract emits a `NewJob` event when the `newJob` function is called, transferring ETH to the `chain_fusion` canister for job processing and transaction fees.
 
 ```solidity
 // Function to create a new job
@@ -147,9 +147,9 @@ For local deployment, see the `deploy.sh` script and `script/Coprocessor.s.sol`.
 
 ### Chain Fusion Canister
 
-The `chain_fusion_backend` canister listens to events by periodically calling the `eth_getLogs` RPC method via the [EVM RPC canister](https://github.com/internet-computer-protocol/evm-rpc-canister). Upon receiving an event, it processes the job and sends the results back to the EVM smart contract via the EVM RPC canister, signing the transaction with threshold ECDSA.
+The `chain_fusion` canister listens to events by periodically calling the `eth_getLogs` RPC method via the [EVM RPC canister](https://github.com/internet-computer-protocol/evm-rpc-canister). Upon receiving an event, it processes the job and sends the results back to the EVM smart contract via the EVM RPC canister, signing the transaction with threshold ECDSA.
 
-Job processing logic is in `src/chain_fusion_backend/job.rs`:
+Job processing logic is in `canisters/chain_fusion/src/job.rs`:
 
 ```rust
 pub async fn job(event_source: LogSource, event: LogEntry) {
@@ -170,11 +170,11 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
 
 ## Development
 
-All coprocessing logic resides in `src/chain_fusion_backend/src/job.rs`. Developers can focus on writing jobs to process EVM smart contract events without altering the code for fetching events or sending transactions.
+All coprocessing logic resides in `canisters/chain_fusion/src/job.rs`. Developers can focus on writing jobs to process EVM smart contract events without altering the code for fetching events or sending transactions.
 
 ### Interacting with the EVM Smart Contract
 
-If you want to check that the `chain_fusion_backend` really processed the events, you can either look at the logs output by running `./deploy.sh` – keep an eye open for the `Successfully ran job` message – or you can call the EVM contract to get the results of the jobs. To do this, run:
+If you want to check that the `chain_fusion` really processed the events, you can either look at the logs output by running `./deploy.sh` – keep an eye open for the `Successfully ran job` message – or you can call the EVM contract to get the results of the jobs. To do this, run:
 
 ```sh
 cast call 0x5fbdb2315678afecb367f032d93f642f64180aa3 "getResult(uint)(string)" <job_id>

@@ -1,5 +1,3 @@
 [workspace]
-members = [
-    "src/chain_fusion_backend"
-]
+members = ["packages/evm-rpc-canister-types", "canisters/chain_fusion"]
 resolver = "2"
