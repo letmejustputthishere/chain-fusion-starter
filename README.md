@@ -223,7 +223,7 @@ You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to 
 
 ### Sending Transactions to EVM Smart Contracts
 
-To send transactions to the EVM, this project uses the `eth_send_raw_transaction.rs` module. This module provides functionality for constructing and sending signed transactions to the Ethereum network.
+To send transactions to the EVM, this project uses the `eth_send_raw_transaction.rs` module. This module provides functionality for constructing and sending signed transactions to the Ethereum network specifically through the [`eth_send_raw_transaction`](https://docs.alchemy.com/reference/eth-sendrawtransaction) function.
 
 #### Key Functions:
 
