@@ -164,11 +164,11 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
 }
 ```
 
-The `storage.rs` module can be used to write data to the canister's stable memory.
-
 ## Development
 
 All coprocessing logic resides in `src/chain_fusion_backend/src/job.rs`. Developers can focus on writing jobs to process EVM smart contract events without altering the code for fetching events or sending transactions.
+
+### Interacting with the EVM Smart Contract
 
 If you want to check that the `chain_fusion_backend` really processed the events, you can either look at the logs output by running `./deploy.sh` – keep an eye open for the `Successfully ran job` message – or you can call the EVM contract to get the results of the jobs. To do this, run:
 
@@ -183,6 +183,55 @@ If you want to create more jobs, simply run:
 ```sh
 cast send 0x5fbdb2315678afecb367f032d93f642f64180aa3 "newJob()" --private-key=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --value 0.01ether
 ```
+
+### Leveraging `storage.rs` for Stable Memory
+
+The `storage.rs` module allows you to store data in stable memory, providing up to 400 GiB of available storage. In this starter template, stable memory is used to store assets that can then be served via HTTP.
+
+To use this feature, you need to uncomment the section in `lib.rs` that handles HTTP requests. This enables the canister to serve stored assets. Here is the code snippet to uncomment:
+
+```rust
+// Uncomment this if you need to serve stored assets from `storage.rs` via HTTP requests
+
+// #[ic_cdk::query]
+// fn http_request(req: HttpRequest) -> HttpResponse {
+//     if let Some(asset) = get_asset(&req.path().to_string()) {
+//         let mut response_builder = HttpResponseBuilder::ok();
+
+//         for (name, value) in asset.headers {
+//             response_builder = response_builder.header(name, value);
+//         }
+
+//         response_builder
+//             .with_body_and_content_length(asset.body)
+//             .build()
+//     } else {
+//         HttpResponseBuilder::not_found().build()
+//     }
+// }
+```
+
+By enabling this code, you can serve web content directly from the canister, leveraging the stable memory for storing large amounts of data efficiently.
+
+### Read from EVM Smart Contracts
+
+To read from EVM smart contracts, this project leverages the `eth_call.rs` module, specifically the [`eth_call`](https://docs.alchemy.com/reference/eth-call) function exposed therein. This function allows you to make read-only calls to EVM smart contracts, which is useful for retrieving data without modifying the contract state.
+
+An example of how to use this functionality to get the ERC20 balance of an address is provided in the same module. The function is called `erc20_balance_of`. This example demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address.
+
+You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
+
+### Sending Transactions to EVM Smart Contracts
+
+To send transactions to the EVM, this project uses the `eth_send_raw_transaction.rs` module. This module provides functionality for constructing and sending signed transactions to the Ethereum network.
+
+#### Key Functions:
+
+-   **ETH Transfer**: The `transfer_eth` function demonstrates how to transfer ETH from the canister-owned EVM address to another address. It covers creating a transaction, signing it with the canister's private key, and sending it to the EVM network.
+
+-   **Job Result Submission**: The `submit_result` function sends the results of a processed job back to the EVM smart contract. This is essential for interacting with smart contracts after processing events.
+
+By referring to these example functions in the `eth_send_raw_transaction.rs` module, you can implement similar functionality to send various types of transactions to EVM smart contracts from your canister. These examples illustrate the process for transferring ETH and submitting job results, but the same principles can be applied to other types of transactions.
 
 ## Use Cases
 
