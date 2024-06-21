@@ -1,11 +1,11 @@
 use ethers_core::types::{U256, U64};
+use evm_rpc_canister_types::{
+    MultiSendRawTransactionResult, RpcServices, SendRawTransactionResult, SendRawTransactionStatus,
+    EVM_RPC,
+};
 use ic_cdk::println;
 
 use crate::{
-    evm_rpc::{
-        MultiSendRawTransactionResult, RpcServices, SendRawTransactionResult,
-        SendRawTransactionStatus, EVM_RPC,
-    },
     evm_signer::{self, SignRequest},
     fees::{estimate_transaction_fees, FeeEstimates},
     state::{mutate_state, read_state},
@@ -91,8 +91,12 @@ pub async fn send_raw_transaction(tx: String) -> SendRawTransactionStatus {
     }
 }
 
-impl RpcServices {
-    pub fn chain_id(&self) -> U64 {
+trait IntoChainId {
+    fn chain_id(&self) -> U64;
+}
+
+impl IntoChainId for RpcServices {
+    fn chain_id(&self) -> U64 {
         match self {
             RpcServices::EthSepolia(_) => U64::from(11155111),
             RpcServices::Custom {

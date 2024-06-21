@@ -1,4 +1,4 @@
-use crate::evm_rpc::{BlockTag, LogEntry, RpcService, RpcServices};
+use evm_rpc_canister_types::{BlockTag, LogEntry, RpcService, RpcServices};
 
 use candid::Nat;
 use ethers_core::types::U256;
@@ -74,8 +74,12 @@ impl State {
     }
 }
 
-impl LogEntry {
-    pub fn source(&self) -> LogSource {
+trait IntoLogSource {
+    fn source(&self) -> LogSource;
+}
+
+impl IntoLogSource for LogEntry {
+    fn source(&self) -> LogSource {
         LogSource {
             transaction_hash: self
                 .transactionHash

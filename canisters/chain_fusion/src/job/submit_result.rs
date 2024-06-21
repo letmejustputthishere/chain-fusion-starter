@@ -1,11 +1,10 @@
 use ethers_core::{types::U256, utils::keccak256};
+use evm_rpc_canister_types::SendRawTransactionStatus;
 
 use crate::{
-    evm_rpc::SendRawTransactionStatus,
-    evm_signer,
-    fees,
-    state::{mutate_state, read_state},
     eth_send_raw_transaction::{create_sign_request, send_raw_transaction},
+    evm_signer, fees,
+    state::{mutate_state, read_state},
 };
 use ethers_core::abi::AbiEncode;
 
@@ -36,7 +35,6 @@ pub async fn submit_result(result: String, job_id: U256) {
     let tx = evm_signer::sign_transaction(request).await;
 
     let status = send_raw_transaction(tx.clone()).await;
-
 
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
