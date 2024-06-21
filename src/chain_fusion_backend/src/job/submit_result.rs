@@ -37,7 +37,6 @@ pub async fn submit_result(result: String, job_id: U256) {
 
     let status = send_raw_transaction(tx.clone()).await;
 
-    println!("Transaction sent: {:?}", tx);
 
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {

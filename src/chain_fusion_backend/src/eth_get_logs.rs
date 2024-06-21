@@ -26,7 +26,6 @@ async fn process_logs() {
     let logs_to_process = read_state(|s| (s.logs_to_process.clone()));
 
     for (event_source, event) in logs_to_process {
-        println!("running job");
         job(event_source, event).await
     }
 }
@@ -67,10 +66,6 @@ async fn scrape_eth_logs_range_inclusive(from: &Nat, to: &Nat) -> Option<Nat> {
         Ordering::Less | Ordering::Equal => {
             let max_to = from.clone().add(Nat::from(MAX_BLOCK_SPREAD));
             let mut last_block_number = min(max_to, to.clone());
-            println!(
-                "Scraping ETH logs from block {:?} to block {:?}...",
-                from, last_block_number
-            );
 
             let logs = loop {
                 match get_logs(from, &last_block_number).await {
@@ -108,11 +103,9 @@ async fn scrape_eth_logs_range_inclusive(from: &Nat, to: &Nat) -> Option<Nat> {
             };
 
             for log_entry in logs {
-                println!("Received event {log_entry:?}",);
                 mutate_state(|s| s.record_log_to_process(&log_entry));
             }
             if read_state(State::has_logs_to_process) {
-                println!("Found logs to process",);
                 ic_cdk_timers::set_timer(Duration::from_secs(0), move || {
                     ic_cdk::spawn(process_logs())
                 });

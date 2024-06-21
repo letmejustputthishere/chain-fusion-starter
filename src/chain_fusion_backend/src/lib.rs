@@ -1,3 +1,4 @@
+mod eth_call;
 mod eth_get_logs;
 mod evm_rpc;
 mod evm_signer;
@@ -6,7 +7,6 @@ mod guard;
 mod job;
 mod lifecycle;
 mod state;
-mod eth_call;
 // uncomment to enable serving stored assets via http requests
 // mod storage;
 mod eth_send_raw_transaction;
@@ -16,7 +16,6 @@ use std::time::Duration;
 
 use eth_get_logs::scrape_eth_logs;
 
-use ic_cdk::println;
 use lifecycle::InitArg;
 use state::read_state;
 
@@ -43,7 +42,6 @@ fn setup_timers() {
 
 #[ic_cdk::init]
 fn init(arg: InitArg) {
-    println!("[init]: initialized canister with arg: {:?}", arg);
     initialize_state(state::State::try_from(arg).expect("BUG: failed to initialize canister"));
     setup_timers();
 }
