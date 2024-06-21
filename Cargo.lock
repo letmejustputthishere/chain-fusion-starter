@@ -444,7 +444,7 @@ dependencies = [
 
 [[package]]
 name = "evm-rpc-canister-types"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "candid",
  "ic-cdk 0.14.0",
