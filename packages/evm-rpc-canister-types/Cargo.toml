@@ -11,14 +11,10 @@ homepage = "https://github.com/letmejustputthishere/chain-fusion-starter"
 documentation = "https://internetcomputer.org/docs/current/developer-docs/multi-chain/ethereum/evm-rpc/evm-rpc-canister"
 keywords = [
   "evm rpc canister",
-  "chain fusion",
-  "web3",
   "ethereum",
   "dfinity",
   "icp",
   "internet computer",
-  "blockchain",
-  "smart contracts",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
