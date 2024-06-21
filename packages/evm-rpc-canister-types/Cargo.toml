@@ -8,7 +8,7 @@ description = "Types for interacting with the EVM RPC canister."
 license = "Apache-2.0" # Choose an appropriate license
 repository = "https://github.com/letmejustputthishere/chain-fusion-starter"
 homepage = "https://github.com/letmejustputthishere/chain-fusion-starter"
-documentation = "https://docs.rs/evm-rpc-canister-types"
+documentation = "https://internetcomputer.org/docs/current/developer-docs/multi-chain/ethereum/evm-rpc/evm-rpc-canister"
 keywords = [
   "evm rpc canister",
   "chain fusion",
