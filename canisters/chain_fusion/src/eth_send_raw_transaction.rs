@@ -11,6 +11,7 @@ use crate::{
     state::{mutate_state, read_state},
 };
 
+#[allow(dead_code)]
 pub async fn transfer_eth(value: U256, to: String, gas: Option<U256>) {
     let gas = gas.unwrap_or(U256::from(21000));
     let fee_estimates = estimate_transaction_fees(9).await;

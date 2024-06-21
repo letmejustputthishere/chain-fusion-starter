@@ -32,6 +32,7 @@ pub struct JsonRpcError {
     message: String,
 }
 
+#[allow(dead_code)]
 async fn eth_call(
     contract_address: String,
     abi: &Contract,
@@ -102,6 +103,7 @@ fn from_hex(data: &str) -> Result<Vec<u8>, FromHexError> {
     hex::decode(&data[2..])
 }
 
+#[allow(dead_code)]
 pub async fn erc20_balance_of(contract_address: String, account: String) -> U256 {
     // Define the ABI JSON as a string literal
     let abi_json = r#"
