@@ -194,5 +194,8 @@ impl ResponseSizeErrorCheck for HttpOutcallError {
 }
 
 pub fn is_response_too_large(code: &RejectionCode, message: &str) -> bool {
-    code == &RejectionCode::SysFatal && message.contains("size limit")
+    match code {
+        RejectionCode::SysFatal => message.contains("size limit"),
+        _ => false,
+    }
 }

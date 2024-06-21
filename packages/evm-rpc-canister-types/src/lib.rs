@@ -1,20 +1,13 @@
-// This is an experimental feature to generate Rust binding from Candid.
-// You may want to manually adjust some of the types.
-#![allow(
-    dead_code,
-    unused_imports,
-    non_snake_case,
-    clippy::large_enum_variant,
-    clippy::enum_variant_names
-)]
-use candid::{self, CandidType, Decode, Deserialize, Encode, Principal};
-use ic_cdk::api::call::CallResult as Result;
+#![allow(non_snake_case, clippy::large_enum_variant)]
+use candid::{self, CandidType, Deserialize, Principal};
+use ic_cdk::api::call::{call_with_payment128, CallResult as Result};
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct InitArgs {
     pub nodesInSubnet: u32,
 }
-#[derive(CandidType, Deserialize)]
+
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum Auth {
     RegisterProvider,
     FreeRpc,
@@ -58,7 +51,7 @@ pub enum RpcServices {
     EthMainnet(Option<Vec<EthMainnetService>>),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct RpcConfig {
     pub responseSizeEstimate: Option<u64>,
 }
@@ -73,14 +66,14 @@ pub enum BlockTag {
     Pending,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct FeeHistoryArgs {
     pub blockCount: candid::Nat,
     pub newestBlock: BlockTag,
     pub rewardPercentiles: Option<serde_bytes::ByteBuf>,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct FeeHistory {
     pub reward: Vec<Vec<candid::Nat>>,
     pub gasUsedRatio: Vec<f64>,
@@ -88,13 +81,13 @@ pub struct FeeHistory {
     pub baseFeePerGas: Vec<candid::Nat>,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct JsonRpcError {
     pub code: i64,
     pub message: String,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum ProviderError {
     TooFewCycles {
         expected: candid::Nat,
@@ -105,7 +98,7 @@ pub enum ProviderError {
     NoPermission,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum ValidationError {
     CredentialPathNotAllowed,
     HostNotAllowed(String),
@@ -115,7 +108,7 @@ pub enum ValidationError {
     InvalidHex(String),
 }
 
-#[derive(CandidType, Deserialize, Debug, PartialEq)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RejectionCode {
     NoError,
     CanisterError,
@@ -126,7 +119,7 @@ pub enum RejectionCode {
     CanisterReject,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum HttpOutcallError {
     IcError {
         code: RejectionCode,
@@ -139,7 +132,7 @@ pub enum HttpOutcallError {
     },
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RpcError {
     JsonRpcError(JsonRpcError),
     ProviderError(ProviderError),
@@ -147,7 +140,7 @@ pub enum RpcError {
     HttpOutcallError(HttpOutcallError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum FeeHistoryResult {
     Ok(Option<FeeHistory>),
     Err(RpcError),
@@ -162,13 +155,13 @@ pub enum RpcService {
     Provider(u64),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum MultiFeeHistoryResult {
     Consistent(FeeHistoryResult),
     Inconsistent(Vec<(RpcService, FeeHistoryResult)>),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct Block {
     pub miner: String,
     pub totalDifficulty: candid::Nat,
@@ -193,19 +186,19 @@ pub struct Block {
     pub mixHash: String,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum GetBlockByNumberResult {
     Ok(Block),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum MultiGetBlockByNumberResult {
     Consistent(GetBlockByNumberResult),
     Inconsistent(Vec<(RpcService, GetBlockByNumberResult)>),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct GetLogsArgs {
     pub fromBlock: Option<BlockTag>,
     pub toBlock: Option<BlockTag>,
@@ -226,37 +219,37 @@ pub struct LogEntry {
     pub removed: bool,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum GetLogsResult {
     Ok(Vec<LogEntry>),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum MultiGetLogsResult {
     Consistent(GetLogsResult),
     Inconsistent(Vec<(RpcService, GetLogsResult)>),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct GetTransactionCountArgs {
     pub address: String,
     pub block: BlockTag,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum GetTransactionCountResult {
     Ok(candid::Nat),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum MultiGetTransactionCountResult {
     Consistent(GetTransactionCountResult),
     Inconsistent(Vec<(RpcService, GetTransactionCountResult)>),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct TransactionReceipt {
     pub to: String,
     pub status: candid::Nat,
@@ -273,19 +266,19 @@ pub struct TransactionReceipt {
     pub gasUsed: candid::Nat,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum GetTransactionReceiptResult {
     Ok(Option<TransactionReceipt>),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum MultiGetTransactionReceiptResult {
     Consistent(GetTransactionReceiptResult),
     Inconsistent(Vec<(RpcService, GetTransactionReceiptResult)>),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum SendRawTransactionStatus {
     Ok(Option<String>),
     NonceTooLow,
@@ -293,20 +286,20 @@ pub enum SendRawTransactionStatus {
     InsufficientFunds,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum SendRawTransactionResult {
     Ok(SendRawTransactionStatus),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum MultiSendRawTransactionResult {
     Consistent(SendRawTransactionResult),
     Inconsistent(Vec<(RpcService, SendRawTransactionResult)>),
 }
 
 pub type ProviderId = u64;
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct Metrics {
     pub cyclesWithdrawn: candid::Nat,
     pub responses: Vec<((String, String, String), u64)>,
@@ -318,7 +311,7 @@ pub struct Metrics {
     pub errHostNotAllowed: Vec<(String, u64)>,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct ProviderView {
     pub cyclesPerCall: u64,
     pub owner: Principal,
@@ -329,14 +322,14 @@ pub struct ProviderView {
     pub providerId: u64,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct ManageProviderArgs {
     pub service: Option<RpcService>,
     pub primary: Option<bool>,
     pub providerId: u64,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct RegisterProviderArgs {
     pub cyclesPerCall: u64,
     pub credentialPath: String,
@@ -346,19 +339,19 @@ pub struct RegisterProviderArgs {
     pub cyclesPerMessageByte: u64,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RequestResult {
     Ok(String),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RequestCostResult {
     Ok(candid::Nat),
     Err(RpcError),
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct UpdateProviderArgs {
     pub cyclesPerCall: Option<u64>,
     pub credentialPath: Option<String>,
@@ -384,13 +377,7 @@ impl Service {
         arg2: FeeHistoryArgs,
         cycles: u128,
     ) -> Result<(MultiFeeHistoryResult,)> {
-        ic_cdk::api::call::call_with_payment128(
-            self.0,
-            "eth_feeHistory",
-            (arg0, arg1, arg2),
-            cycles,
-        )
-        .await
+        call_with_payment128(self.0, "eth_feeHistory", (arg0, arg1, arg2), cycles).await
     }
     pub async fn eth_get_block_by_number(
         &self,
@@ -399,13 +386,7 @@ impl Service {
         arg2: BlockTag,
         cycles: u128,
     ) -> Result<(MultiGetBlockByNumberResult,)> {
-        ic_cdk::api::call::call_with_payment128(
-            self.0,
-            "eth_getBlockByNumber",
-            (arg0, arg1, arg2),
-            cycles,
-        )
-        .await
+        call_with_payment128(self.0, "eth_getBlockByNumber", (arg0, arg1, arg2), cycles).await
     }
     pub async fn eth_get_logs(
         &self,
@@ -414,24 +395,37 @@ impl Service {
         arg2: GetLogsArgs,
         cycles: u128,
     ) -> Result<(MultiGetLogsResult,)> {
-        ic_cdk::api::call::call_with_payment128(self.0, "eth_getLogs", (arg0, arg1, arg2), cycles)
-            .await
+        call_with_payment128(self.0, "eth_getLogs", (arg0, arg1, arg2), cycles).await
     }
     pub async fn eth_get_transaction_count(
         &self,
         arg0: RpcServices,
         arg1: Option<RpcConfig>,
         arg2: GetTransactionCountArgs,
+        cycles: u128,
     ) -> Result<(MultiGetTransactionCountResult,)> {
-        ic_cdk::call(self.0, "eth_getTransactionCount", (arg0, arg1, arg2)).await
+        call_with_payment128(
+            self.0,
+            "eth_getTransactionCount",
+            (arg0, arg1, arg2),
+            cycles,
+        )
+        .await
     }
     pub async fn eth_get_transaction_receipt(
         &self,
         arg0: RpcServices,
         arg1: Option<RpcConfig>,
         arg2: String,
+        cycles: u128,
     ) -> Result<(MultiGetTransactionReceiptResult,)> {
-        ic_cdk::call(self.0, "eth_getTransactionReceipt", (arg0, arg1, arg2)).await
+        call_with_payment128(
+            self.0,
+            "eth_getTransactionReceipt",
+            (arg0, arg1, arg2),
+            cycles,
+        )
+        .await
     }
     pub async fn eth_send_raw_transaction(
         &self,
@@ -440,13 +434,7 @@ impl Service {
         arg2: String,
         cycles: u128,
     ) -> Result<(MultiSendRawTransactionResult,)> {
-        ic_cdk::api::call::call_with_payment128(
-            self.0,
-            "eth_sendRawTransaction",
-            (arg0, arg1, arg2),
-            cycles,
-        )
-        .await
+        call_with_payment128(self.0, "eth_sendRawTransaction", (arg0, arg1, arg2), cycles).await
     }
     pub async fn get_accumulated_cycle_count(&self, arg0: ProviderId) -> Result<(candid::Nat,)> {
         ic_cdk::call(self.0, "getAccumulatedCycleCount", (arg0,)).await
@@ -482,7 +470,7 @@ impl Service {
         arg2: u64,
         cycles: u128,
     ) -> Result<(RequestResult,)> {
-        ic_cdk::api::call::call_with_payment128(self.0, "request", (arg0, arg1, arg2), cycles).await
+        call_with_payment128(self.0, "request", (arg0, arg1, arg2), cycles).await
     }
     pub async fn request_cost(
         &self,
