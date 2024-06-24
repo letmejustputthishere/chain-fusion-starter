@@ -501,3 +501,56 @@ impl Service {
 pub const CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
 pub const EVM_RPC: Service = Service(CANISTER_ID);
+
+#[test]
+fn test_candid_interface() {
+    fn source_to_str(source: &candid_parser::utils::CandidSource) -> String {
+        match source {
+            candid_parser::utils::CandidSource::File(f) => {
+                std::fs::read_to_string(f).unwrap_or_else(|_| "".to_string())
+            }
+            candid_parser::utils::CandidSource::Text(t) => t.to_string(),
+        }
+    }
+
+    fn check_service_compatible(
+        new_name: &str,
+        new: candid_parser::utils::CandidSource,
+        old_name: &str,
+        old: candid_parser::utils::CandidSource,
+    ) {
+        let new_str = source_to_str(&new);
+        let old_str = source_to_str(&old);
+        match candid_parser::utils::service_compatible(new, old) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!(
+                    "{} is not compatible with {}!\n\n\
+            {}:\n\
+            {}\n\n\
+            {}:\n\
+            {}\n",
+                    new_name, old_name, new_name, new_str, old_name, old_str
+                );
+                panic!("{:?}", e);
+            }
+        }
+    }
+
+    // fetch public interface from github
+    let client = reqwest::blocking::Client::new();
+    let new_interface = client.get("https://raw.githubusercontent.com/internet-computer-protocol/evm-rpc-canister/main/candid/evm_rpc.did")
+    .send().unwrap()
+    .text().unwrap();
+
+    // check the public interface against the actual one
+    let old_interface =
+        std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("evm_rpc.did");
+
+    check_service_compatible(
+        "actual ledger candid interface",
+        candid_parser::utils::CandidSource::Text(&new_interface),
+        "declared candid interface in evm_rpc.did file",
+        candid_parser::utils::CandidSource::File(old_interface.as_path()),
+    );
+}

@@ -1,0 +1,72 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+    - name: Build
+      run: cargo build --workspace --verbose
+    - name: Run tests
+      run: cargo test --workspace --verbose
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+
+    - name: Cache cargo registry
+      uses: actions/cache@v2
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-registry-
+
+    - name: Cache cargo index
+      uses: actions/cache@v2
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-index-
+
+    - name: Check for version change on crates.io
+      id: version_check
+      run: |
+        crate_name="evm-rpc-canister-types"
+        current_version=$(cargo metadata --format-version=1 --manifest-path packages/evm-rpc-canister-types/Cargo.toml | jq -r '.packages[] | select(.name == "'$crate_name'") | .version')
+        crates_io_version=$(curl -s https://crates.io/api/v1/crates/$crate_name | jq -r '.crate.max_version')
+        echo "Current version: $current_version"
+        echo "Crates.io version: $crates_io_version"
+        echo "::set-output name=version_changed::$( [ "$current_version" != "$crates_io_version" ] && echo true || echo false )"
+
+    - name: Publish to crates.io
+      if: steps.version_check.outputs.version_changed == 'true'
+      env:
+        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      run: cargo publish --manifest-path packages/evm-rpc-canister-types/Cargo.toml --verbose
