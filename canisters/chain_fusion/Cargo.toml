@@ -26,3 +26,4 @@ serde_bytes.workspace = true
 serde_json.workspace = true
 svg = "0.17.0"
 evm-rpc-canister-types = { path = "../../packages/evm-rpc-canister-types" }
+ic-evm-utils = { path = "../../packages/ic-evm-utils" }

@@ -6,3 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+candid.workspace = true
+ic-cdk.workspace = true
+serde.workspace = true
+serde_bytes.workspace = true
+serde_json.workspace = true
+evm-rpc-canister-types = { path = "../evm-rpc-canister-types" }
+alloy = { version = "0.1.2", features = ["rpc-types", "signers", "consensus"] }
+rlp = "0.5.2"

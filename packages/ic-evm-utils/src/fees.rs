@@ -1,12 +1,13 @@
+use alloy::primitives::U256;
 use candid::Nat;
-use ethers_core::types::U256;
 use evm_rpc_canister_types::{
-    BlockTag, FeeHistory, FeeHistoryArgs, FeeHistoryResult, MultiFeeHistoryResult, EVM_RPC,
+    BlockTag, FeeHistory, FeeHistoryArgs, FeeHistoryResult, MultiFeeHistoryResult, RpcServices,
+    EVM_RPC,
 };
 use serde_bytes::ByteBuf;
 use std::ops::Add;
 
-use crate::{state::read_state, utils};
+use crate::conversions::nat_to_u256;
 
 const MIN_SUGGEST_MAX_PRIORITY_FEE_PER_GAS: u32 = 1_500_000_000;
 
@@ -14,8 +15,8 @@ pub async fn fee_history(
     block_count: Nat,
     newest_block: BlockTag,
     reward_percentiles: Option<Vec<u8>>,
+    rpc_providers: RpcServices,
 ) -> FeeHistory {
-    let rpc_providers = read_state(|s| s.rpc_services.clone());
     let fee_history_args: FeeHistoryArgs = FeeHistoryArgs {
         blockCount: block_count,
         newestBlock: newest_block,
@@ -55,14 +56,23 @@ fn median_index(length: usize) -> usize {
     (length - 1) / 2
 }
 
-pub async fn estimate_transaction_fees(block_count: u8) -> FeeEstimates {
+pub async fn estimate_transaction_fees(
+    block_count: u8,
+    rpc_providers: RpcServices,
+) -> FeeEstimates {
     // we are setting the `max_priority_fee_per_gas` based on this article:
     // https://docs.alchemy.com/docs/maxpriorityfeepergas-vs-maxfeepergas
     // following this logic, the base fee will be derived from the block history automatically
     // and we only specify the maximum priority fee per gas (tip).
     // the tip is derived from the fee history of the last 9 blocks, more specifically
     // from the 95th percentile of the tip.
-    let fee_history = fee_history(Nat::from(block_count), BlockTag::Latest, Some(vec![95])).await;
+    let fee_history = fee_history(
+        Nat::from(block_count),
+        BlockTag::Latest,
+        Some(vec![95]),
+        rpc_providers,
+    )
+    .await;
 
     let median_index = median_index(block_count.into());
 
@@ -90,7 +100,7 @@ pub async fn estimate_transaction_fees(block_count: u8) -> FeeEstimates {
         .max(Nat::from(MIN_SUGGEST_MAX_PRIORITY_FEE_PER_GAS));
 
     FeeEstimates {
-        max_fee_per_gas: utils::nat_to_u256(&max_priority_fee_per_gas),
-        max_priority_fee_per_gas: utils::nat_to_u256(&median_reward),
+        max_fee_per_gas: nat_to_u256(&max_priority_fee_per_gas),
+        max_priority_fee_per_gas: nat_to_u256(&median_reward),
     }
 }
