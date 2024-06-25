@@ -1,10 +1,9 @@
-use ethers_core::abi::{Contract, FunctionExt, Token};
-use ethers_core::types::U256;
+use alloy::contract::SolCallBuilder;
+use alloy::{hex, sol};
 use hex::FromHexError;
 use serde::{Deserialize, Serialize};
 
-use crate::state::read_state;
-use evm_rpc_canister_types::{RequestResult, EVM_RPC};
+use evm_rpc_canister_types::{RequestResult, RpcService, RpcServices, EVM_RPC};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EthCallParams {
@@ -32,13 +31,13 @@ pub struct JsonRpcError {
     message: String,
 }
 
-#[allow(dead_code)]
 async fn eth_call(
     contract_address: String,
     abi: &Contract,
     function_name: &str,
     args: &[Token],
     block_number: &str,
+    rpc_service: RpcService,
 ) -> Vec<Token> {
     let f = match abi.functions_by_name(function_name).map(|v| &v[..]) {
         Ok([f]) => f,
@@ -72,12 +71,11 @@ async fn eth_call(
     })
     .expect("Error while encoding JSON-RPC request");
 
-    let rpc_provider = read_state(|s| s.rpc_service.clone());
     let max_response_bytes = 2048;
     let cycles = 10_000_000_000;
 
     let res = match EVM_RPC
-        .request(rpc_provider, json_rpc_payload, max_response_bytes, cycles)
+        .request(rpc_service, json_rpc_payload, max_response_bytes, cycles)
         .await
     {
         Ok((res,)) => res,
@@ -106,7 +104,9 @@ fn from_hex(data: &str) -> Result<Vec<u8>, FromHexError> {
 #[allow(dead_code)]
 pub async fn erc20_balance_of(contract_address: String, account: String) -> U256 {
     // Define the ABI JSON as a string literal
-    let abi_json = r#"
+    sol!(
+        IERC20,
+        r#"
    [
        {
            "constant": true,
@@ -126,9 +126,10 @@ pub async fn erc20_balance_of(contract_address: String, account: String) -> U256
            "type": "function"
        }
    ]
-   "#;
-    let abi =
-        serde_json::from_str::<ethers_core::abi::Contract>(abi_json).expect("should serialise");
+   "#
+    );
+
+    IERC20::new(address);
 
     let Token::Uint(balance) = eth_call(
         contract_address.to_string(),

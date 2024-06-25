@@ -1,79 +1,73 @@
-use ethers_core::types::{U256, U64};
+use crate::evm_signer::{self, IntoChainId};
+use alloy::{
+    consensus::TxEip1559,
+    primitives::{TxKind, U256},
+};
 use evm_rpc_canister_types::{
     MultiSendRawTransactionResult, RpcServices, SendRawTransactionResult, SendRawTransactionStatus,
     EVM_RPC,
 };
-use ic_cdk::println;
+use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 
-use crate::{
-    evm_signer::{self, SignRequest},
-    fees::{estimate_transaction_fees, FeeEstimates},
-    state::{mutate_state, read_state},
-};
+use crate::fees::estimate_transaction_fees;
 
-#[allow(dead_code)]
-pub async fn transfer_eth(value: U256, to: String, gas: Option<U256>) {
-    let gas = gas.unwrap_or(U256::from(21000));
-    let fee_estimates = estimate_transaction_fees(9).await;
-    let request = create_sign_request(value, Some(to), None, gas, None, fee_estimates).await;
-
-    let tx = evm_signer::sign_transaction(request).await;
-
-    let status = send_raw_transaction(tx.clone()).await;
-
-    match status {
-        SendRawTransactionStatus::Ok(transaction_hash) => {
-            println!("Success {transaction_hash:?}");
-            mutate_state(|s| {
-                s.nonce += U256::from(1);
-            });
-        }
-        SendRawTransactionStatus::NonceTooLow => {
-            println!("Nonce too low");
-        }
-        SendRawTransactionStatus::NonceTooHigh => {
-            println!("Nonce too high");
-        }
-        SendRawTransactionStatus::InsufficientFunds => {
-            println!("Insufficient funds");
-        }
-    }
-}
-
-pub async fn create_sign_request(
+pub async fn transfer_eth(
     value: U256,
-    to: Option<String>,
-    from: Option<String>,
-    gas: U256,
-    data: Option<Vec<u8>>,
-    fee_estimates: FeeEstimates,
-) -> SignRequest {
-    let FeeEstimates {
-        max_fee_per_gas,
-        max_priority_fee_per_gas,
-    } = fee_estimates;
-    let nonce = read_state(|s| s.nonce);
-    let rpc_providers = read_state(|s| s.rpc_services.clone());
-
-    SignRequest {
-        chain_id: Some(rpc_providers.chain_id()),
+    to: TxKind,
+    gas_limit: Option<u128>,
+    rpc_services: RpcServices,
+    key_id: EcdsaKeyId,
+    derivation_path: Vec<Vec<u8>>,
+    nonce: u64,
+) -> SendRawTransactionStatus {
+    // use the user provided gas_limit or fallback to default 21000
+    let gas_limit = gas_limit.unwrap_or(21000);
+    // estimate the transaction fees by calling eth_feeHistory
+    let fee_estimates = estimate_transaction_fees(9, rpc_services.clone()).await;
+    // assemble the EIP 1559 transaction to be signed with t-ECDSA
+    let tx = TxEip1559 {
+        chain_id: rpc_services.chain_id(),
+        gas_limit,
         to,
-        from,
-        gas,
-        max_fee_per_gas: Some(max_fee_per_gas),
-        max_priority_fee_per_gas: Some(max_priority_fee_per_gas),
-        data,
-        value: Some(value),
-        nonce: Some(nonce),
-    }
+        max_fee_per_gas: fee_estimates.max_fee_per_gas,
+        max_priority_fee_per_gas: fee_estimates.max_priority_fee_per_gas,
+        value,
+        nonce,
+        access_list: Default::default(),
+        input: Default::default(),
+    };
+
+    let tx = evm_signer::sign_eip1559_transaction(tx, key_id, derivation_path).await;
+
+    send_raw_transaction(tx, rpc_services).await
+
+    // match status {
+    //     SendRawTransactionStatus::Ok(transaction_hash) => {
+    //         println!("Success {transaction_hash:?}");
+    //         mutate_state(|s| {
+    //             s.nonce += U256::from(1);
+    //         });
+    //     }
+    //     SendRawTransactionStatus::NonceTooLow => {
+    //         println!("Nonce too low");
+    //     }
+    //     SendRawTransactionStatus::NonceTooHigh => {
+    //         println!("Nonce too high");
+    //     }
+    //     SendRawTransactionStatus::InsufficientFunds => {
+    //         println!("Insufficient funds");
+    //     }
+    // }
 }
 
-pub async fn send_raw_transaction(tx: String) -> SendRawTransactionStatus {
-    let rpc_providers = read_state(|s| s.rpc_services.clone());
+pub async fn send_raw_transaction(
+    tx: String,
+    rpc_services: RpcServices,
+) -> SendRawTransactionStatus {
     let cycles = 10_000_000_000;
 
     match EVM_RPC
-        .eth_send_raw_transaction(rpc_providers, None, tx, cycles)
+        .eth_send_raw_transaction(rpc_services, None, tx, cycles)
         .await
     {
         Ok((res,)) => match res {
@@ -88,22 +82,5 @@ pub async fn send_raw_transaction(tx: String) -> SendRawTransactionStatus {
             }
         },
         Err(e) => ic_cdk::trap(format!("Error: {:?}", e).as_str()),
-    }
-}
-
-trait IntoChainId {
-    fn chain_id(&self) -> U64;
-}
-
-impl IntoChainId for RpcServices {
-    fn chain_id(&self) -> U64 {
-        match self {
-            RpcServices::EthSepolia(_) => U64::from(11155111),
-            RpcServices::Custom {
-                chainId,
-                services: _,
-            } => U64::from(*chainId),
-            RpcServices::EthMainnet(_) => U64::from(1),
-        }
     }
 }

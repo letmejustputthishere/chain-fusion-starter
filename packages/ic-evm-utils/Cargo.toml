@@ -12,5 +12,13 @@ serde.workspace = true
 serde_bytes.workspace = true
 serde_json.workspace = true
 evm-rpc-canister-types = { path = "../evm-rpc-canister-types" }
-alloy = { version = "0.1.2", features = ["rpc-types", "signers", "consensus", "eips"] }
+alloy = { version = "0.1.2", features = [
+  "rpc-types",
+  "signers",
+  "consensus",
+  "eips",
+  "sol-types",
+  "json",
+  "contract",
+] }
 rlp = "0.5.2"

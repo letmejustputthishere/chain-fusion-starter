@@ -1,4 +1,3 @@
-use alloy::primitives::U256;
 use candid::Nat;
 use evm_rpc_canister_types::{
     BlockTag, FeeHistory, FeeHistoryArgs, FeeHistoryResult, MultiFeeHistoryResult, RpcServices,
@@ -7,7 +6,7 @@ use evm_rpc_canister_types::{
 use serde_bytes::ByteBuf;
 use std::ops::Add;
 
-use crate::conversions::nat_to_u256;
+use crate::conversions::nat_to_u128;
 
 const MIN_SUGGEST_MAX_PRIORITY_FEE_PER_GAS: u32 = 1_500_000_000;
 
@@ -45,8 +44,8 @@ pub async fn fee_history(
 }
 
 pub struct FeeEstimates {
-    pub max_fee_per_gas: U256,
-    pub max_priority_fee_per_gas: U256,
+    pub max_fee_per_gas: u128,
+    pub max_priority_fee_per_gas: u128,
 }
 
 fn median_index(length: usize) -> usize {
@@ -100,7 +99,7 @@ pub async fn estimate_transaction_fees(
         .max(Nat::from(MIN_SUGGEST_MAX_PRIORITY_FEE_PER_GAS));
 
     FeeEstimates {
-        max_fee_per_gas: nat_to_u256(&max_priority_fee_per_gas),
-        max_priority_fee_per_gas: nat_to_u256(&median_reward),
+        max_fee_per_gas: nat_to_u128(&max_priority_fee_per_gas),
+        max_priority_fee_per_gas: nat_to_u128(&median_reward),
     }
 }

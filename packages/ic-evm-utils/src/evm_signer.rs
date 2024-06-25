@@ -1,33 +1,23 @@
 use alloy::consensus::{SignableTransaction, TxEip1559, TxEnvelope};
 use alloy::eips::eip2718::Encodable2718;
 use alloy::hex;
-use alloy::primitives::{keccak256, Address, Bytes, FixedBytes, Parity, TxKind, U256};
+use alloy::primitives::{keccak256, Address, FixedBytes, Parity};
 use alloy::signers::Signature;
 use candid::Principal;
 
+use evm_rpc_canister_types::RpcServices;
 use ic_cdk::api::management_canister::ecdsa::{
     ecdsa_public_key, sign_with_ecdsa, EcdsaKeyId, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
 
-pub struct SignRequest {
-    pub chain_id: u64,
-    pub from: Option<String>,
-    pub to: TxKind,
-    pub max_fee_per_gas: u128,
-    pub max_priority_fee_per_gas: u128,
-    pub value: U256,
-    pub nonce: u64,
-    pub data: Bytes,
-}
-
 pub async fn get_canister_public_key(
     key_id: EcdsaKeyId,
     canister_id: Option<Principal>,
-    derivation_path: Option<Vec<Vec<u8>>>,
+    derivation_path: Vec<Vec<u8>>,
 ) -> Vec<u8> {
     let (key,) = ecdsa_public_key(EcdsaPublicKeyArgument {
         canister_id,
-        derivation_path: derivation_path.unwrap_or([].to_vec()),
+        derivation_path,
         key_id,
     })
     .await
@@ -36,29 +26,18 @@ pub async fn get_canister_public_key(
 }
 
 pub async fn sign_eip1559_transaction(
-    req: SignRequest,
+    tx: TxEip1559,
     key_id: EcdsaKeyId,
-    ecdsa_pub_key: Vec<u8>,
+    derivation_path: Vec<Vec<u8>>,
 ) -> String {
-    const EIP1559_TX_ID: u8 = 2;
-
-    let tx = TxEip1559 {
-        to: req.to,
-        value: req.value,
-        input: req.data,
-        nonce: req.nonce,
-        access_list: Default::default(),
-        max_priority_fee_per_gas: req.max_priority_fee_per_gas,
-        max_fee_per_gas: req.max_fee_per_gas,
-        chain_id: req.chain_id,
-        ..Default::default()
-    };
+    let ecdsa_pub_key =
+        get_canister_public_key(key_id.clone(), None, derivation_path.clone()).await;
 
     let tx_hash = tx.signature_hash();
 
     let r_and_s = sign_with_ecdsa(SignWithEcdsaArgument {
         message_hash: tx_hash.to_vec(),
-        derivation_path: [].to_vec(),
+        derivation_path,
         key_id,
     })
     .await
@@ -118,4 +97,21 @@ fn y_parity(prehash: &FixedBytes<32>, sig: &[u8], pubkey: &[u8]) -> Parity {
         hex::encode(sig),
         hex::encode(pubkey)
     )
+}
+
+pub trait IntoChainId {
+    fn chain_id(&self) -> u64;
+}
+
+impl IntoChainId for RpcServices {
+    fn chain_id(&self) -> u64 {
+        match self {
+            RpcServices::EthSepolia(_) => 11155111,
+            RpcServices::Custom {
+                chainId,
+                services: _,
+            } => *chainId,
+            RpcServices::EthMainnet(_) => 1,
+        }
+    }
 }
