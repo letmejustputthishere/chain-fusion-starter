@@ -1,16 +1,17 @@
 use ethers_core::types::{U256, U64};
+use evm_rpc_canister_types::{
+    MultiSendRawTransactionResult, RpcServices, SendRawTransactionResult, SendRawTransactionStatus,
+    EVM_RPC,
+};
 use ic_cdk::println;
 
 use crate::{
-    evm_rpc::{
-        MultiSendRawTransactionResult, RpcServices, SendRawTransactionResult,
-        SendRawTransactionStatus, EVM_RPC,
-    },
     evm_signer::{self, SignRequest},
     fees::{estimate_transaction_fees, FeeEstimates},
     state::{mutate_state, read_state},
 };
 
+#[allow(dead_code)]
 pub async fn transfer_eth(value: U256, to: String, gas: Option<U256>) {
     let gas = gas.unwrap_or(U256::from(21000));
     let fee_estimates = estimate_transaction_fees(9).await;
@@ -90,8 +91,12 @@ pub async fn send_raw_transaction(tx: String) -> SendRawTransactionStatus {
     }
 }
 
-impl RpcServices {
-    pub fn chain_id(&self) -> U64 {
+trait IntoChainId {
+    fn chain_id(&self) -> U64;
+}
+
+impl IntoChainId for RpcServices {
+    fn chain_id(&self) -> U64 {
         match self {
             RpcServices::EthSepolia(_) => U64::from(11155111),
             RpcServices::Custom {

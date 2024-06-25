@@ -5,7 +5,7 @@ use ethers_core::types::{H256, U256};
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::str::FromStr;
 
-use crate::evm_rpc::{BlockTag, RpcService, RpcServices};
+use evm_rpc_canister_types::{BlockTag, RpcService, RpcServices};
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct InitArg {

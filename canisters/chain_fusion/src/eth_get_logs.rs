@@ -5,13 +5,13 @@ use std::{
 };
 
 use candid::Nat;
+use evm_rpc_canister_types::{
+    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError,
+    MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
+};
 use ic_cdk::println;
 
 use crate::{
-    evm_rpc::{
-        BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError,
-        MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
-    },
     guard::TimerGuard,
     job::job,
     state::{mutate_state, read_state, State, TaskType},
@@ -180,8 +180,12 @@ async fn update_last_observed_block_number() -> Option<Nat> {
     }
 }
 
-impl HttpOutcallError {
-    pub fn is_response_too_large(&self) -> bool {
+trait ResponseSizeErrorCheck {
+    fn is_response_too_large(&self) -> bool;
+}
+
+impl ResponseSizeErrorCheck for HttpOutcallError {
+    fn is_response_too_large(&self) -> bool {
         match self {
             Self::IcError { code, message } => is_response_too_large(code, message),
             _ => false,
@@ -190,5 +194,8 @@ impl HttpOutcallError {
 }
 
 pub fn is_response_too_large(code: &RejectionCode, message: &str) -> bool {
-    code == &RejectionCode::SysFatal && message.contains("size limit")
+    match code {
+        RejectionCode::SysFatal => message.contains("size limit"),
+        _ => false,
+    }
 }

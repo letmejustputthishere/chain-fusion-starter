@@ -1,6 +1,5 @@
 mod eth_call;
 mod eth_get_logs;
-mod evm_rpc;
 mod evm_signer;
 mod fees;
 mod guard;

@@ -1,5 +1,5 @@
 [profile.default]
-src = "src/foundry"
+src = "contracts"
 out = "out"
 libs = ["lib"]
 

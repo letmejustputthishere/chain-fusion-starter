@@ -4,11 +4,11 @@ mod submit_result;
 use std::fmt;
 
 use ethers_core::types::U256;
+use evm_rpc_canister_types::LogEntry;
 use ic_cdk::println;
 use submit_result::submit_result;
 
 use crate::{
-    evm_rpc::LogEntry,
     job::calculate_result::fibonacci,
     state::{mutate_state, LogSource},
 };

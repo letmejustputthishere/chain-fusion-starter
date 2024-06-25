@@ -32,12 +32,12 @@ fi
 dfx start --clean --background
 dfx ledger fabricate-cycles --icp 10000 --canister $(dfx identity get-wallet)
 dfx deploy evm_rpc
-cargo build --release --target wasm32-unknown-unknown --package chain_fusion_backend
-dfx canister create --with-cycles 10_000_000_000_000 chain_fusion_backend
+cargo build --release --target wasm32-unknown-unknown --package chain_fusion
+dfx canister create --with-cycles 10_000_000_000_000 chain_fusion
 # because the local smart contract deployment is deterministic, we can hardcode the 
 # the `get_logs_address` here. in our case we are listening for NewJob events,
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
-dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_backend.wasm chain_fusion_backend --argument '(
+dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion.wasm chain_fusion --argument '(
   record {
     ecdsa_key_id = record {
       name = "dfx_test_key";
@@ -68,6 +68,6 @@ dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_b
 # sleep for 3 seconds to allow the evm address to be generated
 sleep 3
 # safe the chain_fusion canisters evm address
-export EVM_ADDRESS=$(dfx canister call chain_fusion_backend get_evm_address | awk -F'"' '{print $2}')
+export EVM_ADDRESS=$(dfx canister call chain_fusion get_evm_address | awk -F'"' '{print $2}')
 # deploy the contract passing the chain_fusion canisters evm address to receive the fees and create a couple of new jobs
 forge script script/Coprocessor.s.sol:MyScript --fork-url http://localhost:8545 --broadcast --sig "run(address)" $EVM_ADDRESS

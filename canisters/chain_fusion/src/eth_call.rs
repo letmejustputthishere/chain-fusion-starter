@@ -3,8 +3,8 @@ use ethers_core::types::U256;
 use hex::FromHexError;
 use serde::{Deserialize, Serialize};
 
-use crate::evm_rpc::{RequestResult, EVM_RPC};
 use crate::state::read_state;
+use evm_rpc_canister_types::{RequestResult, EVM_RPC};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EthCallParams {
@@ -32,6 +32,7 @@ pub struct JsonRpcError {
     message: String,
 }
 
+#[allow(dead_code)]
 async fn eth_call(
     contract_address: String,
     abi: &Contract,
@@ -102,6 +103,7 @@ fn from_hex(data: &str) -> Result<Vec<u8>, FromHexError> {
     hex::decode(&data[2..])
 }
 
+#[allow(dead_code)]
 pub async fn erc20_balance_of(contract_address: String, account: String) -> U256 {
     // Define the ABI JSON as a string literal
     let abi_json = r#"
