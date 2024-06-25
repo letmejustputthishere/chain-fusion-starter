@@ -28,6 +28,8 @@ jobs:
         toolchain: stable
         profile: minimal
         override: true
+    - name: Add wasm32 target
+      run: rustup target add wasm32-unknown-unknown
     - name: Build
       run: cargo build --workspace --verbose
     - name: Run tests
