@@ -8,12 +8,20 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CC: gcc  # Explicitly set the linker
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+      with:
+        platforms: all
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential gcc
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
