@@ -11,6 +11,7 @@ use crate::{
 };
 
 /// Make sure to increase the nonce if the transfer was successfull
+#[allow(clippy::too_many_arguments)]
 pub async fn transfer_eth(
     value: U256,
     to: Option<NameOrAddress>,
@@ -19,9 +20,10 @@ pub async fn transfer_eth(
     key_id: EcdsaKeyId,
     derivation_path: Vec<Vec<u8>>,
     nonce: U256,
-) -> SendRawTransactionStatus {
-    // use the user provided gas_limit or fallback to default 21000
-    let gas = gas.unwrap_or(U256::from(21000));
+    mutate_nonce: impl FnOnce(), // Closure to mutate the nonce
+) {
+    // use the user provided gas_limit or fallback to default 210000
+    let gas = gas.unwrap_or(U256::from(210000));
     // estimate the transaction fees by calling eth_feeHistory
     let FeeEstimates {
         max_fee_per_gas,
@@ -43,7 +45,23 @@ pub async fn transfer_eth(
 
     let tx = sign_eip1559_transaction(tx, key_id, derivation_path).await;
 
-    send_raw_transaction(tx.clone(), rpc_services).await
+    let status = send_raw_transaction(tx.clone(), rpc_services).await;
+
+    match status {
+        SendRawTransactionStatus::Ok(transaction_hash) => {
+            ic_cdk::println!("Success {transaction_hash:?}");
+            mutate_nonce();
+        }
+        SendRawTransactionStatus::NonceTooLow => {
+            ic_cdk::println!("Nonce too low");
+        }
+        SendRawTransactionStatus::NonceTooHigh => {
+            ic_cdk::println!("Nonce too high");
+        }
+        SendRawTransactionStatus::InsufficientFunds => {
+            ic_cdk::println!("Insufficient funds");
+        }
+    }
 }
 
 pub async fn send_raw_transaction(
