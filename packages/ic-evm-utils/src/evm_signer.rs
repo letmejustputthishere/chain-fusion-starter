@@ -1,33 +1,21 @@
-use ethers_core::abi::ethereum_types::{Address, U256, U64};
+use candid::Principal;
+use ethers_core::abi::ethereum_types::{Address, U256};
 use ethers_core::types::transaction::eip1559::Eip1559TransactionRequest;
-use ethers_core::types::{Bytes, Signature};
-use ethers_core::utils::keccak256;
+use ethers_core::types::Signature;
+use ethers_core::utils::{hex, keccak256};
 
 use ic_cdk::api::management_canister::ecdsa::{
-    ecdsa_public_key, sign_with_ecdsa, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
+    ecdsa_public_key, sign_with_ecdsa, EcdsaKeyId, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
-use std::str::FromStr;
 
-use crate::state::read_state;
-
-pub struct SignRequest {
-    pub chain_id: Option<U64>,
-    pub from: Option<String>,
-    pub to: Option<String>,
-    pub gas: U256,
-    pub max_fee_per_gas: Option<U256>,
-    pub max_priority_fee_per_gas: Option<U256>,
-    pub value: Option<U256>,
-    pub nonce: Option<U256>,
-    pub data: Option<Vec<u8>>,
-}
-
-pub async fn get_public_key() -> Vec<u8> {
-    let key_id = read_state(|s| s.ecdsa_key_id.clone());
-
+pub async fn get_canister_public_key(
+    key_id: EcdsaKeyId,
+    canister_id: Option<Principal>,
+    derivation_path: Vec<Vec<u8>>,
+) -> Vec<u8> {
     let (key,) = ecdsa_public_key(EcdsaPublicKeyArgument {
-        canister_id: None,
-        derivation_path: [].to_vec(),
+        canister_id,
+        derivation_path,
         key_id,
     })
     .await
@@ -35,40 +23,24 @@ pub async fn get_public_key() -> Vec<u8> {
     key.public_key
 }
 
-pub async fn sign_transaction(req: SignRequest) -> String {
+pub async fn sign_eip1559_transaction(
+    tx: Eip1559TransactionRequest,
+    key_id: EcdsaKeyId,
+    derivation_path: Vec<Vec<u8>>,
+) -> String {
     const EIP1559_TX_ID: u8 = 2;
 
-    let data = req.data.as_ref().map(|d| Bytes::from(d.clone()));
-
-    let tx = Eip1559TransactionRequest {
-        from: req
-            .from
-            .map(|from| Address::from_str(&from).expect("failed to parse the source address")),
-        to: req.to.map(|from| {
-            Address::from_str(&from)
-                .expect("failed to parse the source address")
-                .into()
-        }),
-        gas: Some(req.gas),
-        value: req.value,
-        data,
-        nonce: req.nonce,
-        access_list: Default::default(),
-        max_priority_fee_per_gas: req.max_priority_fee_per_gas,
-        max_fee_per_gas: req.max_fee_per_gas,
-        chain_id: req.chain_id,
-    };
+    let ecdsa_pub_key =
+        get_canister_public_key(key_id.clone(), None, derivation_path.clone()).await;
 
     let mut unsigned_tx_bytes = tx.rlp().to_vec();
     unsigned_tx_bytes.insert(0, EIP1559_TX_ID);
 
     let txhash = keccak256(&unsigned_tx_bytes);
 
-    let key_id = read_state(|s| s.ecdsa_key_id.clone());
-
     let signature = sign_with_ecdsa(SignWithEcdsaArgument {
         message_hash: txhash.to_vec(),
-        derivation_path: [].to_vec(),
+        derivation_path,
         key_id,
     })
     .await
@@ -76,10 +48,8 @@ pub async fn sign_transaction(req: SignRequest) -> String {
     .0
     .signature;
 
-    let pubkey = read_state(|s| (s.ecdsa_pub_key.clone())).expect("public key should be set");
-
     let signature = Signature {
-        v: y_parity(&txhash, &signature, &pubkey),
+        v: y_parity(&txhash, &signature, &ecdsa_pub_key),
         r: U256::from_big_endian(&signature[0..32]),
         s: U256::from_big_endian(&signature[32..64]),
     };

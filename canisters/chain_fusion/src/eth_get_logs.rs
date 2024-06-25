@@ -31,7 +31,7 @@ async fn process_logs() {
 }
 
 pub async fn get_logs(from: &Nat, to: &Nat) -> GetLogsResult {
-    let get_logs_address = read_state(|s| s.get_logs_address.clone());
+    let get_logs_address = read_state(|s| s.get_logs_addresses.clone());
     let get_logs_topics = read_state(|s| s.get_logs_topics.clone());
     let rpc_services = read_state(|s| s.rpc_services.clone());
     let get_logs_args: GetLogsArgs = GetLogsArgs {

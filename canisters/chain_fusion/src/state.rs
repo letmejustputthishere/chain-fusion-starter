@@ -15,7 +15,7 @@ thread_local! {
 pub struct State {
     pub rpc_services: RpcServices,
     pub rpc_service: RpcService,
-    pub get_logs_address: Vec<String>,
+    pub get_logs_addresses: Vec<String>,
     pub get_logs_topics: Option<Vec<Vec<String>>>,
     pub last_scraped_block_number: Nat,
     pub last_observed_block_number: Option<Nat>,
@@ -71,6 +71,22 @@ impl State {
 
     pub fn has_logs_to_process(&self) -> bool {
         !self.logs_to_process.is_empty()
+    }
+
+    pub fn rpc_services(&self) -> RpcServices {
+        self.rpc_services.clone()
+    }
+
+    pub fn key_id(&self) -> EcdsaKeyId {
+        self.ecdsa_key_id.clone()
+    }
+
+    pub fn get_logs_addresses(&self) -> Vec<String> {
+        self.get_logs_addresses.clone()
+    }
+
+    pub fn nonce(&self) -> U256 {
+        self.nonce
     }
 }
 

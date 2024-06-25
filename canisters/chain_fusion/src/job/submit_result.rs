@@ -1,56 +1,82 @@
-use ethers_core::{types::U256, utils::keccak256};
-use evm_rpc_canister_types::SendRawTransactionStatus;
-
-use crate::{
-    eth_send_raw_transaction::{create_sign_request, send_raw_transaction},
-    evm_signer, fees,
-    state::{mutate_state, read_state},
+use ethers_core::{
+    types::{Address, Eip1559TransactionRequest, U256},
+    utils::keccak256,
 };
+use evm_rpc_canister_types::SendRawTransactionStatus;
+use ic_evm_utils::{
+    eth_send_raw_transaction::send_raw_transaction,
+    fees::{estimate_transaction_fees, FeeEstimates},
+};
+use ic_evm_utils::{eth_send_raw_transaction::IntoChainId, evm_signer::sign_eip1559_transaction};
+
+use crate::state::{mutate_state, read_state, State};
 use ethers_core::abi::AbiEncode;
+use std::str::FromStr;
 
 pub async fn submit_result(result: String, job_id: U256) {
+    // get necessary global state
+    let contract_address = &read_state(State::get_logs_addresses)[0];
+    let rpc_services = read_state(State::rpc_services);
+    let nonce = read_state(State::nonce);
+    let key_id = read_state(State::key_id);
+
     //TODO: Should probably be hardcoded. Recomputing the hash every time is unnecessary
     let function_signature = "callback(string,uint256)";
 
+    // as required,  provide the first 4 bytes of the hash of the invoked method signature and encoded parameters
     let selector = &keccak256(function_signature.as_bytes())[0..4];
     let args = (result, job_id).encode();
     let mut data = Vec::from(selector);
     data.extend(args);
 
-    let gas_limit = U256::from(5000000);
-    let fee_estimates = fees::estimate_transaction_fees(9).await;
+    // set the gas
+    let gas = Some(U256::from(5000000));
+    // estimate the fees, this makes a call to the EVM RPC provider under the hood
+    let FeeEstimates {
+        max_fee_per_gas,
+        max_priority_fee_per_gas,
+    } = estimate_transaction_fees(9, rpc_services.clone()).await;
 
-    let contract_address = read_state(|s| s.get_logs_address[0].clone());
+    // assemble the transaction
+    let tx = Eip1559TransactionRequest {
+        to: Some(
+            Address::from_str(contract_address)
+                .expect("should be a valid address")
+                .into(),
+        ),
+        gas,
+        data: Some(data.into()),
+        nonce: Some(nonce),
+        max_priority_fee_per_gas: Some(max_priority_fee_per_gas),
+        max_fee_per_gas: Some(max_fee_per_gas),
+        chain_id: Some(rpc_services.chain_id()),
+        from: Default::default(),
+        value: Default::default(),
+        access_list: Default::default(),
+    };
 
-    let request = create_sign_request(
-        U256::from(0),
-        Some(contract_address),
-        None,
-        gas_limit,
-        Some(data),
-        fee_estimates,
-    )
-    .await;
+    // sign the transaction using chain key signatures
+    let tx = sign_eip1559_transaction(tx, key_id, vec![]).await;
 
-    let tx = evm_signer::sign_transaction(request).await;
+    // send the transaction via the EVM RPC canister
+    let status = send_raw_transaction(tx, rpc_services).await;
 
-    let status = send_raw_transaction(tx.clone()).await;
-
+    // if the transaction
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
-            println!("Success {transaction_hash:?}");
+            ic_cdk::println!("Success {transaction_hash:?}");
             mutate_state(|s| {
                 s.nonce += U256::from(1);
             });
         }
         SendRawTransactionStatus::NonceTooLow => {
-            println!("Nonce too low");
+            ic_cdk::println!("Nonce too low");
         }
         SendRawTransactionStatus::NonceTooHigh => {
-            println!("Nonce too high");
+            ic_cdk::println!("Nonce too high");
         }
         SendRawTransactionStatus::InsufficientFunds => {
-            println!("Insufficient funds");
+            ic_cdk::println!("Insufficient funds");
         }
     }
 }
