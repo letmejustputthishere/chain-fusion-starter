@@ -1,4 +1,5 @@
-use alloy::consensus::{SignableTransaction, TxEip1559};
+use alloy::consensus::{SignableTransaction, TxEip1559, TxEnvelope};
+use alloy::eips::eip2718::Encodable2718;
 use alloy::hex;
 use alloy::primitives::{keccak256, Address, Bytes, FixedBytes, Parity, TxKind, U256};
 use alloy::signers::Signature;
@@ -7,8 +8,6 @@ use candid::Principal;
 use ic_cdk::api::management_canister::ecdsa::{
     ecdsa_public_key, sign_with_ecdsa, EcdsaKeyId, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
-use std::io::Read;
-use std::str::FromStr;
 
 pub struct SignRequest {
     pub chain_id: u64,
@@ -57,7 +56,7 @@ pub async fn sign_eip1559_transaction(
 
     let tx_hash = tx.signature_hash();
 
-    let signature = sign_with_ecdsa(SignWithEcdsaArgument {
+    let r_and_s = sign_with_ecdsa(SignWithEcdsaArgument {
         message_hash: tx_hash.to_vec(),
         derivation_path: [].to_vec(),
         key_id,
@@ -67,14 +66,18 @@ pub async fn sign_eip1559_transaction(
     .0
     .signature;
 
-    let parity = y_parity(&tx_hash, &signature, &ecdsa_pub_key);
+    let parity = y_parity(&tx_hash, &r_and_s, &ecdsa_pub_key);
 
-    let typed_signature =
-        Signature::from_bytes_and_parity(&signature, parity).expect("should be a valid signature");
+    let signature =
+        Signature::from_bytes_and_parity(&r_and_s, parity).expect("should be a valid signature");
 
-    let signed_tx = tx.into_signed(typed_signature);
+    let signed_tx = tx.into_signed(signature);
 
-    format!("0x{}", hex::encode(&signed_tx))
+    let tx_envelope = TxEnvelope::from(signed_tx);
+
+    let signed_tx_bytes = tx_envelope.encoded_2718();
+
+    format!("0x{}", hex::encode(&signed_tx_bytes))
 }
 
 /// Converts the public key bytes to an Ethereum address with a checksum.
