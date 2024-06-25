@@ -8,7 +8,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CC: gcc  # Explicitly set the linker
 
 jobs:
   build:
@@ -16,18 +15,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-      with:
-        platforms: all
-    - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential gcc
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
-        override: true
     - name: Add wasm32 target
       run: rustup target add wasm32-unknown-unknown
     - name: Build
@@ -42,13 +29,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        profile: minimal
-        override: true
-
     - name: Cache cargo registry
       uses: actions/cache@v2
       with:
