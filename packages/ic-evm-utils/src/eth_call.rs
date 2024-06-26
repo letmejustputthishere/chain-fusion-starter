@@ -1,3 +1,4 @@
+//! This module contains functions for interacting with Ethereum contracts using JSON-RPC requests.
 use ethers_core::abi::Token;
 use ethers_core::types::U256;
 use ethers_core::utils::hex;
@@ -9,11 +10,14 @@ use evm_rpc_canister_types::{EvmRpcCanister, RequestResult, RpcService};
 use crate::eth_send_raw_transaction::{get_data, get_function, ContractDetails};
 use crate::request::{request, JsonRpcResult};
 
+/// Represents the parameters for an Ethereum call.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EthCallParams {
     pub to: String,
     pub data: String,
 }
+
+/// Represents a JSON-RPC request for an Ethereum call.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EthCallJsonRpcRequest {
     pub id: u64,
@@ -22,7 +26,20 @@ pub struct EthCallJsonRpcRequest {
     pub params: (EthCallParams, String),
 }
 
-async fn eth_call(
+/// Executes an Ethereum call.
+///
+/// # Arguments
+///
+/// * `contract_details` - The details of the contract to call.
+/// * `block_number` - The block number to execute the call on.
+/// * `rpc_service` - The RPC service to use for the call.
+/// * `max_response_bytes` - The maximum number of response bytes to accept.
+/// * `evm_rpc` - The EVM RPC canister.
+///
+/// # Returns
+///
+/// The decoded output of the call as a vector of tokens.
+pub async fn eth_call(
     contract_details: ContractDetails<'_>,
     block_number: &str,
     rpc_service: RpcService,
@@ -60,6 +77,18 @@ async fn eth_call(
     }
 }
 
+/// Retrieves the balance of an ERC20 token for a given account.
+///
+/// # Arguments
+///
+/// * `contract_address` - The address of the ERC20 token contract.
+/// * `account` - The account to retrieve the balance for.
+/// * `rpc_service` - The RPC service to use for the call.
+/// * `evm_rpc` - The EVM RPC canister.
+///
+/// # Returns
+///
+/// The balance of the ERC20 token for the given account.
 pub async fn erc20_balance_of(
     contract_address: String,
     account: String,
@@ -117,10 +146,28 @@ pub async fn erc20_balance_of(
     balance
 }
 
+/// Converts a byte slice to a hexadecimal string representation.
+///
+/// # Arguments
+///
+/// * `data` - The byte slice to convert.
+///
+/// # Returns
+///
+/// The hexadecimal string representation of the byte slice.
 fn to_hex(data: &[u8]) -> String {
     format!("0x{}", hex::encode(data))
 }
 
+/// Converts a hexadecimal string representation to a byte slice.
+///
+/// # Arguments
+///
+/// * `data` - The hexadecimal string to convert.
+///
+/// # Returns
+///
+/// The byte slice representation of the hexadecimal string, or an error if the conversion fails.
 fn from_hex(data: &str) -> Result<Vec<u8>, FromHexError> {
     hex::decode(&data[2..])
 }

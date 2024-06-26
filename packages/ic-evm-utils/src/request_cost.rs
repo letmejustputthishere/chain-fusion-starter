@@ -1,7 +1,19 @@
-use evm_rpc_canister_types::{RequestCostResult, RpcService, EvmRpcCanister};
+use evm_rpc_canister_types::{EvmRpcCanister, RequestCostResult, RpcService};
 
 use crate::conversions::nat_to_u128;
 
+/// Provides the cycles cost of a call made to the EVM RPC canister's `request` method.
+///
+/// # Arguments
+///
+/// * `rpc_service` - The RPC service used to interact with the EVM.
+/// * `json_rpc_payload` - The JSON-RPC payload to send.
+/// * `max_response_bytes` - The maximum number of response bytes to accept.
+/// * `evm_rpc` - The EVM RPC canister.
+///
+/// # Returns
+///
+/// The cycles cost of the call.
 pub async fn request_cost(
     rpc_service: RpcService,
     json_rpc_payload: String,

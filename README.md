@@ -26,6 +26,8 @@
 
 This project demonstrates how to use the Internet Computer (ICP) as a coprocessor for EVM smart contracts. The coprocessor listens to events emitted by an EVM smart contract, processes them, and optionally sends the results back. This starter project is a proof of concept and should not be used in production environments.
 
+To get a better understanding of how the coprocessor works, make sure you check out the recorded workshops in the [Additional Resources](#additional-resources) section.
+
 <p align="center">
 <img src="https://github.com/letmejustputthishere/chain-fusion-starter/assets/32162112/7947d2f1-bbaa-4291-b089-2eb05c5d42df" height="400">
 </p>
@@ -219,19 +221,16 @@ To use this feature, you need to uncomment the section in `lib.rs` that handles 
 
 By enabling this code, you can serve web content directly from the canister, leveraging the stable memory for storing large amounts of data efficiently.
 
-### Read from EVM Smart Contracts
+### Reading from and writing to EVM Smart Contracts
 
-To read from EVM smart contracts, this project leverages the `eth_call.rs` module, specifically the [`eth_call`](https://docs.alchemy.com/reference/eth-call) function exposed therein. This function allows you to make read-only calls to EVM smart contracts, which is useful for retrieving data without modifying the contract state.
-
-An example of how to use this functionality to get the ERC20 balance of an address is provided in the same module. The function is called `erc20_balance_of`. This example demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address.
-
-You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
-
-### Sending Transactions to EVM Smart Contracts
-
-To send transactions to the EVM, this project uses the `eth_send_raw_transaction.rs` module. This module provides functionality for constructing and sending signed transactions to the Ethereum network specifically through the [`eth_send_raw_transaction`](https://docs.alchemy.com/reference/eth-sendrawtransaction) function.
+To send transactions to the EVM, this project uses the [`ic-evm-utils`](https://crates.io/crates/ic-evm-utils) crate. This crate provides functionality for constructing, signing and sending transactions EVM networks, leveraging the [`evm-rpc-canister-types`](https://crates.io/crates/evm-rpc-canister-types) crate for data types and constants.
 
 #### Key Functions:
+
+-
+-   **ERC20 Balance**: The `erc20_balance_of` function demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address.
+
+You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
 
 -   **ETH Transfer**: The `transfer_eth` function demonstrates how to transfer ETH from the canister-owned EVM address to another address. It covers creating a transaction, signing it with the canister's private key, and sending it to the EVM network.
 

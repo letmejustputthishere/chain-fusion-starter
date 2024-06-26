@@ -1,16 +1,30 @@
 use candid::Nat;
 use ethers_core::types::U256;
 use evm_rpc_canister_types::{
-    BlockTag, FeeHistory, FeeHistoryArgs, FeeHistoryResult, MultiFeeHistoryResult, RpcServices,
-    EvmRpcCanister,
+    BlockTag, EvmRpcCanister, FeeHistory, FeeHistoryArgs, FeeHistoryResult, MultiFeeHistoryResult,
+    RpcServices,
 };
 use serde_bytes::ByteBuf;
 use std::ops::Add;
 
 use crate::conversions::nat_to_u256;
 
+/// The minimum suggested maximum priority fee per gas.
 const MIN_SUGGEST_MAX_PRIORITY_FEE_PER_GAS: u32 = 1_500_000_000;
 
+/// Gets the fee history.
+///
+/// # Arguments
+///
+/// * `block_count` - The number of blocks to get the fee history for.
+/// * `newest_block` - The newest block to get the fee history for.
+/// * `reward_percentiles` - The reward percentiles to get the fee history for.
+/// * `rpc_services` - The RPC services used to interact with the EVM.
+/// * `evm_rpc` - The EVM RPC canister.
+///
+/// # Returns
+///
+/// The fee history.
 pub async fn fee_history(
     block_count: Nat,
     newest_block: BlockTag,
@@ -45,11 +59,21 @@ pub async fn fee_history(
     }
 }
 
+/// Represents the fee estimates.
 pub struct FeeEstimates {
     pub max_fee_per_gas: U256,
     pub max_priority_fee_per_gas: U256,
 }
 
+/// Gets the median index.
+///
+/// # Arguments
+///
+/// * `length` - The length of the array.
+///
+/// # Returns
+///
+/// The median index.
 fn median_index(length: usize) -> usize {
     if length == 0 {
         panic!("Cannot find a median index for an array of length zero.");
@@ -57,6 +81,13 @@ fn median_index(length: usize) -> usize {
     (length - 1) / 2
 }
 
+/// Estimates the transaction fees.
+///
+/// # Arguments
+///
+/// * `block_count` - The number of historical blocks to base the fee estimates on.
+/// * `rpc_services` - The RPC services used to interact with the EVM.
+/// * `evm_rpc` - The EVM RPC canister.
 pub async fn estimate_transaction_fees(
     block_count: u8,
     rpc_services: RpcServices,

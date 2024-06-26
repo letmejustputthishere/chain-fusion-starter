@@ -3,6 +3,18 @@ use serde::{Deserialize, Serialize};
 
 use crate::request_cost::request_cost;
 
+/// Make a arbitrary request to EVM RPC provider through the EVM RPC canister.
+///
+/// # Arguments
+///
+/// * `rpc_service` - The RPC service used to interact with the EVM.
+/// * `json_rpc_payload` - The JSON-RPC payload to send.
+/// * `max_response_bytes` - The maximum number of response bytes to accept.
+/// * `evm_rpc` - The EVM RPC canister.
+///
+/// # Returns
+///
+/// The result of the request.
 pub async fn request(
     rpc_service: RpcService,
     json_rpc_payload: String,
@@ -27,12 +39,14 @@ pub async fn request(
     }
 }
 
+/// Represents a JSON-RPC result.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonRpcResult {
     pub result: Option<String>,
     pub error: Option<JsonRpcError>,
 }
 
+/// Represents a JSON-RPC error.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JsonRpcError {
     pub code: isize,

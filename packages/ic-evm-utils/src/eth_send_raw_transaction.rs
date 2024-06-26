@@ -1,3 +1,6 @@
+//! This module provides functions for sending raw transactions to the Ethereum Virtual Machine (EVM).
+//! It includes functions for transferring ETH from one account to another and interacting with smart contracts.
+//! The transactions are signed using t-ECDSA and sent via the EVM RPC canister.
 use ethers_core::abi::{Address, Contract, Function, FunctionExt, Token};
 use ethers_core::types::{Eip1559TransactionRequest, NameOrAddress, U256, U64};
 use evm_rpc_canister_types::{
@@ -12,13 +15,31 @@ use crate::{
     fees::{estimate_transaction_fees, FeeEstimates},
 };
 
+/// Represents the arguments for a transfer.
 pub struct TransferArgs {
     pub value: U256,
     pub to: Option<NameOrAddress>,
     pub gas: Option<U256>,
 }
 
-/// Make sure to increase the nonce if the transfer was successfull
+/// Transfers ETH from one account to another.
+///
+/// # Warning
+///
+/// Make sure you increase the nonce of the sender's account if the transaction is successful.
+///
+/// # Arguments
+///
+/// * `transfer_args` - The transfer arguments including the value, recipient, and gas limit.
+/// * `rpc_services` - The RPC services used to estimate transaction fees and get the chain ID.
+/// * `key_id` - The ID of the ECDSA key used for signing the transaction.
+/// * `derivation_path` - The derivation path of the ECDSA key.
+/// * `nonce` - The nonce of the sender's account.
+/// * `evm_rpc` - The EVM RPC canister used to send the transaction.
+///
+/// # Returns
+///
+/// The status of the raw transaction send operation.
 pub async fn transfer_eth(
     transfer_args: TransferArgs,
     rpc_services: RpcServices,
@@ -53,6 +74,7 @@ pub async fn transfer_eth(
     send_raw_transaction(tx.clone(), rpc_services, evm_rpc).await
 }
 
+/// Represents the details of a contract including the contract address, ABI, function name, and arguments.
 pub struct ContractDetails<'a> {
     pub contract_address: String,
     pub abi: &'a Contract,
@@ -60,6 +82,20 @@ pub struct ContractDetails<'a> {
     pub args: &'a [Token],
 }
 
+/// Gets the function from the contract details.
+///
+/// # Arguments
+///
+/// * `contract_details` - The contract details including the contract address, ABI, function name, and arguments.
+///
+/// # Returns
+///
+/// The function from the contract details.
+///
+/// # Panics
+///
+/// If there are multiple functions with the same name.
+/// If the function is not found.
 pub fn get_function<'a>(contract_details: &'a ContractDetails<'a>) -> &'a Function {
     match contract_details
         .abi
@@ -83,12 +119,38 @@ pub fn get_function<'a>(contract_details: &'a ContractDetails<'a>) -> &'a Functi
     }
 }
 
+/// Gets the data from the function and contract details.
+///
+/// # Arguments
+///
+/// * `function` - The function from the contract details.
+/// * `contract_details` - The contract details including the contract address, ABI, function name, and arguments.
+///
+/// # Returns
+///
+/// The data from the function and contract details.
+///
+/// # Panics
+///
+/// If there is an error while encoding the input arguments.
+/// If the contract address is invalid.
 pub fn get_data<'a>(function: &Function, contract_details: &'a ContractDetails<'a>) -> Vec<u8> {
     function
         .encode_input(contract_details.args)
         .expect("Error while encoding input args")
 }
 
+/// Interacts with a contract.
+///
+/// # Arguments
+///
+/// * `contract_details` - The contract details including the contract address, ABI, function name, and arguments.
+/// * `gas` - The gas limit for the transaction.
+/// * `rpc_services` - The RPC services used to interact with the EVM.
+/// * `nonce` - The nonce of the sender's account.
+/// * `key_id` - The ID of the ECDSA key used for signing the transaction.
+/// * `derivation_path` - The derivation path of the ECDSA key.
+/// * `evm_rpc` - The EVM RPC canister used to send the transaction.
 pub async fn contract_interaction(
     contract_details: ContractDetails<'_>,
     gas: Option<U256>,
@@ -131,6 +193,21 @@ pub async fn contract_interaction(
     send_raw_transaction(tx, rpc_services, evm_rpc).await
 }
 
+/// Sends a raw transaction to the EVM.
+///
+/// # Arguments
+///
+/// * `tx` - The raw transaction to send.
+/// * `rpc_services` - The RPC services used to interact with the EVM.
+/// * `evm_rpc` - The EVM RPC canister used to send the transaction.
+///
+/// # Returns
+///
+/// The status of the raw transaction send operation.
+///
+/// # Panics
+///
+/// If there is an error while sending the raw transaction.
 pub async fn send_raw_transaction(
     tx: String,
     rpc_services: RpcServices,
@@ -157,10 +234,12 @@ pub async fn send_raw_transaction(
     }
 }
 
+/// Trait for converting RPC services to chain ID.
 pub trait IntoChainId {
     fn chain_id(&self) -> U64;
 }
 
+/// Implements the conversion of RPC services to chain ID.
 impl IntoChainId for RpcServices {
     fn chain_id(&self) -> U64 {
         match self {

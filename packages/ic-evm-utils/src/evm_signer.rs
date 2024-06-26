@@ -8,8 +8,20 @@ use ic_cdk::api::management_canister::ecdsa::{
     ecdsa_public_key, sign_with_ecdsa, EcdsaKeyId, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
 
+/// A signed transaction.
 type SignedTransaction = String;
 
+/// Gets the canister's ECDSA public key.
+///
+/// # Arguments
+///
+/// * `key_id` - The ID of the ECDSA key.
+/// * `derivation_path` - The derivation path of the ECDSA key.
+/// * `canister_id` - The ID of the canister.
+///
+/// # Returns
+///
+/// The public key of the ECDSA key.
 pub async fn get_canister_public_key(
     key_id: EcdsaKeyId,
     canister_id: Option<Principal>,
@@ -25,6 +37,17 @@ pub async fn get_canister_public_key(
     key.public_key
 }
 
+/// Signs an EIP-1559 transaction.
+///
+/// # Arguments
+///
+/// * `tx` - The EIP-1559 transaction to sign.
+/// * `key_id` - The ID of the ECDSA key.
+/// * `derivation_path` - The derivation path of the ECDSA key.
+///
+/// # Returns
+///
+/// The signed transaction.
 pub async fn sign_eip1559_transaction(
     tx: Eip1559TransactionRequest,
     key_id: EcdsaKeyId,
@@ -63,6 +86,14 @@ pub async fn sign_eip1559_transaction(
 }
 
 /// Converts the public key bytes to an Ethereum address with a checksum.
+///
+/// # Arguments
+///
+/// * `pubkey_bytes` - The public key bytes.
+///
+/// # Returns
+///
+/// The Ethereum address with a checksum.
 pub fn pubkey_bytes_to_address(pubkey_bytes: &[u8]) -> String {
     use ethers_core::k256::elliptic_curve::sec1::ToEncodedPoint;
     use ethers_core::k256::PublicKey;
@@ -80,6 +111,16 @@ pub fn pubkey_bytes_to_address(pubkey_bytes: &[u8]) -> String {
 }
 
 /// Computes the parity bit allowing to recover the public key from the signature.
+///
+/// # Arguments
+///
+/// * `prehash` - The prehash of the message.
+/// * `sig` - The signature.
+/// * `pubkey` - The public key.
+///
+/// # Returns
+///
+/// The parity bit.
 fn y_parity(prehash: &[u8], sig: &[u8], pubkey: &[u8]) -> u64 {
     use ethers_core::k256::ecdsa::{RecoveryId, Signature, VerifyingKey};
 
