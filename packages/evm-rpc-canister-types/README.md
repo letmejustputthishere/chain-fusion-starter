@@ -21,16 +21,16 @@
       "init_arg": "(record { nodesInSubnet = 28 })"
     }
     ```
--   if you deploy your own evm rpc canister, you can use the `Service` struct to initiate the canister with your own canister id
+-   if you deploy your own evm rpc canister, you can use the `EvmRpcCanister` struct to initiate the canister with your own canister id
     ```rust
     pub const CANISTER_ID: Principal =
       Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
-    pub const EVM_RPC: Service = Service(CANISTER_ID);
+    pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(CANISTER_ID);
     ```
 -   import the libary in your rust project
     ```toml
     [dependencies]
-    evm_rpc_canister_types = 0.1.0
+    evm_rpc_canister_types = 0.1
     ```
 -   import the crate where needed, e.g.
     ```rust
