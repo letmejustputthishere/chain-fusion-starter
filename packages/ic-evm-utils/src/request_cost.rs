@@ -1,3 +1,4 @@
+//! This module provides functions for estimating the cycles cost of a call made to the EVM RPC canister's `request` method.
 use evm_rpc_canister_types::{EvmRpcCanister, RequestCostResult, RpcService};
 
 use crate::conversions::nat_to_u128;

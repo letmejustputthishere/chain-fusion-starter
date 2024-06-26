@@ -1,3 +1,4 @@
+//! This module provides functions for making arbitrary requests to EVM RPC providers through the EVM RPC canister.
 use evm_rpc_canister_types::{EvmRpcCanister, RequestResult, RpcService};
 use serde::{Deserialize, Serialize};
 

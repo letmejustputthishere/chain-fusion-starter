@@ -1,3 +1,4 @@
+//! This module provides functions for estimating transaction fees and getting the fee history.
 use candid::Nat;
 use ethers_core::types::U256;
 use evm_rpc_canister_types::{

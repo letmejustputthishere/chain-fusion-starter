@@ -1,3 +1,4 @@
+//! This module provides functions for signing EIP-1559 transactions using t-ECDSA, getting the public key of the canister, and converting the public key to an Ethereum address.
 use candid::Principal;
 use ethers_core::abi::ethereum_types::{Address, U256};
 use ethers_core::types::transaction::eip1559::Eip1559TransactionRequest;
