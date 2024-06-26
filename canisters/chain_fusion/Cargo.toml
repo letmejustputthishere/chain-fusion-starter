@@ -21,6 +21,6 @@ minicbor-derive = "0.15.0"
 serde.workspace = true
 serde_bytes.workspace = true
 serde_json.workspace = true
-evm-rpc-canister-types = { path = "../../packages/evm-rpc-canister-types" }
-ic-evm-utils = { path = "../../packages/ic-evm-utils" }
+evm-rpc-canister-types.workspace = true
+ic-evm-utils.workspace = true
 ethers-core.workspace = true
