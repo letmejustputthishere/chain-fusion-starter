@@ -1,6 +1,6 @@
 use ethers_core::{abi::Token, types::U256};
-use evm_rpc_canister_types::SendRawTransactionStatus;
-use ic_evm_utils::contract_interaction::{contract_interaction, ContractDetails};
+use evm_rpc_canister_types::{SendRawTransactionStatus, EVM_RPC};
+use ic_evm_utils::eth_send_raw_transaction::{contract_interaction, ContractDetails};
 
 use crate::state::{mutate_state, read_state, State};
 
@@ -48,8 +48,16 @@ pub async fn submit_result(result: String, job_id: U256) {
     let gas = Some(U256::from(5000000));
 
     // interac with the contract, this calls `eth_sendRawTransaction` under the hood
-    let status =
-        contract_interaction(contract_details, gas, rpc_services, nonce, key_id, vec![]).await;
+    let status = contract_interaction(
+        contract_details,
+        gas,
+        rpc_services,
+        nonce,
+        key_id,
+        vec![],
+        EVM_RPC,
+    )
+    .await;
 
     // if the transaction
     match status {

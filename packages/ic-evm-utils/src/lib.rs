@@ -1,4 +1,3 @@
-pub mod contract_interaction;
 pub mod conversions;
 pub mod eth_call;
 pub mod eth_send_raw_transaction;

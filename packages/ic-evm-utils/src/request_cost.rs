@@ -1,4 +1,4 @@
-use evm_rpc_canister_types::{RequestCostResult, RpcService, EVM_RPC};
+use evm_rpc_canister_types::{RequestCostResult, RpcService, EvmRpcCanister};
 
 use crate::conversions::nat_to_u128;
 
@@ -6,9 +6,10 @@ pub async fn request_cost(
     rpc_service: RpcService,
     json_rpc_payload: String,
     max_response_bytes: u64,
+    evm_rpc: EvmRpcCanister,
 ) -> u128 {
     // Get cycles cost
-    let cycles_result = match EVM_RPC
+    let cycles_result = match evm_rpc
         .request_cost(rpc_service, json_rpc_payload, max_response_bytes)
         .await
     {

@@ -2,7 +2,7 @@ use candid::Nat;
 use ethers_core::types::U256;
 use evm_rpc_canister_types::{
     BlockTag, FeeHistory, FeeHistoryArgs, FeeHistoryResult, MultiFeeHistoryResult, RpcServices,
-    EVM_RPC,
+    EvmRpcCanister,
 };
 use serde_bytes::ByteBuf;
 use std::ops::Add;
@@ -16,6 +16,7 @@ pub async fn fee_history(
     newest_block: BlockTag,
     reward_percentiles: Option<Vec<u8>>,
     rpc_services: RpcServices,
+    evm_rpc: EvmRpcCanister,
 ) -> FeeHistory {
     let fee_history_args: FeeHistoryArgs = FeeHistoryArgs {
         blockCount: block_count,
@@ -25,7 +26,7 @@ pub async fn fee_history(
 
     let cycles = 10_000_000_000;
 
-    match EVM_RPC
+    match evm_rpc
         .eth_fee_history(rpc_services, None, fee_history_args, cycles)
         .await
     {
@@ -56,7 +57,11 @@ fn median_index(length: usize) -> usize {
     (length - 1) / 2
 }
 
-pub async fn estimate_transaction_fees(block_count: u8, rpc_services: RpcServices) -> FeeEstimates {
+pub async fn estimate_transaction_fees(
+    block_count: u8,
+    rpc_services: RpcServices,
+    evm_rpc: EvmRpcCanister,
+) -> FeeEstimates {
     // we are setting the `max_priority_fee_per_gas` based on this article:
     // https://docs.alchemy.com/docs/maxpriorityfeepergas-vs-maxfeepergas
     // following this logic, the base fee will be derived from the block history automatically
@@ -68,6 +73,7 @@ pub async fn estimate_transaction_fees(block_count: u8, rpc_services: RpcService
         BlockTag::Latest,
         Some(vec![95]),
         rpc_services,
+        evm_rpc,
     )
     .await;
 

@@ -1,11 +1,12 @@
-use ethers_core::abi::{Contract, FunctionExt, Token};
+use ethers_core::abi::Token;
 use ethers_core::types::U256;
 use ethers_core::utils::hex;
 use hex::FromHexError;
 use serde::{Deserialize, Serialize};
 
-use evm_rpc_canister_types::{RequestResult, RpcService};
+use evm_rpc_canister_types::{EvmRpcCanister, RequestResult, RpcService};
 
+use crate::eth_send_raw_transaction::{get_data, get_function, ContractDetails};
 use crate::request::{request, JsonRpcResult};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -21,41 +22,22 @@ pub struct EthCallJsonRpcRequest {
     pub params: (EthCallParams, String),
 }
 
-#[allow(dead_code)]
 async fn eth_call(
-    contract_address: String,
-    abi: &Contract,
-    function_name: &str,
-    args: &[Token],
+    contract_details: ContractDetails<'_>,
     block_number: &str,
     rpc_service: RpcService,
     max_response_bytes: u64,
+    evm_rpc: EvmRpcCanister,
 ) -> Vec<Token> {
-    let function = match abi.functions_by_name(function_name).map(|v| &v[..]) {
-        Ok([f]) => f,
-        Ok(fs) => panic!(
-            "Found {} function overloads. Please pass one of the following: {}",
-            fs.len(),
-            fs.iter()
-                .map(|f| format!("{:?}", f.abi_signature()))
-                .collect::<Vec<_>>()
-                .join(", ")
-        ),
-        Err(_) => abi
-            .functions()
-            .find(|f| function_name == f.abi_signature())
-            .expect("Function not found"),
-    };
-    let data = function
-        .encode_input(args)
-        .expect("Error while encoding input args");
+    let function = get_function(&contract_details);
+    let data = get_data(function, &contract_details);
     let json_rpc_payload = serde_json::to_string(&EthCallJsonRpcRequest {
         id: 1,
         jsonrpc: "2.0".to_string(),
         method: "eth_call".to_string(),
         params: (
             EthCallParams {
-                to: contract_address,
+                to: contract_details.contract_address.clone(),
                 data: to_hex(&data),
             },
             block_number.to_string(),
@@ -63,7 +45,7 @@ async fn eth_call(
     })
     .expect("Error while encoding JSON-RPC request");
 
-    let res = request(rpc_service, json_rpc_payload, max_response_bytes).await;
+    let res = request(rpc_service, json_rpc_payload, max_response_bytes, evm_rpc).await;
 
     match res {
         RequestResult::Ok(ok) => {
@@ -78,11 +60,11 @@ async fn eth_call(
     }
 }
 
-#[allow(dead_code)]
 pub async fn erc20_balance_of(
     contract_address: String,
     account: String,
     rpc_service: RpcService,
+    evm_rpc: EvmRpcCanister,
 ) -> U256 {
     let max_response_bytes = 2048;
     // Define the ABI JSON as a string literal
@@ -110,16 +92,21 @@ pub async fn erc20_balance_of(
     let abi =
         serde_json::from_str::<ethers_core::abi::Contract>(abi_json).expect("should serialise");
 
-    let Token::Uint(balance) = eth_call(
-        contract_address.to_string(),
-        &abi,
-        "balanceOf",
-        &[Token::Address(
+    let contract_details = ContractDetails {
+        contract_address,
+        abi: &abi,
+        function_name: "balanceOf",
+        args: &[Token::Address(
             account.parse().expect("address should be valid"),
         )],
+    };
+
+    let Token::Uint(balance) = eth_call(
+        contract_details,
         "latest",
         rpc_service,
         max_response_bytes,
+        evm_rpc,
     )
     .await
     .first()

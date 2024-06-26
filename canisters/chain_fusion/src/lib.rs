@@ -1,14 +1,14 @@
-mod eth_get_logs;
 mod guard;
 mod job;
 mod lifecycle;
+mod logs;
 mod state;
 // uncomment to enable serving stored assets via http requests
 // mod storage;
 
 use std::time::Duration;
 
-use eth_get_logs::scrape_eth_logs;
+use logs::scrape_eth_logs;
 
 use lifecycle::InitArg;
 use state::{read_state, State};

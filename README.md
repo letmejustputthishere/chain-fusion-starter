@@ -188,6 +188,8 @@ If you want to create more jobs, simply run:
 cast send 0x5fbdb2315678afecb367f032d93f642f64180aa3 "newJob()" --private-key=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --value 0.01ether
 ```
 
+Note that the Chain Fusion Canister only scrapes logs every 3 minutes, so you may need to wait a few minutes before seeing the new job processed.
+
 ### Leveraging `storage.rs` for Stable Memory
 
 The `storage.rs` module allows you to store data in stable memory, providing up to 400 GiB of available storage. In this starter template, stable memory is used to store assets that can then be served via HTTP.

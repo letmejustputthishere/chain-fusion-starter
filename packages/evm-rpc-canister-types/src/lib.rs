@@ -362,8 +362,9 @@ pub struct UpdateProviderArgs {
     pub providerId: u64,
 }
 
-pub struct Service(pub Principal);
-impl Service {
+#[derive(Debug, Clone)]
+pub struct EvmRpcCanister(pub Principal);
+impl EvmRpcCanister {
     pub async fn authorize(&self, arg0: Principal, arg1: Auth) -> Result<(bool,)> {
         ic_cdk::call(self.0, "authorize", (arg0, arg1)).await
     }
@@ -500,7 +501,7 @@ impl Service {
 
 pub const CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
-pub const EVM_RPC: Service = Service(CANISTER_ID);
+pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(CANISTER_ID);
 
 #[test]
 fn test_candid_interface() {
