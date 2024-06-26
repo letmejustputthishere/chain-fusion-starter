@@ -112,7 +112,7 @@ The full flow of how these canisters interact can be found in the following sequ
 
 ### EVM Smart Contract
 
-The `contracts/Coprocessor.sol` contract emits a `NewJob` event when the `newJob` function is called, transferring ETH to the `chain_fusion` canister for job processing and transaction fees.
+The `contracts/Coprocessor.sol` contract emits a `NewJob` event when the `newJob` function is called, transferring ETH to the `chain_fusion` canister to pay it for job processing and transaction fees (this step is optional and can be customized to fit your use case).
 
 ```solidity
 // Function to create a new job
@@ -133,7 +133,7 @@ function newJob() public payable {
 }
 ```
 
-The `callback` function sends processing results back to the contract:
+The `callback` function writes processed results back to the contract:
 
 ```solidity
 function callback(string calldata _result, uint256 _job_id) public {
@@ -149,9 +149,9 @@ For local deployment, see the `deploy.sh` script and `script/Coprocessor.s.sol`.
 
 ### Chain Fusion Canister
 
-The `chain_fusion` canister listens to events by periodically calling the `eth_getLogs` RPC method via the [EVM RPC canister](https://github.com/internet-computer-protocol/evm-rpc-canister). Upon receiving an event, it processes the job and sends the results back to the EVM smart contract via the EVM RPC canister, signing the transaction with threshold ECDSA.
+The `chain_fusion` canister listens to `NewJob` events by periodically calling the `eth_getLogs` RPC method via the [EVM RPC canister](https://github.com/internet-computer-protocol/evm-rpc-canister). Upon receiving an event, it processes the job and sends the results back to the EVM smart contract via the EVM RPC canister, signing the transaction with threshold ECDSA.
 
-Job processing logic is in `canisters/chain_fusion/src/job.rs`:
+The Job processing logic is in `canisters/chain_fusion/src/job.rs`:
 
 ```rust
 pub async fn job(event_source: LogSource, event: LogEntry) {
@@ -176,7 +176,7 @@ All coprocessing logic resides in `canisters/chain_fusion/src/job.rs`. Developer
 
 ### Interacting with the EVM Smart Contract
 
-If you want to check that the `chain_fusion` really processed the events, you can either look at the logs output by running `./deploy.sh` – keep an eye open for the `Successfully ran job` message – or you can call the EVM contract to get the results of the jobs. To do this, run:
+If you want to check that the `chain_fusion` canister really processed the events, you can either look at the logs output by running `./deploy.sh` – keep an eye open for the `Successfully ran job` message – or you can call the EVM contract to get the results of the jobs. To do this, run:
 
 ```sh
 cast call 0x5fbdb2315678afecb367f032d93f642f64180aa3 "getResult(uint)(string)" <job_id>
@@ -194,7 +194,7 @@ Note that the Chain Fusion Canister only scrapes logs every 3 minutes, so you ma
 
 ### Leveraging `storage.rs` for Stable Memory
 
-The `storage.rs` module allows you to store data in stable memory, providing up to 400 GiB of available storage. In this starter template, stable memory is used to store assets that can then be served via HTTP.
+The `storage.rs` module allows you to store data in stable memory, providing up to 400 GiB of available storage. In this starter template, stable memory can used to store assets that can then be served via HTTP.
 
 To use this feature, you need to uncomment the section in `lib.rs` that handles HTTP requests. This enables the canister to serve stored assets. Here is the code snippet to uncomment:
 
@@ -223,20 +223,21 @@ By enabling this code, you can serve web content directly from the canister, lev
 
 ### Reading from and writing to EVM Smart Contracts
 
-To send transactions to the EVM, this project uses the [`ic-evm-utils`](https://crates.io/crates/ic-evm-utils) crate. This crate provides functionality for constructing, signing and sending transactions EVM networks, leveraging the [`evm-rpc-canister-types`](https://crates.io/crates/evm-rpc-canister-types) crate for data types and constants.
+To send transactions to the EVM, this project uses the [`ic-evm-utils`](https://crates.io/crates/ic-evm-utils) crate. This crate provides functionality for constructing, signing and sending transactions to EVM networks, leveraging the [`evm-rpc-canister-types`](https://crates.io/crates/evm-rpc-canister-types) crate for data types and constants.
 
 #### Key Functions:
 
--
--   **ERC20 Balance**: The `erc20_balance_of` function demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address.
+-   **sign_eip1559_transaction**: This function signs a EIP-1559 transaction.
 
-You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
+-   **eth_call**: This function sends a call to an arbitrary EVM smart contract to read data from it. It constructs a JSON-RPC call to the EVM RPC canister, which then forwards the call to the EVM smart contract.
 
--   **ETH Transfer**: The `transfer_eth` function demonstrates how to transfer ETH from the canister-owned EVM address to another address. It covers creating a transaction, signing it with the canister's private key, and sending it to the EVM network.
+-   **erc20_balance_of**: The `erc20_balance_of` function demonstrates how to construct and send a call to an ERC20 contract to query the balance of a specific address. It uses the `eth_call` function to send the call and parse the response. You can refer to the `erc20_balance_of` function in the `eth_call.rs` module to understand how to implement similar read operations for other types of EVM smart contracts.
 
--   **Job Result Submission**: The `submit_result` function sends the results of a processed job back to the EVM smart contract. This is essential for interacting with smart contracts after processing events.
+-   **send_raw_transaction**: This function sends a raw transaction to an EVM smart contract. It constructs a transaction, signs it with the canister's private key, and sends it to the EVM network.
 
-By referring to these example functions in the `eth_send_raw_transaction.rs` module, you can implement similar functionality to send various types of transactions to EVM smart contracts from your canister. These examples illustrate the process for transferring ETH and submitting job results, but the same principles can be applied to other types of transactions.
+-   **transfer_eth**: The `transfer_eth` function demonstrates how to transfer ETH from a canister-owned EVM address to another address. It covers creating a transaction, signing it with the canister's private key, and sending it to the EVM network. `transfer_eth` uses the `send_raw_transaction` function to send the transaction.
+
+-   **contract_interaction**: The `contract_interaction` function demonstrates how to interact with arbitrary EVM smart contracts. It constructs a transaction based on the desired contract interaction, signs it with the canister's private key, and sends it to the EVM network. `contract_interaction` uses the `send_raw_transaction` function to send the transaction. The `submit_result` function in this starter project leverages this function to send the results of processed jobs back to the EVM smart contract.
 
 ## Use Cases
 
