@@ -1,17 +1,8 @@
-use ethers_core::{
-    types::{Address, Eip1559TransactionRequest, U256},
-    utils::keccak256,
-};
+use ethers_core::{abi::Token, types::U256};
 use evm_rpc_canister_types::SendRawTransactionStatus;
-use ic_evm_utils::{
-    eth_send_raw_transaction::send_raw_transaction,
-    fees::{estimate_transaction_fees, FeeEstimates},
-};
-use ic_evm_utils::{eth_send_raw_transaction::IntoChainId, evm_signer::sign_eip1559_transaction};
+use ic_evm_utils::contract_interaction::{contract_interaction, ContractDetails};
 
 use crate::state::{mutate_state, read_state, State};
-use ethers_core::abi::AbiEncode;
-use std::str::FromStr;
 
 pub async fn submit_result(result: String, job_id: U256) {
     // get necessary global state
@@ -20,46 +11,45 @@ pub async fn submit_result(result: String, job_id: U256) {
     let nonce = read_state(State::nonce);
     let key_id = read_state(State::key_id);
 
-    //TODO: Should probably be hardcoded. Recomputing the hash every time is unnecessary
-    let function_signature = "callback(string,uint256)";
+    let abi_json = r#"
+   [
+        {
+            "type": "function",
+            "name": "callback",
+            "inputs": [
+                {
+                    "name": "_result",
+                    "type": "string",
+                    "internalType": "string"
+                },
+                {
+                    "name": "_job_id",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                }
+            ],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+        }
+   ]
+   "#;
 
-    // as required,  provide the first 4 bytes of the hash of the invoked method signature and encoded parameters
-    let selector = &keccak256(function_signature.as_bytes())[0..4];
-    let args = (result, job_id).encode();
-    let mut data = Vec::from(selector);
-    data.extend(args);
+    let abi =
+        serde_json::from_str::<ethers_core::abi::Contract>(abi_json).expect("should serialise");
+
+    let contract_details = ContractDetails {
+        contract_address: contract_address.clone(),
+        abi: &abi,
+        function_name: "callback",
+        args: &[Token::String(result), Token::Uint(job_id)],
+    };
 
     // set the gas
     let gas = Some(U256::from(5000000));
-    // estimate the fees, this makes a call to the EVM RPC provider under the hood
-    let FeeEstimates {
-        max_fee_per_gas,
-        max_priority_fee_per_gas,
-    } = estimate_transaction_fees(9, rpc_services.clone()).await;
 
-    // assemble the transaction
-    let tx = Eip1559TransactionRequest {
-        to: Some(
-            Address::from_str(contract_address)
-                .expect("should be a valid address")
-                .into(),
-        ),
-        gas,
-        data: Some(data.into()),
-        nonce: Some(nonce),
-        max_priority_fee_per_gas: Some(max_priority_fee_per_gas),
-        max_fee_per_gas: Some(max_fee_per_gas),
-        chain_id: Some(rpc_services.chain_id()),
-        from: Default::default(),
-        value: Default::default(),
-        access_list: Default::default(),
-    };
-
-    // sign the transaction using chain key signatures
-    let tx = sign_eip1559_transaction(tx, key_id, vec![]).await;
-
-    // send the transaction via the EVM RPC canister
-    let status = send_raw_transaction(tx, rpc_services).await;
+    // interac with the contract, this calls `eth_sendRawTransaction` under the hood
+    let status =
+        contract_interaction(contract_details, gas, rpc_services, nonce, key_id, vec![]).await;
 
     // if the transaction
     match status {

@@ -8,6 +8,8 @@ use ic_cdk::api::management_canister::ecdsa::{
     ecdsa_public_key, sign_with_ecdsa, EcdsaKeyId, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
 
+type SignedTransaction = String;
+
 pub async fn get_canister_public_key(
     key_id: EcdsaKeyId,
     canister_id: Option<Principal>,
@@ -27,7 +29,7 @@ pub async fn sign_eip1559_transaction(
     tx: Eip1559TransactionRequest,
     key_id: EcdsaKeyId,
     derivation_path: Vec<Vec<u8>>,
-) -> String {
+) -> SignedTransaction {
     const EIP1559_TX_ID: u8 = 2;
 
     let ecdsa_pub_key =

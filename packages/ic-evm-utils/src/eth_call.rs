@@ -4,32 +4,21 @@ use ethers_core::utils::hex;
 use hex::FromHexError;
 use serde::{Deserialize, Serialize};
 
-use evm_rpc_canister_types::{RequestResult, RpcService, EVM_RPC};
+use evm_rpc_canister_types::{RequestResult, RpcService};
+
+use crate::request::{request, JsonRpcResult};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EthCallParams {
     pub to: String,
     pub data: String,
 }
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct JsonRpcRequest {
+pub struct EthCallJsonRpcRequest {
     pub id: u64,
     pub jsonrpc: String,
     pub method: String,
     pub params: (EthCallParams, String),
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct JsonRpcResult {
-    result: Option<String>,
-    error: Option<JsonRpcError>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct JsonRpcError {
-    code: isize,
-    message: String,
 }
 
 #[allow(dead_code)]
@@ -40,8 +29,9 @@ async fn eth_call(
     args: &[Token],
     block_number: &str,
     rpc_service: RpcService,
+    max_response_bytes: u64,
 ) -> Vec<Token> {
-    let f = match abi.functions_by_name(function_name).map(|v| &v[..]) {
+    let function = match abi.functions_by_name(function_name).map(|v| &v[..]) {
         Ok([f]) => f,
         Ok(fs) => panic!(
             "Found {} function overloads. Please pass one of the following: {}",
@@ -56,10 +46,10 @@ async fn eth_call(
             .find(|f| function_name == f.abi_signature())
             .expect("Function not found"),
     };
-    let data = f
+    let data = function
         .encode_input(args)
         .expect("Error while encoding input args");
-    let json_rpc_payload = serde_json::to_string(&JsonRpcRequest {
+    let json_rpc_payload = serde_json::to_string(&EthCallJsonRpcRequest {
         id: 1,
         jsonrpc: "2.0".to_string(),
         method: "eth_call".to_string(),
@@ -73,34 +63,19 @@ async fn eth_call(
     })
     .expect("Error while encoding JSON-RPC request");
 
-    let max_response_bytes = 2048;
-    let cycles = 10_000_000_000;
-
-    let res = match EVM_RPC
-        .request(rpc_service, json_rpc_payload, max_response_bytes, cycles)
-        .await
-    {
-        Ok((res,)) => res,
-        Err(e) => ic_cdk::trap(format!("Error: {:?}", e).as_str()),
-    };
+    let res = request(rpc_service, json_rpc_payload, max_response_bytes).await;
 
     match res {
         RequestResult::Ok(ok) => {
             let json: JsonRpcResult =
                 serde_json::from_str(&ok).expect("JSON was not well-formatted");
             let result = from_hex(&json.result.expect("Unexpected JSON response")).unwrap();
-            f.decode_output(&result).expect("Error decoding output")
+            function
+                .decode_output(&result)
+                .expect("Error decoding output")
         }
         RequestResult::Err(err) => panic!("Response error: {err:?}"),
     }
-}
-
-fn to_hex(data: &[u8]) -> String {
-    format!("0x{}", hex::encode(data))
-}
-
-fn from_hex(data: &str) -> Result<Vec<u8>, FromHexError> {
-    hex::decode(&data[2..])
 }
 
 #[allow(dead_code)]
@@ -109,6 +84,7 @@ pub async fn erc20_balance_of(
     account: String,
     rpc_service: RpcService,
 ) -> U256 {
+    let max_response_bytes = 2048;
     // Define the ABI JSON as a string literal
     let abi_json = r#"
    [
@@ -143,6 +119,7 @@ pub async fn erc20_balance_of(
         )],
         "latest",
         rpc_service,
+        max_response_bytes,
     )
     .await
     .first()
@@ -151,4 +128,12 @@ pub async fn erc20_balance_of(
         panic!("oops")
     };
     balance
+}
+
+fn to_hex(data: &[u8]) -> String {
+    format!("0x{}", hex::encode(data))
+}
+
+fn from_hex(data: &str) -> Result<Vec<u8>, FromHexError> {
+    hex::decode(&data[2..])
 }
