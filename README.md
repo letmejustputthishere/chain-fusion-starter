@@ -253,6 +253,7 @@ Some ideas you could explore:
 
 -   A referral canister that distributes rewards to users based on their interactions with an EVM smart contract
 -   A ckNFT canister that mints an NFT on the ICP when an EVM helper smart contract emits a `ReceivedNft`, similar to the [`EthDepositHelper`](https://github.com/dfinity/ic/blob/master/rs/ethereum/cketh/minter/EthDepositHelper.sol) contract the ckETH minter uses. This could enable users to trade NFTs on the ICP without having to pay gas fees on Ethereum.
+-   Decentralized DCA (dollar cost average) service for decentralized exchanges like Uniswap deployed on EVM chains
 -   Price oracles for DeFi applications via [exchange rate canister](https://github.com/dfinity/exchange-rate-canister)
 -   Prediction market resolution
 -   Soulbound NFT metadata and assets stored in a canister
