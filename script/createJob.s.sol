@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "../../../lib/forge-std/src/Script.sol";
-import "../RecurringTransactions.sol";
+import "../src/foundry/RecurringTransactions.sol";
 
 contract CreateJob is Script {
     uint256 accountPrivateKey;
@@ -25,7 +25,12 @@ contract CreateJob is Script {
 
         console.log("Calling newJob...");
         vm.startBroadcast();
-        recurringTransactions.newJob{value: 0.1 ether}();
+        recurringTransactions.createJob{value: 0.1 ether}(
+        10,
+        0.00001,
+        ,
+        
+    );
         vm.stopBroadcast();
     }
 }

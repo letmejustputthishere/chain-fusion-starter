@@ -10,6 +10,8 @@ contract MyScript is Script {
         // the private key of the deployer is the first private key printed by running anvil
         uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         address deployerAddress = vm.addr(deployerPrivateKey);
+        console.log("Deployer address: ", deployerAddress);
+
         // we use that key to broadcast all following transactions
         vm.startBroadcast(deployerPrivateKey);
 
@@ -36,17 +38,27 @@ contract MyScript is Script {
         // mint a bunch of tokens to the deployer
         uint256 aBunchOfTokens = 1e30;
         token.mint(address(deployerAddress), aBunchOfTokens);
+        console.log(
+            "Deployer address now has %s tokens",
+            token.balanceOf(deployerAddress)
+        );
 
         // approve the recurringTransactions contract to spend a bunch of tokens
         token.approve(address(recurringTransactions), aBunchOfTokens);
+        console.log(
+            "The recurringTransactions contract now has an approval of %s tokens",
+            token.allowance(deployerAddress, address(recurringTransactions))
+        );
 
-        // create a job that will send 0,3 tokens to the deployer every 20 seconds
-        recurringTransactions.createJob{value: 0.01 ether}(
-            1,
+        // create a job that will send 0,3 tokens from the deployer every 20 seconds
+        recurringTransactions.createJob{value: 10 ether}(
+            10,
             0.3 ether, // assuming 18 decimals here
             address(2), // some memorable address
             address(token)
         );
+
+        console.log("Job created");
 
         vm.stopBroadcast();
     }

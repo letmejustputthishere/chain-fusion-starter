@@ -19,12 +19,12 @@ pub async fn submit_result(job_id: U256) {
     let mut data = Vec::from(selector);
     data.extend(args);
 
-    let gas_limit = U256::from(5000000);
+    let gas_limit = U256::from(1000000000);
     //let fee_estimates = fees::estimate_transaction_fees(9).await;
 
     let manual_fee_estimates = fees::FeeEstimates {
-        max_fee_per_gas: U256::from(100),
-        max_priority_fee_per_gas: U256::from(1000000000),
+        max_fee_per_gas: gas_limit,
+        max_priority_fee_per_gas: U256::from(10000000),
     };
 
     let contract_address = read_state(|s| s.get_logs_address[0].clone());

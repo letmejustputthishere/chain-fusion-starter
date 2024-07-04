@@ -13,7 +13,7 @@ else
 fi
 
 # start anvil with slots in an epoch send to 1 for faster finalised blocks
-anvil --slots-in-an-epoch 1 &
+anvil --slots-in-an-epoch 1 --disable-gas-limit &
 # kill caddyserver
 caddy stop
 # start caddyserver
