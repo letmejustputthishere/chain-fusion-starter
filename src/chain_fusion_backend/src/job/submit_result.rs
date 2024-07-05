@@ -28,7 +28,7 @@ pub async fn submit_result(job_id: U256) {
     // };
 
     // todo: replace this manual estimation of the gas consumption with a better one
-    let manual_gas_limit = U256::from(100000);
+    let manual_gas_limit = U256::from(1000000);
 
     let contract_address = read_state(|s| s.get_logs_address[0].clone());
 
@@ -62,6 +62,9 @@ pub async fn submit_result(job_id: U256) {
         }
         SendRawTransactionStatus::NonceTooLow => {
             println!("Nonce too low");
+            // print current nonce from state
+            let nonce = read_state(|s| s.nonce.clone());
+            println!("Current nonce: {nonce}");
         }
         SendRawTransactionStatus::NonceTooHigh => {
             println!("Nonce too high");

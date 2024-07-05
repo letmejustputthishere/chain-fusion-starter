@@ -31,7 +31,7 @@ dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/
         "0xd270de418848f07676c092e30c67a99070a18f01b8f573731322eadeea0c1ab8";
       };
     };
-    last_scraped_block_number = 34254976: nat;
+    last_scraped_block_number = 34810062: nat;
     rpc_services = variant {
       Custom = record {
         chainId = 100 : nat64;
@@ -46,8 +46,11 @@ dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/
     };
     get_logs_address = vec { "0xBf565C0d779770e181d0772DB4E038Ee5279e957" };
     block_tag = variant { Latest = null };
+    nonce = 1 : nat;
   },
 )'
+# beware: the nonce above is not used yet. Instead, it is hardcoded in lifecycle.rs
+
 # sleep for 3 seconds to allow the evm address to be generated
 sleep 3
 # save the chain_fusion canisters evm address

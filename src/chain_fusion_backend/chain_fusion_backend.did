@@ -24,6 +24,7 @@ type InitArg = record {
   rpc_services : RpcServices;
   block_tag : BlockTag;
   get_logs_address : vec text;
+  nonce: nat;
 };
 type RpcApi = record { url : text; headers : opt vec HttpHeader };
 type RpcServices = variant {
