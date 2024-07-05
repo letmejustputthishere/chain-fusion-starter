@@ -1,7 +1,7 @@
 mod calculate_result;
 mod submit_result;
 
-use std::fmt;
+use std::{fmt, time::SystemTime};
 
 use ethers_core::types::U256;
 use ic_cdk::println;
@@ -50,6 +50,23 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     //     ic_cdk::println!("Waking up");
     // });
 
+    let job_event = NewJobEvent::from(event);
+    let job_id = job_event.job_id;
+    let job_execution_time = job_event.job_execution_time;
+
+    // print job id and execution time
+    println!("Printing job id and execution time next");
+    println!("Job ID: {job_id}, Execution Time: {job_execution_time}");
+
+    // reduce execution time by current timestamp in seconds
+    // let job_sleep_interval = job_event.job_execution_time
+    //     - U256(await SystemTime::now().duration_since(SystemTime::UNIX_EPOCH));
+
+    // match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+    //     Ok(n) => n.as_secs(),
+    //     Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    // }
+
     ic_cdk_timers::set_timer(std::time::Duration::from_secs(30), || {
         println!("Timer has finished, running job now.");
         ic_cdk::spawn(async { submit_result(U256::from(0)).await })
@@ -62,6 +79,7 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NewJobEvent {
+    pub job_execution_time: U256,
     pub job_id: U256,
 }
 
@@ -77,9 +95,16 @@ impl From<LogEntry> for NewJobEvent {
     fn from(entry: LogEntry) -> NewJobEvent {
         // we expect exactly 2 topics from the NewJob event.
         // you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
-        let job_id =
-            U256::from_str_radix(&entry.topics[1], 16).expect("the token id should be valid");
 
-        NewJobEvent { job_id }
+        let job_id =
+            U256::from_str_radix(&entry.topics[1], 16).expect("the job id should be valid");
+
+        let job_execution_time =
+            U256::from_str_radix(&entry.data, 16).expect("the execution time should be valid");
+
+        NewJobEvent {
+            job_execution_time,
+            job_id,
+        }
     }
 }

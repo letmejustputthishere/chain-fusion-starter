@@ -26,7 +26,7 @@ async fn process_logs() {
     let logs_to_process = read_state(|s| (s.logs_to_process.clone()));
 
     for (event_source, event) in logs_to_process {
-        println!("running job");
+        println!("Starting new job for event {event_source:?} {event:?}");
         job(event_source, event).await
     }
 }
