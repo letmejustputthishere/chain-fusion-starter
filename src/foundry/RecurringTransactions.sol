@@ -71,7 +71,7 @@ contract RecurringTransactions {
         address _sender,
         address _recipient,
         uint256 _amount
-    ) public {
+    ) private {
         IERC20 token = IERC20(_token);
         SafeERC20.safeTransferFrom(token, _sender, _recipient, _amount);
     }
