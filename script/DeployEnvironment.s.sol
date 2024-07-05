@@ -56,7 +56,7 @@ contract MyScript is Script {
 
         // create a job that will send 0,3 tokens from the deployer every 20 seconds
         recurringTransactions.createJob{value: 0.1 ether}(
-            10,
+            18,
             0.1 ether, // assuming 18 decimals here
             receiverAddress, // hardhat account 1
             address(token)

@@ -4,6 +4,7 @@ mod submit_result;
 use std::{fmt, time::SystemTime};
 
 use ethers_core::types::U256;
+use ic_cdk::api;
 use ic_cdk::println;
 use submit_result::submit_result;
 
@@ -54,9 +55,36 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     let job_id = job_event.job_id;
     let job_execution_time = job_event.job_execution_time;
 
+    // get current unix timestamp in seconds
+    // let current_timestamp = SystemTime::now()
+    //     .duration_since(SystemTime::UNIX_EPOCH)
+    //     .unwrap()
+    //     .as_secs();
+
+    let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
+
+    if job_execution_time <= U256::from(current_timestamp) {
+        println!("Job execution time is in the past, executing job now.");
+        submit_result(job_id).await;
+        return;
+    } else {
+        // cast job_execution_time to u64
+        let job_sleep_interval = job_execution_time.as_u64() - current_timestamp;
+        println!("Job execution time is in the future, starting timer with sleep interval of {job_sleep_interval} seconds.");
+
+        ic_cdk_timers::set_timer(
+            std::time::Duration::from_secs(job_sleep_interval),
+            move || {
+                // clone job_id to be used in the closure
+                let job_id = job_id.clone();
+                println!("Timer has finished, running job {job_id} now.");
+                ic_cdk::spawn(async move { submit_result(job_id.clone()).await })
+            },
+        );
+    }
+
     // print job id and execution time
-    println!("Printing job id and execution time next");
-    println!("Job ID: {job_id}, Execution Time: {job_execution_time}");
+    println!("Starting timer for job ID: {job_id} with execution Time: {job_execution_time}");
 
     // reduce execution time by current timestamp in seconds
     // let job_sleep_interval = job_event.job_execution_time
@@ -66,11 +94,6 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     //     Ok(n) => n.as_secs(),
     //     Err(_) => panic!("SystemTime before UNIX EPOCH!"),
     // }
-
-    ic_cdk_timers::set_timer(std::time::Duration::from_secs(30), || {
-        println!("Timer has finished, running job now.");
-        ic_cdk::spawn(async { submit_result(U256::from(0)).await })
-    });
 
     // todo: pass job_id from log
     //submit_result(U256::from(0)).await;
