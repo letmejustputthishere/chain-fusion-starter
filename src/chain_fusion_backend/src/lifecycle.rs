@@ -16,6 +16,7 @@ pub struct InitArg {
     pub last_scraped_block_number: Nat,
     pub ecdsa_key_id: EcdsaKeyId,
     pub block_tag: BlockTag,
+    pub nonce: Nat,
 }
 
 impl TryFrom<InitArg> for State {
@@ -30,6 +31,7 @@ impl TryFrom<InitArg> for State {
             last_scraped_block_number,
             ecdsa_key_id,
             block_tag,
+            nonce,
         }: InitArg,
     ) -> Result<Self, Self::Error> {
         // validate contract addresses
@@ -59,7 +61,8 @@ impl TryFrom<InitArg> for State {
             ecdsa_pub_key: None,
             ecdsa_key_id,
             evm_address: None,
-            nonce: U256::zero(),
+            // todo: use nonce from config
+            nonce: U256::from(1),
             block_tag,
         };
         Ok(state)
