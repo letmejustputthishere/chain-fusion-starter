@@ -19,13 +19,16 @@ pub async fn submit_result(job_id: U256) {
     let mut data = Vec::from(selector);
     data.extend(args);
 
-    let gas_limit = U256::from(1000000000);
-    //let fee_estimates = fees::estimate_transaction_fees(9).await;
+    let fee_estimates = fees::estimate_transaction_fees(9).await;
 
-    let manual_fee_estimates = fees::FeeEstimates {
-        max_fee_per_gas: gas_limit,
-        max_priority_fee_per_gas: U256::from(10000000),
-    };
+    //let gas_limit = U256::from(1000000000);
+    // let manual_fee_estimates = fees::FeeEstimates {
+    //     max_fee_per_gas: gas_limit,
+    //     max_priority_fee_per_gas: U256::from(10000000),
+    // };
+
+    // todo: replace this manual estimation of the gas consumption with a better one
+    let manual_gas_limit = U256::from(100000);
 
     let contract_address = read_state(|s| s.get_logs_address[0].clone());
 
@@ -33,9 +36,10 @@ pub async fn submit_result(job_id: U256) {
         U256::from(0),
         Some(contract_address),
         None,
-        gas_limit,
+        manual_gas_limit,
         Some(data),
-        manual_fee_estimates,
+        fee_estimates,
+        //manual_fee_estimates,
     )
     .await;
 

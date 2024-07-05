@@ -8,20 +8,24 @@ import "../src/foundry/ERC20MintableByAnyone.sol";
 contract MyScript is Script {
     function run(address chain_fusion_canister_address) external {
         // the private key of the deployer is the first private key printed by running anvil
+        // hardhat account 0
         uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
-        address deployerAddress = vm.addr(deployerPrivateKey);
+        address deployerAddress = vm.addr(deployerPrivateKey); // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         console.log("Deployer address: ", deployerAddress);
+
+        // hardhat account 1
+        uint256 receiverPrivateKey = 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d;
+        address receiverAddress = vm.addr(receiverPrivateKey); //0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        console.log("Receiver address: ", receiverAddress);
 
         // we use that key to broadcast all following transactions
         vm.startBroadcast(deployerPrivateKey);
 
         // this creates the contract. it will have the same address every time if we use a
         // new instance of anvil for every deployment.
-
         RecurringTransactions recurringTransactions = new RecurringTransactions(
             chain_fusion_canister_address
         );
-
         console.log(
             "RecurringTransactions address: ",
             address(recurringTransactions)
@@ -51,10 +55,10 @@ contract MyScript is Script {
         );
 
         // create a job that will send 0,3 tokens from the deployer every 20 seconds
-        recurringTransactions.createJob{value: 10 ether}(
+        recurringTransactions.createJob{value: 0.1 ether}(
             10,
-            0.3 ether, // assuming 18 decimals here
-            address(2), // some memorable address
+            0.1 ether, // assuming 18 decimals here
+            receiverAddress, // hardhat account 1
             address(token)
         );
 
