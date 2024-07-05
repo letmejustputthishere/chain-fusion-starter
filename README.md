@@ -26,7 +26,10 @@ From there, adapting the code can be done within a reasonable amount of time. Th
 
 #### Deploying on an EVM
 
-`forge script script/DeployContract.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier blockscout --verifier-url https://gnosis.blockscout.com/api? --broadcast`
+`forge script script/DeployContract.s.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier blockscout --verifier-url https://gnosis.blockscout.com/api? --broadcast`
+
+To verify on another block explorer, use this:
+`forge script script/DeployContract.s.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier-url https://api.gnosisscan.io/api\? --etherscan-api-key $GNOSISSCAN_API_KEY --resume`
 
 #### Deploying on the Internet Computer
 
@@ -55,3 +58,7 @@ Also, thanks to Dominik Wörner for lots of support during the Eth Prague hackat
 [maryjanyes](https://github.com/maryjanyes) did some rust coding.
 
 [malteish](https://github.com/malteish) did most of the architecture, infrastructure, documentation, and solidity stuff, as well as some rust.
+
+# Stuff
+
+Beware: start nonce is currently hard-coded in lifecycle.rs. This is not a good idea, but it's a hackathon project. Don't use this in production. Or do, I'm not your mom.
