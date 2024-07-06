@@ -62,7 +62,7 @@ impl TryFrom<InitArg> for State {
             ecdsa_key_id,
             evm_address: None,
             // todo: use nonce from config
-            nonce: U256::from(47),
+            nonce: U256::from(178),
             block_tag,
         };
         Ok(state)

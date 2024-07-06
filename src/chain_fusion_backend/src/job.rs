@@ -1,7 +1,7 @@
 mod calculate_result;
 mod submit_result;
 
-use std::{fmt, time::SystemTime};
+use std::fmt;
 
 use ethers_core::types::U256;
 use ic_cdk::api;
@@ -18,48 +18,9 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     // because we deploy the canister with topics only matching
     // NewJob events we can safely assume that the event is a NewJob.
 
-    //let new_job_event = NewJobEvent::from(event);
-
-    // this is what the smart contract expects to know
-    //let job_id = new_job_event.job_id;
-
-    // todo: read sleep duration from the job
-
-    // sleep 30s
-    // let interval = std::time::Duration::from_secs(30);
-    // let do_it_now = false;
-    // ic_cdk::println!("Starting a periodic task with interval {interval:?}");
-    // ic_cdk_timers::set_timer(interval, || {
-    //     do_it_now = true;
-    // });
-
-    // loop {
-    //     _ = &mut do_it_now => {
-    //             // If there's another case where `do_it_now` is updated, handle it here
-    //             // This is a placeholder to show how to handle other async events
-    //             do_it_now = true;
-    //         },
-    //     if do_it_now == true {
-    //         // do it now
-    //         submit_result(U256::from(0)).await;
-    //     }
-    // }
-
-    // // sleep
-    // ic_cdk::println!("Sleeping for {interval:?}");
-    // ic_cdk_timers::set_timer(interval, || {
-    //     ic_cdk::println!("Waking up");
-    // });
-
     let job_event = NewJobEvent::from(event);
     let job_id = job_event.job_id;
     let job_execution_time = job_event.job_execution_time;
-
-    // get current unix timestamp in seconds
-    // let current_timestamp = SystemTime::now()
-    //     .duration_since(SystemTime::UNIX_EPOCH)
-    //     .unwrap()
-    //     .as_secs();
 
     let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
 
@@ -68,10 +29,8 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
         submit_result(job_id).await;
         return;
     } else {
-        // cast job_execution_time to u64
         let job_sleep_interval = job_execution_time.as_u64() - current_timestamp;
-        println!("Job execution time is in the future, starting timer with sleep interval of {job_sleep_interval} seconds.");
-
+        println!("Job execution time is in the future, starting timer with sleep interval of {job_sleep_interval} seconds for for job ID {job_id} with execution Time {job_execution_time}.");
         ic_cdk_timers::set_timer(
             std::time::Duration::from_secs(job_sleep_interval),
             move || {
@@ -82,22 +41,6 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
             },
         );
     }
-
-    // print job id and execution time
-    println!("Starting timer for job ID: {job_id} with execution Time: {job_execution_time}");
-
-    // reduce execution time by current timestamp in seconds
-    // let job_sleep_interval = job_event.job_execution_time
-    //     - U256(await SystemTime::now().duration_since(SystemTime::UNIX_EPOCH));
-
-    // match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
-    //     Ok(n) => n.as_secs(),
-    //     Err(_) => panic!("SystemTime before UNIX EPOCH!"),
-    // }
-
-    // todo: pass job_id from log
-    //submit_result(U256::from(0)).await;
-    println!("Successfully started timer for job");
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
