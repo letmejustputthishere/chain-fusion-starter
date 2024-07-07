@@ -98,7 +98,7 @@ cd chain-fusion-starter
 
 ## Architecture
 
-This starter project involves multiple canisters working together to process events emitted by EVM smart contracts. The main canisters are:
+This starter project involves multiple canisters working together to process events emitted by an EVM smart contract. The contracts involved are:
 
 -   **EVM Smart Contract**: Emits events such as `NewJob` when specific functions are called. It also handles callbacks from the `chain_fusion` canister with the results of the processed jobs.
 -   **Chain Fusion Canister (`chain_fusion`)**: Listens to events emitted by the EVM smart contract, processes them, and sends the results back to the EVM smart contract.
