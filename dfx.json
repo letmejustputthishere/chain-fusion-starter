@@ -1,16 +1,21 @@
 {
   "canisters": {
-    "chain_fusion_backend": {
-      "candid": "src/chain_fusion_backend/chain_fusion_backend.did",
-      "package": "chain_fusion_backend",
+    "chain_fusion": {
+      "candid": "canisters/chain_fusion/chain_fusion.did",
+      "package": "chain_fusion",
       "type": "rust",
       "dependencies": ["evm_rpc"],
-      "specified_id": "2222s-4iaaa-aaaaf-ax2uq-cai"
+      "specified_id": "2222s-4iaaa-aaaaf-ax2uq-cai",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     },
     "evm_rpc": {
       "type": "custom",
       "candid": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc.did",
-      "wasm": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc_dev.wasm.gz",
+      "wasm": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc.wasm.gz",
       "remote": {
         "id": {
           "ic": "7hfb6-caaaa-aaaar-qadga-cai"
