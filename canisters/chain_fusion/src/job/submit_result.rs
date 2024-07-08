@@ -1,80 +1,76 @@
-use ethers_core::{abi::Token, types::U256};
-use evm_rpc_canister_types::{SendRawTransactionStatus, EVM_RPC};
-use ic_evm_utils::eth_send_raw_transaction::{contract_interaction, ContractDetails};
+use ethers_core::{types::U256, utils::keccak256};
+use ic_cdk::println;
 
-use crate::state::{mutate_state, read_state, State};
+use crate::{
+    eth_send_raw_transaction::{create_sign_request, send_raw_transaction},
+    evm_rpc::SendRawTransactionStatus,
+    evm_signer, fees,
+    state::{mutate_state, read_state},
+};
+use ethers_core::abi::AbiEncode;
 
-pub async fn submit_result(result: String, job_id: U256) {
-    // get necessary global state
-    let contract_address = &read_state(State::get_logs_addresses)[0];
-    let rpc_services = read_state(State::rpc_services);
-    let nonce = read_state(State::nonce);
-    let key_id = read_state(State::key_id);
+// todo: properly name this function
+pub async fn submit_result(job_id: U256) {
+    println! {"Submitting result for job_id: {job_id}"};
+    let function_signature = "executeJob(uint256)";
 
-    let abi_json = r#"
-   [
-        {
-            "type": "function",
-            "name": "callback",
-            "inputs": [
-                {
-                    "name": "_result",
-                    "type": "string",
-                    "internalType": "string"
-                },
-                {
-                    "name": "_job_id",
-                    "type": "uint256",
-                    "internalType": "uint256"
-                }
-            ],
-            "outputs": [],
-            "stateMutability": "nonpayable"
-        }
-   ]
-   "#;
+    let selector = &keccak256(function_signature.as_bytes())[0..4];
+    let args = (job_id).encode();
+    let mut data = Vec::from(selector);
+    data.extend(args);
 
-    let abi =
-        serde_json::from_str::<ethers_core::abi::Contract>(abi_json).expect("should serialise");
+    let fee_estimates = fees::estimate_transaction_fees(9).await;
 
-    let contract_details = ContractDetails {
-        contract_address: contract_address.clone(),
-        abi: &abi,
-        function_name: "callback",
-        args: &[Token::String(result), Token::Uint(job_id)],
-    };
+    //let gas_limit = U256::from(1000000000);
+    // let manual_fee_estimates = fees::FeeEstimates {
+    //     max_fee_per_gas: gas_limit,
+    //     max_priority_fee_per_gas: U256::from(10000000),
+    // };
 
-    // set the gas
-    let gas = Some(U256::from(5000000));
+    // todo: replace this manual estimation of the gas consumption with a better one
+    let manual_gas_limit = U256::from(1000000);
 
-    // interac with the contract, this calls `eth_sendRawTransaction` under the hood
-    let status = contract_interaction(
-        contract_details,
-        gas,
-        rpc_services,
-        nonce,
-        key_id,
-        vec![],
-        EVM_RPC,
+    let contract_address = read_state(|s| s.get_logs_address[0].clone());
+
+    let request = create_sign_request(
+        U256::from(0),
+        Some(contract_address),
+        None,
+        manual_gas_limit,
+        Some(data),
+        fee_estimates,
+        //manual_fee_estimates,
     )
     .await;
 
-    // if the transaction
+    println! {"Signing request "};
+
+    let tx = evm_signer::sign_transaction(request).await;
+
+    println! {"Submitting signed request  "};
+
+    let status = send_raw_transaction(tx.clone()).await;
+
+    println!("Transaction sent: {:?}", tx);
+
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
-            ic_cdk::println!("Success {transaction_hash:?}");
+            println!("Success {transaction_hash:?}");
             mutate_state(|s| {
                 s.nonce += U256::from(1);
             });
         }
         SendRawTransactionStatus::NonceTooLow => {
-            ic_cdk::println!("Nonce too low");
+            println!("Nonce too low");
+            // print current nonce from state
+            let nonce = read_state(|s| s.nonce.clone());
+            println!("Current nonce: {nonce}");
         }
         SendRawTransactionStatus::NonceTooHigh => {
-            ic_cdk::println!("Nonce too high");
+            println!("Nonce too high");
         }
         SendRawTransactionStatus::InsufficientFunds => {
-            ic_cdk::println!("Insufficient funds");
+            println!("Insufficient funds");
         }
     }
 }
