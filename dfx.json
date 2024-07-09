@@ -8,7 +8,8 @@
       "specified_id": "2222s-4iaaa-aaaaf-ax2uq-cai",
       "metadata": [
         {
-          "name": "candid:service"
+          "name": "candid:service",
+          "path": "canisters/chain_fusion/chain_fusion.did"
         }
       ]
     },
@@ -32,10 +33,5 @@
     }
   },
   "output_env_file": ".env",
-  "version": 1,
-  "metadata": [
-    {
-      "name": "candid:service"
-    }
-  ]
+  "version": 1
 }

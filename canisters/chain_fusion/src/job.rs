@@ -1,17 +1,14 @@
-mod calculate_result;
 mod submit_result;
 
 use std::fmt;
 
 use ethers_core::types::U256;
+use evm_rpc_canister_types::LogEntry;
 use ic_cdk::api;
 use ic_cdk::println;
 use submit_result::submit_result;
 
-use crate::{
-    evm_rpc::LogEntry,
-    state::{mutate_state, LogSource},
-};
+use crate::state::{mutate_state, LogSource};
 
 pub async fn job(event_source: LogSource, event: LogEntry) {
     mutate_state(|s| s.record_processed_log(event_source.clone()));

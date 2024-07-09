@@ -16,7 +16,7 @@ pub struct InitArg {
     pub last_scraped_block_number: Nat,
     pub ecdsa_key_id: EcdsaKeyId,
     pub block_tag: BlockTag,
-    pub nonce: Nat,
+    //pub nonce: Nat,
 }
 
 impl TryFrom<InitArg> for State {
@@ -31,7 +31,7 @@ impl TryFrom<InitArg> for State {
             last_scraped_block_number,
             ecdsa_key_id,
             block_tag,
-            nonce,
+            //nonce,
         }: InitArg,
     ) -> Result<Self, Self::Error> {
         // validate contract addresses
