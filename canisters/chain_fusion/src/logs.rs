@@ -5,13 +5,13 @@ use std::{
 };
 
 use candid::Nat;
+use evm_rpc_canister_types::{
+    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError,
+    MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
+};
 use ic_cdk::println;
 
 use crate::{
-    evm_rpc::{
-        BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError,
-        MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
-    },
     guard::TimerGuard,
     job::job,
     state::{mutate_state, read_state, State, TaskType},
@@ -26,13 +26,12 @@ async fn process_logs() {
     let logs_to_process = read_state(|s| (s.logs_to_process.clone()));
 
     for (event_source, event) in logs_to_process {
-        println!("Starting new job for event {event_source:?} {event:?}");
         job(event_source, event).await
     }
 }
 
 pub async fn get_logs(from: &Nat, to: &Nat) -> GetLogsResult {
-    let get_logs_address = read_state(|s| s.get_logs_address.clone());
+    let get_logs_address = read_state(|s| s.get_logs_addresses.clone());
     let get_logs_topics = read_state(|s| s.get_logs_topics.clone());
     let rpc_services = read_state(|s| s.rpc_services.clone());
     let get_logs_args: GetLogsArgs = GetLogsArgs {
@@ -67,10 +66,6 @@ async fn scrape_eth_logs_range_inclusive(from: &Nat, to: &Nat) -> Option<Nat> {
         Ordering::Less | Ordering::Equal => {
             let max_to = from.clone().add(Nat::from(MAX_BLOCK_SPREAD));
             let mut last_block_number = min(max_to, to.clone());
-            println!(
-                "Scraping ETH logs from block {:?} to block {:?}...",
-                from, last_block_number
-            );
 
             let logs = loop {
                 match get_logs(from, &last_block_number).await {
@@ -108,11 +103,9 @@ async fn scrape_eth_logs_range_inclusive(from: &Nat, to: &Nat) -> Option<Nat> {
             };
 
             for log_entry in logs {
-                println!("Received event {log_entry:?}",);
                 mutate_state(|s| s.record_log_to_process(&log_entry));
             }
             if read_state(State::has_logs_to_process) {
-                println!("Found logs to process",);
                 ic_cdk_timers::set_timer(Duration::from_secs(0), move || {
                     ic_cdk::spawn(process_logs())
                 });
@@ -187,8 +180,12 @@ async fn update_last_observed_block_number() -> Option<Nat> {
     }
 }
 
-impl HttpOutcallError {
-    pub fn is_response_too_large(&self) -> bool {
+trait ResponseSizeErrorCheck {
+    fn is_response_too_large(&self) -> bool;
+}
+
+impl ResponseSizeErrorCheck for HttpOutcallError {
+    fn is_response_too_large(&self) -> bool {
         match self {
             Self::IcError { code, message } => is_response_too_large(code, message),
             _ => false,
@@ -197,5 +194,8 @@ impl HttpOutcallError {
 }
 
 pub fn is_response_too_large(code: &RejectionCode, message: &str) -> bool {
-    code == &RejectionCode::SysFatal && message.contains("size limit")
+    match code {
+        RejectionCode::SysFatal => message.contains("size limit"),
+        _ => false,
+    }
 }

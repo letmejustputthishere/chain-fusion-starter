@@ -32,13 +32,12 @@ fi
 dfx start --clean --background
 dfx ledger fabricate-cycles --icp 10000 --canister $(dfx identity get-wallet)
 dfx deploy evm_rpc
-cargo build --release --target wasm32-unknown-unknown --package chain_fusion_backend
-dfx canister create --with-cycles 10_000_000_000_000 chain_fusion_backend
+cargo build --release --target wasm32-unknown-unknown --package chain_fusion
+dfx canister create --with-cycles 10_000_000_000_000 chain_fusion
 # because the local smart contract deployment is deterministic, we can hardcode the 
 # the `get_logs_address` here. in our case we are listening for NextExecutionTimestamp events,
 # you can read more about event signatures [here](https://docs.alchemy.com/docs/deep-dive-into-eth_getlogs#what-are-event-signatures)
-# (we can use cast sig-event "NextExecutionTimestamp(uint, uint indexed)" to get the topic)
-dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_backend.wasm chain_fusion_backend --argument '(
+dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion.wasm chain_fusion --argument '(
   record {
     ecdsa_key_id = record {
       name = "dfx_test_key";
@@ -62,14 +61,14 @@ dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion_b
         headers = null;
       }
     };
-    get_logs_address = vec { "0x5FbDB2315678afecb367f032d93F642f64180aa3" };
+    get_logs_addresses = vec { "0x5FbDB2315678afecb367f032d93F642f64180aa3" };
     block_tag = variant { Latest = null };
+    nonce = 0: nat;
   },
 )'
 # sleep for 3 seconds to allow the evm address to be generated
 sleep 3
-# save the chain_fusion canisters evm address
-export EVM_ADDRESS=$(dfx canister call chain_fusion_backend get_evm_address | awk -F'"' '{print $2}')
-export PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+# safe the chain_fusion canisters evm address
+export EVM_ADDRESS=$(dfx canister call chain_fusion get_evm_address | awk -F'"' '{print $2}')
 # deploy the contract passing the chain_fusion canisters evm address to receive the fees and create a couple of new jobs
 forge script script/DeployEnvironment.s.sol:MyScript --fork-url http://localhost:8545 --broadcast --sig "run(address)" $EVM_ADDRESS

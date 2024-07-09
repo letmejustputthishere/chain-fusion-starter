@@ -2,8 +2,8 @@
 pragma solidity 0.8.20;
 
 import "forge-std/Script.sol";
-import "../src/foundry/RecurringTransactions.sol";
-import "../src/foundry/ERC20MintableByAnyone.sol";
+import "../contracts/RecurringTransactions.sol";
+import "../contracts/ERC20MintableByAnyone.sol";
 
 contract MyScript is Script {
     function run(address chain_fusion_canister_address) external {
@@ -55,7 +55,7 @@ contract MyScript is Script {
         );
 
         recurringTransactions.createJob{value: 0.1 ether}(
-            240, // delay in seconds
+            10, // delay in seconds
             0.1 ether, // assuming 18 decimals here
             receiverAddress, // hardhat account 1
             address(token)

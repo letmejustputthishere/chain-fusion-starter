@@ -1,17 +1,18 @@
 use crate::state::{InvalidStateError, State};
 use candid::types::number::Nat;
 use candid::{CandidType, Deserialize};
-use ethers_core::types::{H256, U256};
+use ethers_core::types::H256;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
+use ic_evm_utils::conversions::nat_to_u256;
 use std::str::FromStr;
 
-use crate::evm_rpc::{BlockTag, RpcService, RpcServices};
+use evm_rpc_canister_types::{BlockTag, RpcService, RpcServices};
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct InitArg {
     pub rpc_services: RpcServices,
     pub rpc_service: RpcService,
-    pub get_logs_address: Vec<String>,
+    pub get_logs_addresses: Vec<String>,
     pub get_logs_topics: Option<Vec<Vec<String>>>,
     pub last_scraped_block_number: Nat,
     pub ecdsa_key_id: EcdsaKeyId,
@@ -26,7 +27,7 @@ impl TryFrom<InitArg> for State {
         InitArg {
             rpc_services,
             rpc_service,
-            get_logs_address,
+            get_logs_addresses,
             get_logs_topics,
             last_scraped_block_number,
             ecdsa_key_id,
@@ -35,7 +36,7 @@ impl TryFrom<InitArg> for State {
         }: InitArg,
     ) -> Result<Self, Self::Error> {
         // validate contract addresses
-        for contract_address in &get_logs_address {
+        for contract_address in &get_logs_addresses {
             ethers_core::types::Address::from_str(contract_address).map_err(|e| {
                 InvalidStateError::InvalidEthereumContractAddress(format!("ERROR: {}", e))
             })?;
@@ -50,7 +51,7 @@ impl TryFrom<InitArg> for State {
         let state = Self {
             rpc_services,
             rpc_service,
-            get_logs_address,
+            get_logs_addresses,
             get_logs_topics,
             last_scraped_block_number,
             last_observed_block_number: None,
@@ -61,8 +62,7 @@ impl TryFrom<InitArg> for State {
             ecdsa_pub_key: None,
             ecdsa_key_id,
             evm_address: None,
-            // todo: use nonce from config
-            nonce: U256::from(178),
+            nonce: nat_to_u256(&nonce),
             block_tag,
         };
         Ok(state)

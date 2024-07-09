@@ -1,35 +1,30 @@
-mod eth_get_logs;
-mod evm_rpc;
-mod evm_signer;
-mod fees;
 mod guard;
 mod job;
 mod lifecycle;
+mod logs;
 mod state;
-mod eth_call;
 // uncomment to enable serving stored assets via http requests
 // mod storage;
-mod eth_send_raw_transaction;
-mod utils;
 
 use std::time::Duration;
 
-use eth_get_logs::scrape_eth_logs;
+use logs::scrape_eth_logs;
 
-use ic_cdk::println;
 use lifecycle::InitArg;
-use state::read_state;
+use state::{read_state, State};
 
 use crate::state::{initialize_state, mutate_state};
 
 pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(3 * 60);
 
 fn setup_timers() {
+    let key_id = read_state(State::key_id);
     // as timers are synchronous, we need to spawn a new async task to get the public key
     ic_cdk_timers::set_timer(Duration::ZERO, || {
         ic_cdk::spawn(async {
-            let public_key = evm_signer::get_public_key().await;
-            let evm_address = evm_signer::pubkey_bytes_to_address(&public_key);
+            let public_key =
+                ic_evm_utils::evm_signer::get_canister_public_key(key_id, None, vec![]).await;
+            let evm_address = ic_evm_utils::evm_signer::pubkey_bytes_to_address(&public_key);
             mutate_state(|s| {
                 s.ecdsa_pub_key = Some(public_key);
                 s.evm_address = Some(evm_address);
@@ -43,7 +38,6 @@ fn setup_timers() {
 
 #[ic_cdk::init]
 fn init(arg: InitArg) {
-    println!("[init]: initialized canister with arg: {:?}", arg);
     initialize_state(state::State::try_from(arg).expect("BUG: failed to initialize canister"));
     setup_timers();
 }

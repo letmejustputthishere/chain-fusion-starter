@@ -1,0 +1,29 @@
+[package]
+name = "ic-evm-utils"
+version = "0.1.2"
+edition = "2021"
+readme = "README.md"
+authors = ["Moritz Fuller moritz.fuller@dfinity.org"]
+description = "Utils for interacting with Ethereum from ICP canisters."
+license = "Apache-2.0" # Choose an appropriate license
+repository = "https://github.com/letmejustputthishere/chain-fusion-starter"
+homepage = "https://github.com/letmejustputthishere/chain-fusion-starter"
+keywords = [
+  "evm-rpc-canister",
+  "ethereum",
+  "dfinity",
+  "icp",
+  "internet-computer",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+candid.workspace = true
+ic-cdk.workspace = true
+serde.workspace = true
+serde_bytes.workspace = true
+serde_json.workspace = true
+ethers-core.workspace = true
+num-traits = "0.2.19"
+evm-rpc-canister-types.workspace = true

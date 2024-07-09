@@ -1,5 +1,17 @@
 [workspace]
 members = [
-    "src/chain_fusion_backend"
+  "canisters/chain_fusion",
+  "packages/evm-rpc-canister-types",
+  "packages/ic-evm-utils",
 ]
 resolver = "2"
+
+[workspace.dependencies]
+candid = "0.10"
+ic-cdk = "0.14"
+serde = "1.0.197"
+serde_bytes = "0.11.14"
+serde_json = "1.0.116"
+ethers-core = "2.0.14"
+ic-evm-utils = "0.1"
+evm-rpc-canister-types = "0.1"
