@@ -1,4 +1,5 @@
 {
+  http_port 8080
   log {
       output discard
   }
