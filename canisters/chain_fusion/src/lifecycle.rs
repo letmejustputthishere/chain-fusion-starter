@@ -1,8 +1,9 @@
 use crate::state::{InvalidStateError, State};
 use candid::types::number::Nat;
 use candid::{CandidType, Deserialize};
-use ethers_core::types::{H256, U256};
+use ethers_core::types::H256;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
+use ic_evm_utils::conversions::nat_to_u256;
 use std::str::FromStr;
 
 use evm_rpc_canister_types::{BlockTag, RpcService, RpcServices};
@@ -16,7 +17,7 @@ pub struct InitArg {
     pub last_scraped_block_number: Nat,
     pub ecdsa_key_id: EcdsaKeyId,
     pub block_tag: BlockTag,
-    //pub nonce: Nat,
+    pub nonce: Nat,
 }
 
 impl TryFrom<InitArg> for State {
@@ -31,7 +32,7 @@ impl TryFrom<InitArg> for State {
             last_scraped_block_number,
             ecdsa_key_id,
             block_tag,
-            //nonce,
+            nonce,
         }: InitArg,
     ) -> Result<Self, Self::Error> {
         // validate contract addresses
@@ -61,8 +62,7 @@ impl TryFrom<InitArg> for State {
             ecdsa_pub_key: None,
             ecdsa_key_id,
             evm_address: None,
-            // todo: use nonce from config
-            nonce: U256::from(178),
+            nonce: nat_to_u256(&nonce),
             block_tag,
         };
         Ok(state)

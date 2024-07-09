@@ -63,6 +63,7 @@ dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion.w
     };
     get_logs_addresses = vec { "0x5FbDB2315678afecb367f032d93F642f64180aa3" };
     block_tag = variant { Latest = null };
+    nonce = 0: nat;
   },
 )'
 # sleep for 3 seconds to allow the evm address to be generated

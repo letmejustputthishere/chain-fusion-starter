@@ -39,6 +39,8 @@ pub async fn submit_result(job_id: U256) {
         args: &[Token::Uint(job_id)],
     };
 
+    println!("Executing job_id: {job_id} on contract {contract_address}");
+
     // set the gas
     let gas = Some(U256::from(1000000));
 
@@ -58,6 +60,7 @@ pub async fn submit_result(job_id: U256) {
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
             ic_cdk::println!("Success {transaction_hash:?}");
+            ic_cdk::println!("Used nonce {nonce}");
             mutate_state(|s| {
                 s.nonce += U256::from(1);
             });
