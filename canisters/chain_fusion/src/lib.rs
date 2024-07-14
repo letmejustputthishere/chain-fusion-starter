@@ -1,4 +1,5 @@
 mod guard;
+mod init;
 mod job;
 mod lifecycle;
 mod logs;
@@ -9,6 +10,8 @@ mod state;
 use std::time::Duration;
 
 use logs::scrape_eth_logs;
+
+use init::{init_latest_block, init_nonce};
 
 use lifecycle::InitArg;
 use state::{read_state, State};
@@ -31,9 +34,19 @@ fn setup_timers() {
             });
         })
     });
+
+    // init last observed block number
+    // ic_cdk_timers::set_timer(Duration::from_secs(10), || {
+    //     ic_cdk::spawn(init_latest_block())
+    // });
+    // load account nonce
+    ic_cdk_timers::set_timer(Duration::from_secs(10), || ic_cdk::spawn(init_nonce()));
+
     // // Start scraping logs almost immediately after the install, then repeat with the interval.
-    ic_cdk_timers::set_timer(Duration::from_secs(10), || ic_cdk::spawn(scrape_eth_logs()));
+    ic_cdk_timers::set_timer(Duration::from_secs(30), || ic_cdk::spawn(scrape_eth_logs()));
     ic_cdk_timers::set_timer_interval(SCRAPING_LOGS_INTERVAL, || ic_cdk::spawn(scrape_eth_logs()));
+
+    // todo: add a timer that checks if a job is ready to be executed?
 }
 
 #[ic_cdk::init]

@@ -5,9 +5,11 @@ use std::{
 };
 
 use candid::Nat;
+use ethers_core::types::Block;
 use evm_rpc_canister_types::{
-    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError,
-    MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
+    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, GetTransactionCountArgs,
+    GetTransactionCountResult, HttpOutcallError, MultiGetBlockByNumberResult, MultiGetLogsResult,
+    MultiGetTransactionCountResult, RejectionCode, RpcError, RpcServices, EVM_RPC,
 };
 use ic_cdk::println;
 
@@ -45,7 +47,7 @@ pub async fn get_logs(from: &Nat, to: &Nat) -> GetLogsResult {
     let (result,) = EVM_RPC
         .eth_get_logs(rpc_services, None, get_logs_args, cycles)
         .await
-        .expect("Call failed");
+        .expect("Call failed (get_logs)");
 
     match result {
         MultiGetLogsResult::Consistent(r) => r,
@@ -123,6 +125,7 @@ async fn scrape_eth_logs_range_inclusive(from: &Nat, to: &Nat) -> Option<Nat> {
 }
 
 pub async fn scrape_eth_logs() {
+    // the timer guard prevent simultaneous execution of multiple instances of the same task
     let _guard = match TimerGuard::new(TaskType::ScrapeLogs) {
         Ok(guard) => guard,
         Err(_) => return,
@@ -152,7 +155,7 @@ pub async fn scrape_eth_logs() {
     }
 }
 
-async fn update_last_observed_block_number() -> Option<Nat> {
+pub async fn update_last_observed_block_number() -> Option<Nat> {
     let rpc_providers = read_state(|s| s.rpc_services.clone());
     let block_tag = read_state(|s| s.block_tag.clone());
 
@@ -160,7 +163,7 @@ async fn update_last_observed_block_number() -> Option<Nat> {
     let (result,) = EVM_RPC
         .eth_get_block_by_number(rpc_providers, None, block_tag, cycles)
         .await
-        .expect("Call failed");
+        .expect("Call failed (update_last_observed_block_number)");
 
     match result {
         MultiGetBlockByNumberResult::Consistent(r) => match r {
@@ -175,6 +178,7 @@ async fn update_last_observed_block_number() -> Option<Nat> {
             }
         },
         MultiGetBlockByNumberResult::Inconsistent(_) => {
+            println!("RPC providers gave inconsistent results");
             panic!("RPC providers gave inconsistent results")
         }
     }

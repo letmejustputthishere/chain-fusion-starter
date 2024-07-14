@@ -31,7 +31,7 @@ dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/
         "0xd270de418848f07676c092e30c67a99070a18f01b8f573731322eadeea0c1ab8";
       };
     };
-    last_scraped_block_number = 34873733: nat;
+    last_scraped_block_number = 34876079: nat;
     rpc_services = variant {
       Custom = record {
         chainId = 100 : nat64;
@@ -40,16 +40,19 @@ dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/
     };
     rpc_service = variant {
       Custom = record {
-        url = "https://rpc.ankr.com/gnosis";
+        url = "https://rpc.gnosischain.com";
         headers = null;
       }
     };
     get_logs_addresses = vec { "0x146f441905723173b4d6ca06e9Fa911b3B707074" };
     block_tag = variant { Latest = null };
-    nonce = 209 : nat;
+    nonce = 301 : nat;
   },
 )'
 # beware: the nonce above is not used yet. Instead, it is hardcoded in lifecycle.rs
+
+# ankr rpc might cause trouble trying another one now
+# https://rpc.ankr.com/gnosis
 
 # sleep for 3 seconds to allow the evm address to be generated
 sleep 3
