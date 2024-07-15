@@ -45,10 +45,21 @@ pub enum EthMainnetService {
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
+pub enum L2MainnetService {
+    Alchemy,
+    Ankr,
+    BlockPi,
+    PublicNode,
+}
+
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RpcServices {
     EthSepolia(Option<Vec<EthSepoliaService>>),
     Custom { chainId: u64, services: Vec<RpcApi> },
     EthMainnet(Option<Vec<EthMainnetService>>),
+    ArbitrumOne(Option<Vec<L2MainnetService>>),
+    BaseMainnet(Option<Vec<L2MainnetService>>),
+    Optimism(Option<Vec<L2MainnetService>>),
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
@@ -153,6 +164,9 @@ pub enum RpcService {
     EthMainnet(EthMainnetService),
     Chain(u64),
     Provider(u64),
+    ArbitrumOne(L2MainnetService),
+    BaseMainnet(L2MainnetService),
+    OptimismMainnet(L2MainnetService),
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
