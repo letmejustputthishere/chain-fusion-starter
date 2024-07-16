@@ -22,7 +22,6 @@ keywords = [
 [dependencies]
 candid.workspace = true
 candid_parser = "0.1.4"
-evm-rpc-canister-types.workspace = true
 ic-cdk.workspace = true
 reqwest = { version = "0.12", features = ["blocking", "json"] }
 serde.workspace = true

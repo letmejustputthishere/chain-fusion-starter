@@ -644,7 +644,6 @@ version = "1.0.0"
 dependencies = [
  "candid",
  "candid_parser",
- "evm-rpc-canister-types 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ic-cdk 0.14.0",
  "reqwest",
  "serde",
