@@ -246,6 +246,7 @@ Examples leveraging the chain fusion starter logic:
 -   [On-chain asset and metadata creation for ERC721 NFT contracts](https://github.com/letmejustputthishere/chain-fusion-nft-creator)
 -   [Ethereum Donations Streamer](https://github.com/frederikrothenberger/chain-fusion-donations)
 -   [Recurring Transactions on Ethereum](https://github.com/malteish/ReTransICP)
+-   [BTC Price Oracle for EVM Smart Contracts](https://github.com/letmejustputthishere/chain-fusion-encode-club)
 
 Build your own use case and [share it with the community](https://github.com/letmejustputthishere/chain-fusion-starter/discussions/10)!
 
@@ -264,6 +265,7 @@ Some ideas you could explore:
 
 -   [DappCon24 Workshop](https://www.youtube.com/watch?v=EykvCT5mgrY)
 -   [ETHPrague24 Workshop](https://live.ethprague.com/ethprague/watch?session=665833d1036a981493b0bf58)
+-   [Chain Fusion Hackathon Workshop](https://youtu.be/6Dq1HxxWWGY?si=KBiqtWVDHCDVM0eA&t=1090)
 -   [Using Cast](https://book.getfoundry.sh/reference/cast/)
 
 For more details and discussions, visit the [DFINITY Developer Forum](https://forum.dfinity.org/u/cryptoschindler/summary) or follow [@cryptoschindler on Twitter](https://twitter.com/cryptoschindler).
