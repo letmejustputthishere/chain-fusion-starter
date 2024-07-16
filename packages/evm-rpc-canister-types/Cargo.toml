@@ -1,6 +1,6 @@
 [package]
 name = "evm-rpc-canister-types"
-version = "0.1.3"
+version = "1.0.0"
 edition = "2021"
 readme = "README.md"
 authors = ["Moritz Fuller moritz.fuller@dfinity.org"]
@@ -22,6 +22,7 @@ keywords = [
 [dependencies]
 candid.workspace = true
 candid_parser = "0.1.4"
+evm-rpc-canister-types.workspace = true
 ic-cdk.workspace = true
 reqwest = { version = "0.12", features = ["blocking", "json"] }
 serde.workspace = true

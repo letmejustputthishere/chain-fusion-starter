@@ -640,10 +640,11 @@ dependencies = [
 
 [[package]]
 name = "evm-rpc-canister-types"
-version = "0.1.3"
+version = "1.0.0"
 dependencies = [
  "candid",
  "candid_parser",
+ "evm-rpc-canister-types 0.1.2",
  "ic-cdk 0.14.0",
  "reqwest",
  "serde",
