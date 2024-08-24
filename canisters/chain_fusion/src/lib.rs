@@ -40,7 +40,7 @@ fn setup_timers() {
     //     ic_cdk::spawn(init_latest_block())
     // });
     // load account nonce
-    ic_cdk_timers::set_timer(Duration::from_secs(10), || ic_cdk::spawn(init_nonce()));
+    ic_cdk_timers::set_timer(Duration::from_secs(20), || ic_cdk::spawn(init_nonce()));
 
     // // Start scraping logs almost immediately after the install, then repeat with the interval.
     ic_cdk_timers::set_timer(Duration::from_secs(30), || ic_cdk::spawn(scrape_eth_logs()));

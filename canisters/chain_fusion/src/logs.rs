@@ -5,11 +5,8 @@ use std::{
 };
 
 use candid::Nat;
-use ethers_core::types::Block;
 use evm_rpc_canister_types::{
-    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, GetTransactionCountArgs,
-    GetTransactionCountResult, HttpOutcallError, MultiGetBlockByNumberResult, MultiGetLogsResult,
-    MultiGetTransactionCountResult, RejectionCode, RpcError, RpcServices, EVM_RPC,
+    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError, MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
 };
 use ic_cdk::println;
 

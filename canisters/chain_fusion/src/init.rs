@@ -1,28 +1,19 @@
 use crate::logs::update_last_observed_block_number;
 use ic_evm_utils::conversions::nat_to_u256;
 
-use std::{
-    cmp::{min, Ordering},
-    ops::{Add, Div, Sub},
-    time::Duration,
-};
-
-use candid::Nat;
-use ethers_core::types::Block;
 use evm_rpc_canister_types::{
-    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, GetTransactionCountArgs,
-    GetTransactionCountResult, HttpOutcallError, MultiGetBlockByNumberResult, MultiGetLogsResult,
-    MultiGetTransactionCountResult, RejectionCode, RpcError, RpcServices, EVM_RPC,
+    BlockTag, GetTransactionCountArgs, GetTransactionCountResult, MultiGetTransactionCountResult,
+    EVM_RPC,
 };
 use ic_cdk::println;
 
 use crate::{
     guard::TimerGuard,
-    job::job,
-    state::{mutate_state, read_state, State, TaskType},
+    state::{mutate_state, read_state, TaskType},
 };
 
 // after a (re-) install, load the account nonce and the latest block number from the Ethereum network
+#[allow(dead_code)]
 pub async fn init_latest_block() {
     // prevent the scrape_eth_logs task from running until this one is done
     let _guard = match TimerGuard::new(TaskType::ScrapeLogs) {
