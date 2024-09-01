@@ -29,11 +29,9 @@ const App = () => {
     url,
     userProfile,
     userProfileError,
-    handleUserProfileChange,
     ensOwnershipError,
     userEns,
     userEnsError,
-    handleUserEnsChange,
   } = useConfiguration();
 
   return (
@@ -51,16 +49,16 @@ const App = () => {
         <Welcome address={address} />
 
         <CreateRecurringTransaction
-          handleEnsChange={handleEnsChange}
-          handleUrlChange={handleUrlChange}
-          handleRpcChange={handleRpcChange}
-          ens={ensInput}
+          handleRecipientChange={handleEnsChange}
+          handleAmountChange={handleUrlChange}
+          handlePeriodChange={handleRpcChange}
+          recipient={ensInput}
           url={url}
           rpc={rpc}
           recipientError={recipientError}
-          rpcError={rpcError}
+          amountError={rpcError}
           urlError={urlError}
-          createConfigAndProfile={createConfigAndProfile}
+          createRecurringTransaction={createConfigAndProfile}
           isConnected={isConnected}
         />
 
@@ -72,12 +70,10 @@ const App = () => {
           publishProfile={publishProfile}
           writeContractError={writeContractError}
           writeContractIsPending={writeContractIsPending}
-          handleUserProfileChange={handleUserProfileChange}
           userProfileError={userProfileError}
           ensOwnershipError={ensOwnershipError}
           userEns={userEns}
           userEnsError={userEnsError}
-          handleUserEnsChange={handleUserEnsChange}
         />
 
         <StopRecurringTransaction

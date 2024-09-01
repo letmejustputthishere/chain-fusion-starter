@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
 
 interface ConfigureProfileProps {
-  ens: string;
+  recipient: string;
   rpc: string;
   url: string;
-  handleEnsChange: (
+  handleRecipientChange: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
-  handleUrlChange: (
+  handleAmountChange: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
-  handleRpcChange: (
+  handlePeriodChange: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
-  createConfigAndProfile: () => void;
+  createRecurringTransaction: () => void;
   recipientError: string | null;
-  rpcError: string | null;
+  amountError: string | null;
   urlError: string | null;
   isConnected: boolean;
 }
@@ -24,7 +24,9 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
   const [showSuccessMsg, setShowSuccessMsg] = useState<boolean>(false);
 
   const isDisabled =
-    !props.isConnected || !props.ens.length || !props.url.length ? true : false;
+    !props.isConnected || !props.recipient.length || !props.url.length
+      ? true
+      : false;
 
   // show success message of profile creation for 3 seconds & then clears the msg from UI
   //   useEffect(() => {
@@ -39,8 +41,14 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
   return (
     <div className="description-text step">
       <h2 className="heading-text">Create a recurring transaction</h2>
-      To create the profile and config file, please connect the account the
-      delivery service will use. Also, we need this information:
+      To create a recurring token transfer, please provide the details below.
+      You will also have to grant an allowance to the smart contract so it can
+      access your tokens. <br />
+      What will happen: The smart contract will send the specified amount of
+      tokens to the recipient address immediately. <br />
+      After the specified period, the smart contract will send the same amount
+      of tokens to the recipient address again. This will continue until you
+      stop the recurring transaction, or the allowance is exhausted. <br />
       <div className="base-input-container">
         <div className="input-description">
           <span className="input-heading-hidden">Recipient</span>
@@ -49,57 +57,64 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
           )}
         </div>
         <div className="input-container">
-          <span className="input-heading">ENS:</span>
+          <span className="input-heading">Recipient address:</span>
           <input
             className="input-field"
-            value={props.ens}
-            onChange={(event) => props.handleEnsChange(event)}
+            value={props.recipient}
+            onChange={(event) => props.handleRecipientChange(event)}
           />
         </div>
         <div className="input-description">
-          <span className="input-heading-hidden">ENS:</span>
-          The ens domain your delivery service will use, e.g.
-          myPersonalDeliveryService.eth
+          <span className="input-heading-hidden">Recipient address::</span>
+          The address that will receive the tokens you send
         </div>
       </div>
       <div className="base-input-container">
         <div className="input-description">
-          <span className="input-heading-hidden">URL:</span>
+          <span className="input-heading-hidden">Amount:</span>
           {props.urlError && <span className="error">{props.urlError}</span>}
         </div>
         <div className="input-container">
-          <span className="input-heading">URL:</span>
+          <span className="input-heading">Amount:</span>
           <input
             className="input-field"
             value={props.url}
-            onChange={(event) => props.handleUrlChange(event)}
+            onChange={(event) => props.handleAmountChange(event)}
           />
         </div>
         <div className="input-description">
-          <span className="input-heading-hidden">URL:</span>
-          The url your delivery service will use, e.g.
-          https://my-personal-delivery-service.com
+          <span className="input-heading-hidden">Amount:</span>
+          How many tokens should be sent, in token bits.
         </div>
       </div>
       <div className="base-input-container">
         <div className="input-description">
-          <span className="input-heading-hidden">RPC:</span>
-          {props.rpcError && <span className="error">{props.rpcError}</span>}
+          <span className="input-heading-hidden">Amount:</span>
+          {props.amountError && (
+            <span className="error">{props.amountError}</span>
+          )}
         </div>
         <div className="input-container">
-          <span className="input-heading">RPC:</span>
+          <span className="input-heading">Period:</span>
           <input
             className="input-field"
             value={props.rpc}
-            onChange={(event) => props.handleRpcChange(event)}
+            onChange={(event) => props.handlePeriodChange(event)}
           />
+        </div>
+        <div className="input-description">
+          <span className="input-heading-hidden">Period:</span>
+          After which duration the tokens should be sent again (and again and
+          again). In seconds.
         </div>
       </div>
       <div className="input-description">
-        <span className="input-heading-hidden">RPC:</span>
+        <span className="input-heading-hidden">Status:</span>
 
         {showSuccessMsg && (
-          <span className="success">Profile created successfully!</span>
+          <span className="success">
+            Recurring transaction created successfully!
+          </span>
         )}
       </div>
       <div>
@@ -108,9 +123,9 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
             isDisabled ? "disabled-btn" : ""
           )}
           disabled={isDisabled}
-          onClick={() => props.createConfigAndProfile()}
+          onClick={() => props.createRecurringTransaction()}
         >
-          Create profile and .env
+          Create recurring transaction
         </button>
       </div>
     </div>

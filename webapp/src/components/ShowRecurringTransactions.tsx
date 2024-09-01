@@ -8,14 +8,8 @@ interface PublishProfileProps {
   writeContractError: any;
   userProfileError: string | null;
   ensOwnershipError: string | null;
-  handleUserProfileChange: (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => void;
   userEns: string;
   userEnsError: string | null;
-  handleUserEnsChange: (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => void;
 }
 
 export default function ShowRecurringTransactions(props: PublishProfileProps) {

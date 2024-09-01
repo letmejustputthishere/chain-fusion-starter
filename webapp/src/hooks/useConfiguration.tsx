@@ -19,15 +19,16 @@ import {
   EURE_SMART_CONTRACT_ADDRESS,
   RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS,
 } from "../utils/constants";
+import { ethers } from "ethers";
 
 export const useConfiguration = () => {
   // ens domain for profile
   const [ensDomain, setEnsDomain] = useState<string>("");
 
   // create profile
-  const [ensInput, setEnsInput] = useState<string>("");
-  const [url, setUrl] = useState<string>("");
-  const [rpc, setRpc] = useState<string>("");
+  const [recipient, setRecipient] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  const [period, setPeriod] = useState<string>("");
 
   // publish profile
   const [userProfile, setUserProfile] = useState<string>("");
@@ -39,9 +40,9 @@ export const useConfiguration = () => {
     useState<boolean>(false);
 
   // errors
-  const [recipientError, setEnsError] = useState<string | null>(null);
-  const [urlError, setUrlError] = useState<string | null>(null);
-  const [rpcError, setRpcError] = useState<string | null>(null);
+  const [recipientError, setRecipientError] = useState<string | null>(null);
+  const [amountError, setAmountError] = useState<string | null>(null);
+  const [periodError, setPeriodError] = useState<string | null>(null);
   const [ensOwnershipError, setEnsOwnershipError] = useState<string | null>(
     null
   );
@@ -75,48 +76,48 @@ export const useConfiguration = () => {
     reset, // resets the state of write contract hook
   } = useWriteContract();
 
-  const handleEnsChange = (
+  const handleRecipientChange = (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    setEnsInput(event.target.value);
-    setEnsError(null);
+    setRecipient(event.target.value);
+    setRecipientError(null);
   };
 
-  const handleUrlChange = (
+  const handleValueChange = (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    setUrl(event.target.value);
-    setUrlError(null);
+    setAmount(event.target.value);
+    setAmountError(null);
   };
 
-  const handleRpcChange = (
+  const handlePeriodChange = (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    setRpc(event.target.value);
-    setRpcError(null);
+    setPeriod(event.target.value);
+    setPeriodError(null);
   };
 
-  const handleUserProfileChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    setUserProfile(event.target.value);
-    setUserProfileError(null);
-    reset();
-  };
+  // const handleUserProfileChange = (
+  //   event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  // ) => {
+  //   setUserProfile(event.target.value);
+  //   setUserProfileError(null);
+  //   reset();
+  // };
 
-  const handleUserEnsChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    const ensValue = event.target.value;
-    setUserEns(ensValue);
-    setUserEnsError(null);
-    setEnsOwnershipError(null);
-    reset();
-    // sets ENS domain to get the resolver if ens name is valid
-    if (validateEns(ensValue)) {
-      setEnsDomain(ensValue);
-    }
-  };
+  // const handleUserEnsChange = (
+  //   event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  // ) => {
+  //   const ensValue = event.target.value;
+  //   setUserEns(ensValue);
+  //   setUserEnsError(null);
+  //   setEnsOwnershipError(null);
+  //   reset();
+  //   // sets ENS domain to get the resolver if ens name is valid
+  //   if (validateEns(ensValue)) {
+  //     setEnsDomain(ensValue);
+  //   }
+  // };
 
   const writeRecurringTransaction = async () => {
     // const isValid = await areAllPropertiesValid(
@@ -131,27 +132,57 @@ export const useConfiguration = () => {
     //   return;
     // }
 
-    const recipient = ensInput;
-    const amount = "100";
-    const period = "1";
+    // setEnsDomain(recipient);
+    // const dsEnsAndUrl = JSON.stringify({
+    //   ens: ensDomain,
+    //   url: amount,
+    // });
 
-    setEnsDomain(ensInput);
-    const dsEnsAndUrl = JSON.stringify({
-      ens: ensDomain,
-      url: url,
-    });
+    //reset();
+
+    const periodBigInt = BigInt(period);
+    const amountBigInt = BigInt(amount);
+
+    const recipientAddress = recipient;
+
+    // check if recipient is a valid address
+    if (!ethers.isAddress(recipient)) {
+      setRecipientError("Invalid recipient address");
+      console.log("Invalid recipient address");
+      return;
+    }
+
+    console.log("0");
+    console.log(periodBigInt);
+    console.log(amountBigInt);
+    console.log(recipientAddress);
+
+    console.log("1");
+    console.log(writeContractIsPending);
+    console.log(writeContractError);
+
+    console.log("1.1");
 
     writeContract({
       address: RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS,
       abi: recurringTransactionsSmartContract.abi,
       functionName: "createJob",
-      args: [period, amount, recipient, EURE_SMART_CONTRACT_ADDRESS],
-      value: BigInt(0),
+      args: [
+        periodBigInt,
+        amountBigInt,
+        recipientAddress,
+        EURE_SMART_CONTRACT_ADDRESS,
+      ],
+      //value: BigInt(0),
     });
+
+    console.log("2");
+    console.log(writeContractIsPending);
+    console.log(writeContractError);
   };
 
   const storeEnv = () => {
-    const env = configureEnv(url, address as string);
+    const env = configureEnv(amount, address as string);
     const blob = new Blob([env], { type: "text/plain" });
     const buttonUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -218,14 +249,14 @@ export const useConfiguration = () => {
   // clears all input field & error on change of account
   useEffect(() => {
     console.log("Account changed : ", address);
-    setEnsInput("");
-    setRpc("");
-    setUrl("");
+    setRecipient("");
+    setPeriod("");
+    setAmount("");
     setUserEns("");
     setUserProfile("");
-    setEnsError(null);
-    setRpcError(null);
-    setUrlError(null);
+    setRecipientError(null);
+    setPeriodError(null);
+    setAmountError(null);
     setUserEnsError(null);
     setUserProfileError(null);
     setEnsOwnershipError(null);
@@ -249,16 +280,16 @@ export const useConfiguration = () => {
       if (variables?.message && signMessageData) {
         console.log("4");
         setProfileAndKeysCreated(true);
-        setUserEns(ensInput);
+        setUserEns(recipient);
       }
     })();
-  }, [signMessageData, variables?.message, url]);
+  }, [signMessageData, variables?.message, amount]);
 
   return {
     address,
-    handleEnsChange,
-    handleUrlChange,
-    handleRpcChange,
+    handleEnsChange: handleRecipientChange,
+    handleUrlChange: handleValueChange,
+    handleRpcChange: handlePeriodChange,
     isConnected,
     createConfigAndProfile: writeRecurringTransaction,
     profileAndKeysCreated,
@@ -269,19 +300,17 @@ export const useConfiguration = () => {
     hash,
     writeContractError,
     recipientError,
-    urlError,
-    rpcError,
+    urlError: amountError,
+    rpcError: periodError,
     connector,
-    ensInput,
-    url,
-    rpc,
+    ensInput: recipient,
+    url: amount,
+    rpc: period,
     ensOwnershipError,
     setEnsOwnershipError,
     userProfile,
     userProfileError,
-    handleUserProfileChange,
     userEns,
     userEnsError,
-    handleUserEnsChange,
   };
 };
