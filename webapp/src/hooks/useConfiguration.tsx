@@ -17,6 +17,7 @@ import {
   RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS,
 } from "../utils/constants";
 import { ethers } from "ethers";
+import { write } from "fs";
 
 export const useConfiguration = () => {
   // ens domain for profile
@@ -77,6 +78,7 @@ export const useConfiguration = () => {
     data: hash,
     writeContract,
     isPending: writeContractIsPending,
+    isError: writeContractIsError,
     error: writeContractError,
     reset, // resets the state of write contract hook
   } = useWriteContract();
@@ -178,7 +180,7 @@ export const useConfiguration = () => {
         recipientAddress,
         EURE_SMART_CONTRACT_ADDRESS,
       ],
-      //value: BigInt(0),
+      value: BigInt(1e16),
     });
 
     console.log("2");
@@ -307,6 +309,7 @@ export const useConfiguration = () => {
     ensResolverFound,
     publishProfile,
     hash,
+    writeContractIsError,
     writeContractError,
     recipientError,
     urlError: amountError,

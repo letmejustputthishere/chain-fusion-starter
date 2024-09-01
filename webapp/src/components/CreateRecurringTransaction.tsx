@@ -18,6 +18,9 @@ interface ConfigureProfileProps {
   amountError: string | null;
   urlError: string | null;
   isConnected: boolean;
+  writeContractIsError: boolean;
+  writeContractIsPending: boolean;
+  writeContractError: any;
 }
 
 export function CreateRecurringTransaction(props: ConfigureProfileProps) {
@@ -127,6 +130,10 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
         >
           Create recurring transaction
         </button>
+      </div>
+      <div>
+        {props.writeContractIsError &&
+          "Error when writing contract: " + props.writeContractError}
       </div>
     </div>
   );

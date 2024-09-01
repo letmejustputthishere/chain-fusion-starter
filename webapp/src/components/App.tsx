@@ -20,6 +20,7 @@ const App = () => {
     publishProfile,
     ensResolverFound,
     hash,
+    writeContractIsError,
     writeContractError,
     recipientError,
     rpcError,
@@ -72,6 +73,9 @@ const App = () => {
           urlError={urlError}
           createRecurringTransaction={createConfigAndProfile}
           isConnected={isConnected}
+          writeContractIsError={writeContractIsError}
+          writeContractIsPending={writeContractIsPending}
+          writeContractError={writeContractError}
         />
 
         <ShowRecurringTransactions
