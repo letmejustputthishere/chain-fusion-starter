@@ -14,7 +14,7 @@ interface ConfigureProfileProps {
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
   createConfigAndProfile: () => void;
-  ensError: string | null;
+  recipientError: string | null;
   rpcError: string | null;
   urlError: string | null;
   isConnected: boolean;
@@ -41,10 +41,12 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
       <h2 className="heading-text">Create a recurring transaction</h2>
       To create the profile and config file, please connect the account the
       delivery service will use. Also, we need this information:
-      {/* <div className="base-input-container">
+      <div className="base-input-container">
         <div className="input-description">
-          <span className="input-heading-hidden">ENS:</span>
-          {props.ensError && <span className="error">{props.ensError}</span>}
+          <span className="input-heading-hidden">Recipient</span>
+          {props.recipientError && (
+            <span className="error">{props.recipientError}</span>
+          )}
         </div>
         <div className="input-container">
           <span className="input-heading">ENS:</span>
@@ -110,7 +112,7 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
         >
           Create profile and .env
         </button>
-      </div> */}
+      </div>
     </div>
   );
 }

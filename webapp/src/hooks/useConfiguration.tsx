@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { normalize } from "viem/ens";
+import recurringTransactionsSmartContract from "../contracts/RecurringTransactions.json";
 import {
   useAccount,
   useChainId,
@@ -13,7 +14,11 @@ import {
   isAccountOwnerOfEnsName,
   validateEns,
 } from "../utils/ensUtils";
-import { ZERO_ADDRESS } from "../utils/constants";
+import {
+  ZERO_ADDRESS,
+  EURE_SMART_CONTRACT_ADDRESS,
+  RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS,
+} from "../utils/constants";
 
 export const useConfiguration = () => {
   // ens domain for profile
@@ -34,7 +39,7 @@ export const useConfiguration = () => {
     useState<boolean>(false);
 
   // errors
-  const [ensError, setEnsError] = useState<string | null>(null);
+  const [recipientError, setEnsError] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [rpcError, setRpcError] = useState<string | null>(null);
   const [ensOwnershipError, setEnsOwnershipError] = useState<string | null>(
@@ -113,25 +118,36 @@ export const useConfiguration = () => {
     }
   };
 
-  const createConfigAndProfile = async () => {
-    const isValid = await areAllPropertiesValid(
-      ensInput,
-      setEnsError,
-      rpc,
-      setRpcError,
-      url,
-      setUrlError
-    );
-    if (!isValid) {
-      return;
-    }
+  const writeRecurringTransaction = async () => {
+    // const isValid = await areAllPropertiesValid(
+    //   ensInput,
+    //   setEnsError,
+    //   rpc,
+    //   setRpcError,
+    //   url,
+    //   setUrlError
+    // );
+    // if (!isValid) {
+    //   return;
+    // }
+
+    const recipient = ensInput;
+    const amount = "100";
+    const period = "1";
+
     setEnsDomain(ensInput);
     const dsEnsAndUrl = JSON.stringify({
       ens: ensDomain,
       url: url,
     });
 
-    signMessage({ message: "hi" });
+    writeContract({
+      address: RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS,
+      abi: recurringTransactionsSmartContract.abi,
+      functionName: "createJob",
+      args: [period, amount, recipient, EURE_SMART_CONTRACT_ADDRESS],
+      value: BigInt(0),
+    });
   };
 
   const storeEnv = () => {
@@ -244,7 +260,7 @@ export const useConfiguration = () => {
     handleUrlChange,
     handleRpcChange,
     isConnected,
-    createConfigAndProfile,
+    createConfigAndProfile: writeRecurringTransaction,
     profileAndKeysCreated,
     storeEnv,
     writeContractIsPending,
@@ -252,7 +268,7 @@ export const useConfiguration = () => {
     publishProfile,
     hash,
     writeContractError,
-    ensError,
+    recipientError,
     urlError,
     rpcError,
     connector,

@@ -1,11 +1,10 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useConfiguration } from "../hooks/useConfiguration";
 import { CreateRecurringTransaction } from "./CreateRecurringTransaction";
-import ShowRecurringTransactions from "./ShowRecurringTransactions";
-import { Docker } from "./Docker";
 import { Info } from "./Info";
-import { Welcome } from "./Welcome";
+import ShowRecurringTransactions from "./ShowRecurringTransactions";
 import { StopRecurringTransaction } from "./StopRecurringTransaction";
+import { Welcome } from "./Welcome";
 
 const App = () => {
   const {
@@ -22,7 +21,7 @@ const App = () => {
     ensResolverFound,
     hash,
     writeContractError,
-    ensError,
+    recipientError,
     rpcError,
     urlError,
     ensInput,
@@ -58,7 +57,7 @@ const App = () => {
           ens={ensInput}
           url={url}
           rpc={rpc}
-          ensError={ensError}
+          recipientError={recipientError}
           rpcError={rpcError}
           urlError={urlError}
           createConfigAndProfile={createConfigAndProfile}

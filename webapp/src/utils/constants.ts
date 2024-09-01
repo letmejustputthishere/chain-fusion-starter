@@ -4,3 +4,9 @@ export const GITHUB_SOURCE_CODE = "https://github.com/malteish/ReTransICP";
 
 export const GITHUB_LICENSE =
   "https://github.com/malteish/ReTransICP/blob/main/LICENSE";
+
+export const RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS =
+  "0x146f441905723173b4d6ca06e9Fa911b3B707074";
+
+export const EURE_SMART_CONTRACT_ADDRESS =
+  "0xcB444e90D8198415266c6a2724b7900fb12FC56E";
