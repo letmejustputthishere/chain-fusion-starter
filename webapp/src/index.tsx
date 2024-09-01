@@ -5,7 +5,7 @@ import App from "./components/App";
 import { WagmiProvider } from "wagmi";
 import ReactDOM from "react-dom/client";
 import "@rainbow-me/rainbowkit/styles.css";
-import { gnosis } from "wagmi/chains";
+import { gnosis, sepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   darkTheme,
@@ -16,7 +16,7 @@ import {
 const config = getDefaultConfig({
   appName: "ReTransICP",
   projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
-  chains: [gnosis],
+  chains: [gnosis, sepolia],
 });
 
 const root = ReactDOM.createRoot(

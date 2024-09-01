@@ -9,11 +9,7 @@ import {
   useWriteContract,
 } from "wagmi";
 import { configureEnv } from "../utils/configureEnv";
-import {
-  areAllPropertiesValid,
-  isAccountOwnerOfEnsName,
-  validateEns,
-} from "../utils/ensUtils";
+import { areAllPropertiesValid, validateEns } from "../utils/ensUtils";
 import {
   ZERO_ADDRESS,
   EURE_SMART_CONTRACT_ADDRESS,
@@ -50,23 +46,23 @@ export const useConfiguration = () => {
   const [userEnsError, setUserEnsError] = useState<string | null>(null);
 
   // connected chain
-  const chainId = useChainId();
+  // const chainId = useChainId();
 
   // connected account
   const { isConnected, address, connector } = useAccount();
 
-  const {
-    data: signMessageData,
-    error,
-    signMessage,
-    variables,
-  } = useSignMessage();
+  // const {
+  //   data: signMessageData,
+  //   error,
+  //   signMessage,
+  //   variables,
+  // } = useSignMessage();
 
-  const {
-    data: ensResolver,
-    isError,
-    isLoading: ensResolverIsLoading,
-  } = useEnsResolver({ name: normalize(ensDomain) });
+  // const {
+  //   data: ensResolver,
+  //   isError,
+  //   isLoading: ensResolverIsLoading,
+  // } = useEnsResolver({ name: normalize(ensDomain) });
 
   const {
     data: hash,
@@ -190,58 +186,58 @@ export const useConfiguration = () => {
     link.click();
   };
 
-  const validateProfile = (): boolean => {
-    try {
-      if (!userProfile.length) {
-        setUserProfileError("Invalid profile data");
-        return false;
-      }
+  // const validateProfile = (): boolean => {
+  //   try {
+  //     if (!userProfile.length) {
+  //       setUserProfileError("Invalid profile data");
+  //       return false;
+  //     }
 
-      const jsonProfile = JSON.parse(userProfile);
+  //     const jsonProfile = JSON.parse(userProfile);
 
-      if (
-        !jsonProfile.publicEncryptionKey ||
-        !jsonProfile.publicSigningKey ||
-        !jsonProfile.url
-      ) {
-        setUserProfileError("Invalid profile data");
-        return false;
-      }
+  //     if (
+  //       !jsonProfile.publicEncryptionKey ||
+  //       !jsonProfile.publicSigningKey ||
+  //       !jsonProfile.url
+  //     ) {
+  //       setUserProfileError("Invalid profile data");
+  //       return false;
+  //     }
 
-      return true;
-    } catch (error) {
-      console.log("Invalid profile data : ", error);
-      setUserProfileError("Invalid profile data");
-      return false;
-    }
-  };
+  //     return true;
+  //   } catch (error) {
+  //     console.log("Invalid profile data : ", error);
+  //     setUserProfileError("Invalid profile data");
+  //     return false;
+  //   }
+  // };
 
   const publishProfile = async () => {
     // validate ens name
-    const isEnsValid = validateEns(userEns, setUserEnsError);
+    // const isEnsValid = validateEns(userEns, setUserEnsError);
 
-    if (!isEnsValid) {
-      return;
-    }
+    // if (!isEnsValid) {
+    //   return;
+    // }
 
-    // validate user profile data
-    const isProfileValid = validateProfile();
+    // // validate user profile data
+    // const isProfileValid = validateProfile();
 
-    if (!isProfileValid) {
-      return;
-    }
+    // if (!isProfileValid) {
+    //   return;
+    // }
 
-    // validate the ens name access to add text records
-    const isEnsNameOwner = await isAccountOwnerOfEnsName(
-      userEns,
-      address as string,
-      setEnsOwnershipError,
-      chainId
-    );
+    // // validate the ens name access to add text records
+    // const isEnsNameOwner = await isAccountOwnerOfEnsName(
+    //   userEns,
+    //   address as string,
+    //   setEnsOwnershipError,
+    //   chainId
+    // );
 
-    if (!isEnsNameOwner) {
-      return;
-    }
+    // if (!isEnsNameOwner) {
+    //   return;
+    // }
 
     console.log("publishing profile has been deleted");
   };
@@ -264,26 +260,26 @@ export const useConfiguration = () => {
     reset();
   }, [address]);
 
-  useEffect(() => {
-    if (isError && !ensResolverIsLoading) {
-      console.log("error: ", error);
-      setEnsResolverFound(false);
-    }
-    if (!isError && !ensResolverIsLoading && ensResolver !== ZERO_ADDRESS) {
-      console.log("ens resolver found: ", ensResolver);
-      setEnsResolverFound(true);
-    }
-  }, [ensResolver, isError, ensResolverIsLoading, error]);
+  // useEffect(() => {
+  //   if (isError && !ensResolverIsLoading) {
+  //     console.log("error: ", error);
+  //     setEnsResolverFound(false);
+  //   }
+  //   if (!isError && !ensResolverIsLoading && ensResolver !== ZERO_ADDRESS) {
+  //     console.log("ens resolver found: ", ensResolver);
+  //     setEnsResolverFound(true);
+  //   }
+  // }, [ensResolver, isError, ensResolverIsLoading, error]);
 
-  useEffect(() => {
-    (async () => {
-      if (variables?.message && signMessageData) {
-        console.log("4");
-        setProfileAndKeysCreated(true);
-        setUserEns(recipient);
-      }
-    })();
-  }, [signMessageData, variables?.message, amount]);
+  // useEffect(() => {
+  //   (async () => {
+  //     if (variables?.message && signMessageData) {
+  //       console.log("4");
+  //       setProfileAndKeysCreated(true);
+  //       setUserEns(recipient);
+  //     }
+  //   })();
+  // }, [signMessageData, variables?.message, amount]);
 
   return {
     address,
