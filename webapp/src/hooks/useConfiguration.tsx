@@ -6,6 +6,7 @@ import {
   useChainId,
   useEnsResolver,
   useSignMessage,
+  useBalance,
   useWriteContract,
 } from "wagmi";
 import { configureEnv } from "../utils/configureEnv";
@@ -50,6 +51,14 @@ export const useConfiguration = () => {
 
   // connected account
   const { isConnected, address, connector } = useAccount();
+
+  const {
+    data: balanceData,
+    isLoading: balanceIsLoading,
+    isError: balanceIsError,
+  } = useBalance({
+    address,
+  });
 
   // const {
   //   data: signMessageData,
@@ -281,6 +290,10 @@ export const useConfiguration = () => {
   //   })();
   // }, [signMessageData, variables?.message, amount]);
 
+  // useEffect(() => {
+  //   (async () => {
+  //     if (address) {
+
   return {
     address,
     handleEnsChange: handleRecipientChange,
@@ -308,5 +321,8 @@ export const useConfiguration = () => {
     userProfileError,
     userEns,
     userEnsError,
+    balanceData,
+    balanceIsLoading,
+    balanceIsError,
   };
 };

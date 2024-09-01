@@ -32,6 +32,9 @@ const App = () => {
     ensOwnershipError,
     userEns,
     userEnsError,
+    balanceData,
+    balanceIsLoading,
+    balanceIsError,
   } = useConfiguration();
 
   return (
@@ -46,7 +49,16 @@ const App = () => {
       </div>
 
       <div className="steps-container">
-        <Welcome address={address} />
+        <Welcome
+          address={address}
+          balance={
+            balanceData
+              ? balanceData.formatted + " " + balanceData.symbol
+              : "unknown in App.tsx"
+          }
+          balanceIsLoading={balanceIsLoading}
+          balanceIsError={balanceIsError}
+        />
 
         <CreateRecurringTransaction
           handleRecipientChange={handleEnsChange}
