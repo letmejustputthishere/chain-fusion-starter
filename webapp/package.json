@@ -1,7 +1,7 @@
 {
   "name": "retrans-icp",
   "version": "0.1.0",
-  "homepage": "https://malteish.github.io/retransICP/",
+  "homepage": "https://malteish.github.io/ReTransICP/",
   "private": true,
   "dependencies": {
     "@ensdomains/ensjs": "^3.7.0",
