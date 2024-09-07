@@ -1,6 +1,6 @@
 {
-  "name": "ReTransICP",
-  "version": "0.1.86",
+  "name": "retrans-icp",
+  "version": "0.1.0",
   "homepage": "https://malteish.github.io/retransICP/",
   "private": true,
   "dependencies": {
