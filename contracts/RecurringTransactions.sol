@@ -28,8 +28,11 @@ struct job {
  * NextExecutionTimestamp event, and call the executeJob function when THE TIME HATH COME1!1!
  */
 contract RecurringTransactions {
+    /// @notice The jobs that have been created
     job[] public jobs;
-
+    /// @notice The jobs that have been created by a given address
+    mapping(address => uint256[]) public jobsForAddress;
+    /// @notice The address of the trigger contract that will call the executeJob function
     address payable public trigger;
 
     /**
@@ -115,6 +118,9 @@ contract RecurringTransactions {
                 token
             )
         );
+
+        // Add this line to populate the jobsForAddress mapping
+        jobsForAddress[msg.sender].push(job_id);
 
         // Forward the ETH received to the coprocessor address
         // to pay for contract executions
