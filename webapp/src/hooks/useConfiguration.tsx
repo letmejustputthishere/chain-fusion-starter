@@ -18,6 +18,7 @@ import {
 } from "../utils/constants";
 import { ethers } from "ethers";
 import { write } from "fs";
+import eureTokenABI from "../contracts/EurE_v1.2.2.json";
 
 export const useConfiguration = () => {
   // ens domain for profile
@@ -61,19 +62,6 @@ export const useConfiguration = () => {
     address,
   });
 
-  // const {
-  //   data: signMessageData,
-  //   error,
-  //   signMessage,
-  //   variables,
-  // } = useSignMessage();
-
-  // const {
-  //   data: ensResolver,
-  //   isError,
-  //   isLoading: ensResolverIsLoading,
-  // } = useEnsResolver({ name: normalize(ensDomain) });
-
   const {
     data: hash,
     writeContract,
@@ -104,49 +92,8 @@ export const useConfiguration = () => {
     setPeriodError(null);
   };
 
-  // const handleUserProfileChange = (
-  //   event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  // ) => {
-  //   setUserProfile(event.target.value);
-  //   setUserProfileError(null);
-  //   reset();
-  // };
-
-  // const handleUserEnsChange = (
-  //   event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  // ) => {
-  //   const ensValue = event.target.value;
-  //   setUserEns(ensValue);
-  //   setUserEnsError(null);
-  //   setEnsOwnershipError(null);
-  //   reset();
-  //   // sets ENS domain to get the resolver if ens name is valid
-  //   if (validateEns(ensValue)) {
-  //     setEnsDomain(ensValue);
-  //   }
-  // };
-
   const writeRecurringTransaction = async () => {
-    // const isValid = await areAllPropertiesValid(
-    //   ensInput,
-    //   setEnsError,
-    //   rpc,
-    //   setRpcError,
-    //   url,
-    //   setUrlError
-    // );
-    // if (!isValid) {
-    //   return;
-    // }
-
-    // setEnsDomain(recipient);
-    // const dsEnsAndUrl = JSON.stringify({
-    //   ens: ensDomain,
-    //   url: amount,
-    // });
-
-    //reset();
-
+    const numberOfExecutions = 10; // todo: get from frontend
     const periodBigInt = BigInt(period);
     const amountBigInt = BigInt(amount);
 
@@ -159,16 +106,25 @@ export const useConfiguration = () => {
       return;
     }
 
+    // Increase approval
+    const totalAmount = amountBigInt * BigInt(numberOfExecutions);
+    try {
+      writeContract({
+        address: EURE_SMART_CONTRACT_ADDRESS,
+        abi: eureTokenABI,
+        functionName: "approve",
+        args: [RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS, totalAmount],
+      });
+    } catch (error) {
+      console.error("Error increasing approval:", error);
+      // Handle the error appropriately
+      return;
+    }
+
     console.log("0");
     console.log(periodBigInt);
     console.log(amountBigInt);
     console.log(recipientAddress);
-
-    console.log("1");
-    console.log(writeContractIsPending);
-    console.log(writeContractError);
-
-    console.log("1.1");
 
     writeContract({
       address: RECURRING_TRANSACTIONS_SMART_CONTRACT_ADDRESS,
@@ -196,32 +152,6 @@ export const useConfiguration = () => {
     link.href = buttonUrl;
     link.click();
   };
-
-  // const validateProfile = (): boolean => {
-  //   try {
-  //     if (!userProfile.length) {
-  //       setUserProfileError("Invalid profile data");
-  //       return false;
-  //     }
-
-  //     const jsonProfile = JSON.parse(userProfile);
-
-  //     if (
-  //       !jsonProfile.publicEncryptionKey ||
-  //       !jsonProfile.publicSigningKey ||
-  //       !jsonProfile.url
-  //     ) {
-  //       setUserProfileError("Invalid profile data");
-  //       return false;
-  //     }
-
-  //     return true;
-  //   } catch (error) {
-  //     console.log("Invalid profile data : ", error);
-  //     setUserProfileError("Invalid profile data");
-  //     return false;
-  //   }
-  // };
 
   const publishProfile = async () => {
     // validate ens name
