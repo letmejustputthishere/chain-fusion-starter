@@ -56,6 +56,7 @@ contract MyScript is Script {
 
         recurringTransactions.createJob{value: 0.1 ether}(
             10, // delay in seconds
+            10, // number of executions
             0.1 ether, // assuming 18 decimals here
             receiverAddress, // hardhat account 1
             address(token)

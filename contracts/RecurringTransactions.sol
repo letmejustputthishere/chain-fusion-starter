@@ -7,8 +7,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 struct job {
-    uint256 period;
-    uint256 amount;
+    uint64 period;
+    uint64 numberOfRemainingExecutions;
+    uint128 amount;
     uint256 lastExecution;
     address sender;
     address recipient;
@@ -80,24 +81,39 @@ contract RecurringTransactions {
      * Create as in before the job is not there, afterwards it has been executed once and will be executed
      * again in period seconds. And then again. And again. And again. And again. And again. And again. And again.
      * @param period time interval between to executions of the same job, in seconds
+     * @param totalNumberOfExecutions how many times the job should be executed. uint64.max means infinite. 0 will still execute the job once.
      * @param amount how many tokens to send to the recipient, in token bits (think wei for ETH)
      * @param recipient the lucky address getting the tokens
      * @param token the token's contract address
      * @dev only the sender can create a job. Safer this way, you know. I know you know. I know you know I know you know. Love you.
      */
     function createJob(
-        uint256 period,
-        uint256 amount,
+        uint64 period,
+        uint64 totalNumberOfExecutions,
+        uint128 amount,
         address recipient,
         address token
     ) public payable {
-        // Require at least 0.01 ETH to be sent with the call
-        require(msg.value >= 0.01 ether, "Minimum 0.01 ETH not met");
+        // Require at least 0.01 xDai per repetition to be sent with the call
+        require(
+            msg.value >= 0.01 ether * totalNumberOfExecutions,
+            "Minimum fee of 0.01 xDai per repetition not met"
+        );
 
         // store the job details
         uint256 job_id = jobs.length;
         jobs.push(
-            job(period, amount, block.timestamp, msg.sender, recipient, token)
+            job(
+                period,
+                totalNumberOfExecutions == type(uint64).max
+                    ? type(uint64).max
+                    : totalNumberOfExecutions - 1,
+                amount,
+                block.timestamp,
+                msg.sender,
+                recipient,
+                token
+            )
         );
 
         // Forward the ETH received to the coprocessor address
@@ -107,8 +123,10 @@ contract RecurringTransactions {
         // transfer the token to the recipient
         transferToken(token, msg.sender, recipient, amount);
 
-        // order next execution
-        emit NextExecutionTimestamp(block.timestamp + period, job_id);
+        // order next execution, if there are more than 1 executions
+        if (totalNumberOfExecutions > 1) {
+            emit NextExecutionTimestamp(block.timestamp + period, job_id);
+        }
     }
 
     /**
@@ -150,15 +168,31 @@ contract RecurringTransactions {
             "Job not due yet"
         );
 
+        require(
+            _job.numberOfRemainingExecutions > 0,
+            "Job has no remaining executions"
+        );
+
         // transfer the token to the recipient
         transferToken(_job.token, _job.sender, _job.recipient, _job.amount);
 
         // update the last execution timestamp. We assume perfect execution
         // timing in order to avoid execution delays to add up over time
         _job.lastExecution += _job.period;
+
+        // update the number of remaining executions, unless it's infinite.
+        // can not be 0, as we check for that above
+        _job.numberOfRemainingExecutions == type(uint64).max
+            ? _job.numberOfRemainingExecutions
+            : _job.numberOfRemainingExecutions - 1;
         jobs[_job_id] = _job;
 
         // order next execution
-        emit NextExecutionTimestamp(_job.lastExecution + _job.period, _job_id);
+        if (_job.numberOfRemainingExecutions > 0) {
+            emit NextExecutionTimestamp(
+                _job.lastExecution + _job.period,
+                _job_id
+            );
+        }
     }
 }

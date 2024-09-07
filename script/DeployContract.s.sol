@@ -2,8 +2,8 @@
 pragma solidity 0.8.20;
 
 import "forge-std/Script.sol";
-import "../src/foundry/RecurringTransactions.sol";
-import "../src/foundry/ERC20MintableByAnyone.sol";
+import "../contracts/RecurringTransactions.sol";
+import "../contracts/ERC20MintableByAnyone.sol";
 
 contract MyScript is Script {
     function run() external {

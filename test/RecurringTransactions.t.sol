@@ -2,8 +2,8 @@
 pragma solidity 0.8.20;
 
 import "forge-std/Test.sol";
-import "../src/foundry/RecurringTransactions.sol";
-import "../src/foundry/ERC20MintableByAnyone.sol";
+import "../contracts/RecurringTransactions.sol";
+import "../contracts/ERC20MintableByAnyone.sol";
 
 contract RecurringTransactionsTest is Test {
     function testExecuteJob() public {
@@ -27,6 +27,7 @@ contract RecurringTransactionsTest is Test {
         token.approve(address(recurringTransactions), aBunchOfTokens);
         recurringTransactions.createJob(
             20,
+            10,
             0.3 ether,
             recipient,
             address(token)

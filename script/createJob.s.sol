@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "../../../lib/forge-std/src/Script.sol";
-import "../src/foundry/RecurringTransactions.sol";
+import "../lib/forge-std/src/Script.sol";
+import "../contracts/RecurringTransactions.sol";
 
 contract CreateJob is Script {
     uint256 accountPrivateKey;
@@ -26,11 +26,12 @@ contract CreateJob is Script {
         console.log("Calling newJob...");
         vm.startBroadcast();
         recurringTransactions.createJob{value: 0.1 ether}(
-        10,
-        0.00001,
-        ,
-        
-    );
+            10,
+            10,
+            1234567890,
+            address(123),
+            address(0x5FbDB2315678afecb367f032d93F642f64180aa3)
+        );
         vm.stopBroadcast();
     }
 }
