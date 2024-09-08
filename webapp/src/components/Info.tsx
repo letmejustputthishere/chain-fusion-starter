@@ -14,14 +14,14 @@ export function Info() {
         here.
       </a>{" "}
       <br />
-      The{" "}
+      The favicon was was derived from{" "}
       <a
         className="link"
         href="https://commons.wikimedia.org/wiki/File:Eo_circle_pink_white_repeat-one.svg"
       >
-        favicon
-      </a>{" "}
-      was created by Emoji One.
+        a work by Emoji One
+      </a>
+      .
     </div>
   );
 }
