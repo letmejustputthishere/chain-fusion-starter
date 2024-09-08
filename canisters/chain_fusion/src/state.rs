@@ -1,13 +1,30 @@
 use candid::Nat;
+use candid::{CandidType, Decode, Deserialize, Encode};
 use ethers_core::types::U256;
 use evm_rpc_canister_types::{BlockTag, LogEntry, RpcService, RpcServices};
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
-
+use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
+use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap};
 use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 thread_local! {
     static STATE: RefCell<Option<State>> = RefCell::default();
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, CandidType, Deserialize)]
+pub struct U256Wrapper(pub String);
+
+impl From<U256> for U256Wrapper {
+    fn from(value: U256) -> Self {
+        U256Wrapper(value.to_string())
+    }
+}
+
+impl From<U256Wrapper> for U256 {
+    fn from(wrapper: U256Wrapper) -> Self {
+        U256::from_dec_str(&wrapper.0).unwrap()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -27,7 +44,7 @@ pub struct State {
     pub evm_address: Option<String>,
     pub nonce: U256,
     pub block_tag: BlockTag,
-    pub job_execution_times: BTreeMap<U256, u64>,
+    pub job_execution_times: BTreeMap<U256Wrapper, u64>,
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -90,18 +107,20 @@ impl State {
     }
 
     pub fn add_job(&mut self, job_id: U256, execution_time: u64) {
-        self.job_execution_times.insert(job_id, execution_time);
+        self.job_execution_times
+            .insert(job_id.into(), execution_time);
     }
 
     pub fn remove_job(&mut self, job_id: &U256) -> Option<u64> {
-        self.job_execution_times.remove(job_id)
+        self.job_execution_times
+            .remove(&U256Wrapper::from(job_id.clone()))
     }
 
     pub fn get_earliest_job(&self) -> Option<(U256, u64)> {
         self.job_execution_times
             .iter()
             .min_by_key(|(_, &execution_time)| execution_time)
-            .map(|(job_id, execution_time)| (job_id.clone(), *execution_time))
+            .map(|(job_id, execution_time)| (U256::from(job_id.clone()), *execution_time))
     }
 }
 
@@ -155,4 +174,30 @@ pub fn initialize_state(state: State) {
 pub enum TaskType {
     ProcessLogs,
     ScrapeLogs,
+}
+
+#[ic_cdk::pre_upgrade]
+fn pre_upgrade() {
+    let job_execution_times = read_state(|state| state.job_execution_times.clone());
+    let job_execution_times_bytes = Encode!(&job_execution_times).unwrap();
+    ic_cdk::storage::stable_save((job_execution_times_bytes,)).unwrap();
+}
+
+#[ic_cdk::post_upgrade]
+fn post_upgrade() {
+    let (job_execution_times_bytes,): (Vec<u8>,) = ic_cdk::storage::stable_restore().unwrap();
+    let job_execution_times: BTreeMap<U256Wrapper, u64> =
+        Decode!(&job_execution_times_bytes, BTreeMap<U256Wrapper, u64>).unwrap();
+
+    mutate_state(|state| {
+        state.job_execution_times = job_execution_times.clone();
+    });
+
+    // JOB_EXECUTION_TIMES.with(|times| {
+    //     let mut times = times.borrow_mut();
+    //     times.clear();
+    //     for (key, value) in job_execution_times {
+    //         times.insert(key, value);
+    //     }
+    // });
 }
