@@ -1,6 +1,3 @@
-/* Google font family Inter is imported */
-@import url(https://fonts.googleapis.com/css?family=Inter);
-
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -20,7 +17,7 @@ body {
   justify-content: space-evenly;
   align-items: center;
   flex: 1 0 50%;
-  color: rgb(124, 121, 144);
+  color: rgb(144, 121, 139);
 }
 
 .connect-btn {
@@ -66,7 +63,7 @@ body {
 }
 
 .description-text {
-  color: #7c7990;
+  color: #f3eff3;
 }
 
 .btn {
@@ -81,7 +78,7 @@ body {
 }
 
 .active-btn {
-  background: #544393;
+  background: rgb(240, 53, 212);
   color: white;
 }
 
@@ -127,7 +124,7 @@ body {
 }
 
 .link {
-  color: #551A8B;
+  color: #ec7adb;
 }
 
 .info {
@@ -151,5 +148,5 @@ body {
 
 /* changes rainbowkit button background color */
 [data-rk] {
-  --rk-colors-connectButtonBackground: rgb(133, 53, 240) !important;
+  --rk-colors-connectButtonBackground: rgb(240, 53, 212) !important;
 }
