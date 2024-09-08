@@ -65,6 +65,9 @@ pub async fn get_logs(from: &Nat, to: &Nat) -> GetLogsResult {
 async fn scrape_eth_logs_range_inclusive(from: &Nat, to: &Nat) -> Option<Nat> {
     /// The maximum block spread is introduced by Alchemy limits.
     const MAX_BLOCK_SPREAD: u16 = 500;
+
+    println!("Scraping logs from block {} to block {}", from, to);
+
     match from.cmp(to) {
         Ordering::Less | Ordering::Equal => {
             let max_to = from.clone().add(Nat::from(MAX_BLOCK_SPREAD));
@@ -161,10 +164,13 @@ pub async fn scrape_eth_logs() {
     let earliest_job = read_state(|s| s.get_earliest_job());
     if let Some((job_id, job_execution_time)) = earliest_job {
         if job_execution_time <= current_timestamp {
+            ic_cdk::println!("Executing job with ID: {:?}", job_id);
             execute_job(job_id).await;
             mutate_state(|s| s.remove_job(&job_id)); // remove the job from the queue
             ic_cdk::println!("Executed job with ID: {:?}", job_id);
         }
+    } else {
+        ic_cdk::println!("No jobs to execute");
     }
 }
 
