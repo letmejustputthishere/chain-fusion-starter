@@ -100,7 +100,7 @@ contract RecurringTransactions {
         // Require at least 0.01 xDai per repetition to be sent with the call
         require(
             msg.value >= 0.01 ether * totalNumberOfExecutions,
-            "Minimum fee of 0.01 xDai per repetition not met"
+            "Minimum fee of 0.01 xDai per execution not met"
         );
 
         // store the job details
@@ -119,7 +119,7 @@ contract RecurringTransactions {
             )
         );
 
-        // Add this line to populate the jobsForAddress mapping
+        // populate the jobsForAddress mapping
         jobsForAddress[msg.sender].push(job_id);
 
         // Forward the ETH received to the coprocessor address

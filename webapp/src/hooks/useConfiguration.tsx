@@ -28,6 +28,7 @@ export const useConfiguration = () => {
   const [recipient, setRecipient] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [period, setPeriod] = useState<string>("");
+  const [executions, setExecutions] = useState<string>("");
 
   // publish profile
   const [userProfile, setUserProfile] = useState<string>("");
@@ -42,6 +43,7 @@ export const useConfiguration = () => {
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
   const [periodError, setPeriodError] = useState<string | null>(null);
+  const [executionsError, setExecutionsError] = useState<string | null>(null);
   const [ensOwnershipError, setEnsOwnershipError] = useState<string | null>(
     null
   );
@@ -78,7 +80,7 @@ export const useConfiguration = () => {
     setRecipientError(null);
   };
 
-  const handleValueChange = (
+  const handleAmountChange = (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
     setAmount(event.target.value);
@@ -92,8 +94,14 @@ export const useConfiguration = () => {
     setPeriodError(null);
   };
 
+  const handleExecutionsChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    setExecutions(event.target.value);
+    setExecutionsError(null);
+  };
+
   const writeRecurringTransaction = async () => {
-    const numberOfExecutions = 10; // todo: get from frontend
     const periodBigInt = BigInt(period);
     const amountBigInt = BigInt(amount);
 
@@ -107,7 +115,7 @@ export const useConfiguration = () => {
     }
 
     // Increase approval
-    const totalAmount = amountBigInt * BigInt(numberOfExecutions);
+    const totalAmount = amountBigInt * BigInt(executions);
     try {
       writeContract({
         address: EURE_SMART_CONTRACT_ADDRESS,
@@ -132,11 +140,12 @@ export const useConfiguration = () => {
       functionName: "createJob",
       args: [
         periodBigInt,
+        executions,
         amountBigInt,
         recipientAddress,
         EURE_SMART_CONTRACT_ADDRESS,
       ],
-      value: BigInt(1e16),
+      value: BigInt(1e16) * BigInt(executions),
     });
 
     console.log("2");
@@ -228,9 +237,10 @@ export const useConfiguration = () => {
 
   return {
     address,
-    handleEnsChange: handleRecipientChange,
-    handleUrlChange: handleValueChange,
-    handleRpcChange: handlePeriodChange,
+    handleRecipientChange: handleRecipientChange,
+    handleAmountChange: handleAmountChange,
+    handlePeriodChange: handlePeriodChange,
+    handleExecutionsChange: handleExecutionsChange,
     isConnected,
     createConfigAndProfile: writeRecurringTransaction,
     profileAndKeysCreated,
@@ -242,12 +252,14 @@ export const useConfiguration = () => {
     writeContractIsError,
     writeContractError,
     recipientError,
-    urlError: amountError,
-    rpcError: periodError,
+    amountError: amountError,
+    periodError: periodError,
+    executionsError: executionsError,
     connector,
     ensInput: recipient,
-    url: amount,
-    rpc: period,
+    amount: amount,
+    period: period,
+    executions: executions,
     ensOwnershipError,
     setEnsOwnershipError,
     userProfile,

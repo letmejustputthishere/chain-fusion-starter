@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface ConfigureProfileProps {
   recipient: string;
-  rpc: string;
-  url: string;
+  period: string;
+  amount: string;
+  executions: string;
   handleRecipientChange: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
@@ -11,6 +12,9 @@ interface ConfigureProfileProps {
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
   handlePeriodChange: (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => void;
+  handleExecutionsChange: (
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => void;
   createRecurringTransaction: () => void;
@@ -27,7 +31,7 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
   const [showSuccessMsg, setShowSuccessMsg] = useState<boolean>(false);
 
   const isDisabled =
-    !props.isConnected || !props.recipient.length || !props.url.length
+    !props.isConnected || !props.recipient.length || !props.amount.length
       ? true
       : false;
 
@@ -50,8 +54,8 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
       What will happen: The smart contract will send the specified amount of
       tokens to the recipient address immediately. <br />
       After the specified period, the smart contract will send the same amount
-      of tokens to the recipient address again. This will continue until you
-      stop the recurring transaction, or the allowance is exhausted. <br />
+      of tokens to the recipient address again. This will continue until the
+      total number of executions is reached. <br />
       <div className="base-input-container">
         <div className="input-description">
           <span className="input-heading-hidden">Recipient</span>
@@ -81,7 +85,7 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
           <span className="input-heading">Amount:</span>
           <input
             className="input-field"
-            value={props.url}
+            value={props.amount}
             onChange={(event) => props.handleAmountChange(event)}
           />
         </div>
@@ -92,7 +96,7 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
       </div>
       <div className="base-input-container">
         <div className="input-description">
-          <span className="input-heading-hidden">Amount:</span>
+          <span className="input-heading-hidden">Period:</span>
           {props.amountError && (
             <span className="error">{props.amountError}</span>
           )}
@@ -101,7 +105,7 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
           <span className="input-heading">Period:</span>
           <input
             className="input-field"
-            value={props.rpc}
+            value={props.period}
             onChange={(event) => props.handlePeriodChange(event)}
           />
         </div>
@@ -111,29 +115,56 @@ export function CreateRecurringTransaction(props: ConfigureProfileProps) {
           again). In seconds.
         </div>
       </div>
-      <div className="input-description">
-        <span className="input-heading-hidden">Status:</span>
-
-        {showSuccessMsg && (
-          <span className="success">
-            Recurring transaction created successfully!
-          </span>
-        )}
-      </div>
-      <div>
-        <button
-          className={"btn env-btn active-btn ".concat(
-            isDisabled ? "disabled-btn" : ""
+      <div className="base-input-container">
+        <div className="input-description">
+          <span className="input-heading-hidden">Number of executions:</span>
+          {props.amountError && (
+            <span className="error">{props.amountError}</span>
           )}
-          disabled={isDisabled}
-          onClick={() => props.createRecurringTransaction()}
-        >
-          Create recurring transaction
-        </button>
+        </div>
+        <div className="input-container">
+          <span className="input-heading">Number of executions:</span>
+          <input
+            className="input-field"
+            value={props.executions}
+            onChange={(event) => props.handleExecutionsChange(event)}
+          />
+        </div>
+        <div className="input-description">
+          <span className="input-heading-hidden">Number of executions:</span>
+          Total number of times the transaction should be executed.
+        </div>
       </div>
-      <div>
-        {props.writeContractIsError &&
-          "Error when writing contract: " + props.writeContractError}
+      <div className="base-input-container">
+        <div className="input-description">
+          <span className="input-heading-hidden">Status:</span>
+
+          {showSuccessMsg && (
+            <span className="success">
+              Recurring transaction created successfully!
+            </span>
+          )}
+        </div>
+        <div>
+          <button
+            className={"btn env-btn active-btn ".concat(
+              isDisabled ? "disabled-btn" : ""
+            )}
+            disabled={isDisabled}
+            onClick={() => props.createRecurringTransaction()}
+          >
+            Create recurring transaction
+          </button>
+        </div>
+        <div className="input-description">
+          <span className="input-heading-hidden">Number of executions:</span>A
+          service fee of 0.01 xDai is charged for each execution. This payment
+          will be part of the transactions you sign when you push the button.
+        </div>
+        <div>
+          {props.writeContractIsError &&
+            "Error when writing contract: " + props.writeContractError}
+        </div>
       </div>
     </div>
   );

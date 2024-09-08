@@ -10,9 +10,10 @@ const App = () => {
   const {
     address,
     isConnected,
-    handleEnsChange,
-    handleRpcChange,
-    handleUrlChange,
+    handleRecipientChange,
+    handlePeriodChange,
+    handleAmountChange,
+    handleExecutionsChange,
     createConfigAndProfile,
     profileAndKeysCreated,
     storeEnv,
@@ -23,11 +24,12 @@ const App = () => {
     writeContractIsError,
     writeContractError,
     recipientError,
-    rpcError,
-    urlError,
+    periodError: rpcError,
+    amountError: urlError,
     ensInput,
-    rpc,
-    url,
+    period,
+    amount,
+    executions,
     userProfile,
     userProfileError,
     ensOwnershipError,
@@ -62,12 +64,14 @@ const App = () => {
         />
 
         <CreateRecurringTransaction
-          handleRecipientChange={handleEnsChange}
-          handleAmountChange={handleUrlChange}
-          handlePeriodChange={handleRpcChange}
+          handleRecipientChange={handleRecipientChange}
+          handleAmountChange={handleAmountChange}
+          handlePeriodChange={handlePeriodChange}
+          handleExecutionsChange={handleExecutionsChange}
           recipient={ensInput}
-          url={url}
-          rpc={rpc}
+          amount={amount}
+          period={period}
+          executions={executions}
           recipientError={recipientError}
           amountError={rpcError}
           urlError={urlError}
