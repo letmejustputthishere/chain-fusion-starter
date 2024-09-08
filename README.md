@@ -22,16 +22,16 @@ Then run `./deploy.sh` to get the party going. Read the script to learn more, it
 
 ### Developing
 
-From there, adapting the code can be done within a reasonable amount of time. The rust code is in `src/chain_fusion_backend` and the solidity code is in `src/foundry/`. The frontend is in `www/`. Just kidding, there is no frontend. But you can add one. It's a free world.
+From there, adapting the code can be done within a reasonable amount of time. The rust code is in `canisters/` and the solidity code is in `contracts/`. The frontend is in `webapp/`.
 
-#### Deploying on an EVM
+#### Deploying the contract on an EVM
 
 `forge script script/DeployContract.s.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier blockscout --verifier-url https://gnosis.blockscout.com/api? --broadcast`
 
 To verify on another block explorer, use this:
 `forge script script/DeployContract.s.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier-url https://api.gnosisscan.io/api\? --etherscan-api-key $GNOSISSCAN_API_KEY --resume`
 
-#### Deploying on the Internet Computer
+#### Deploying the canister on the Internet Computer
 
 Edit the `deploy_canister_to_production.sh` script to include your smart contracts address and topic hash.
 Do this:
