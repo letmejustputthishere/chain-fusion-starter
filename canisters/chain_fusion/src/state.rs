@@ -3,8 +3,6 @@ use candid::{CandidType, Decode, Deserialize, Encode};
 use ethers_core::types::U256;
 use evm_rpc_canister_types::{BlockTag, LogEntry, RpcService, RpcServices};
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
-use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
-use ic_stable_structures::{DefaultMemoryImpl, StableBTreeMap};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
@@ -179,25 +177,19 @@ pub enum TaskType {
 #[ic_cdk::pre_upgrade]
 fn pre_upgrade() {
     let job_execution_times = read_state(|state| state.job_execution_times.clone());
-    let job_execution_times_bytes = Encode!(&job_execution_times).unwrap();
-    ic_cdk::storage::stable_save((job_execution_times_bytes,)).unwrap();
+    let last_scraped_block_number = read_state(|state| state.last_scraped_block_number.clone());
+    let data = Encode!(&(job_execution_times, last_scraped_block_number)).unwrap();
+    ic_cdk::storage::stable_save((data,)).unwrap();
 }
 
 #[ic_cdk::post_upgrade]
 fn post_upgrade() {
-    let (job_execution_times_bytes,): (Vec<u8>,) = ic_cdk::storage::stable_restore().unwrap();
-    let job_execution_times: BTreeMap<U256Wrapper, u64> =
-        Decode!(&job_execution_times_bytes, BTreeMap<U256Wrapper, u64>).unwrap();
+    let (data,): (Vec<u8>,) = ic_cdk::storage::stable_restore().unwrap();
+    let (job_execution_times, last_scraped_block_number): (BTreeMap<U256Wrapper, u64>, Nat) =
+        Decode!(&data, (BTreeMap<U256Wrapper, u64>, Nat)).unwrap();
 
     mutate_state(|state| {
-        state.job_execution_times = job_execution_times.clone();
+        state.job_execution_times = job_execution_times;
+        state.last_scraped_block_number = last_scraped_block_number;
     });
-
-    // JOB_EXECUTION_TIMES.with(|times| {
-    //     let mut times = times.borrow_mut();
-    //     times.clear();
-    //     for (key, value) in job_execution_times {
-    //         times.insert(key, value);
-    //     }
-    // });
 }
