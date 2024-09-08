@@ -4,7 +4,6 @@ use std::fmt;
 
 use ethers_core::types::U256;
 use evm_rpc_canister_types::LogEntry;
-use ic_cdk::api;
 use ic_cdk::println;
 use submit_result::submit_result;
 
@@ -19,7 +18,7 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     let job_id = job_event.job_id;
     let job_execution_time = job_event.job_execution_time;
 
-    let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
+    // let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
 
     // for now, we don't check if the job is already in the queue. Logically, if it is, it should be with an
     // earlier execution time, so it's not a problem.
@@ -42,6 +41,11 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     //         },
     //     );
     // }
+}
+
+pub async fn execute_job(job_id: U256) {
+    println!("Executing job {job_id} now.");
+    submit_result(job_id).await;
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]

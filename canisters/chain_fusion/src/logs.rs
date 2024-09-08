@@ -1,3 +1,5 @@
+use ic_cdk::api;
+
 use std::{
     cmp::{min, Ordering},
     ops::{Add, Div, Sub},
@@ -6,12 +8,14 @@ use std::{
 
 use candid::Nat;
 use evm_rpc_canister_types::{
-    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError, MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
+    BlockTag, GetBlockByNumberResult, GetLogsArgs, GetLogsResult, HttpOutcallError,
+    MultiGetBlockByNumberResult, MultiGetLogsResult, RejectionCode, RpcError, EVM_RPC,
 };
 use ic_cdk::println;
 
 use crate::{
     guard::TimerGuard,
+    job::execute_job,
     job::job,
     state::{mutate_state, read_state, State, TaskType},
 };
@@ -149,6 +153,18 @@ pub async fn scrape_eth_logs() {
                     return;
                 }
             };
+    }
+
+    // if we reach this point, we have successfully scraped all the logs up to the last observed block
+    // we can now check if there are any jobs to execute
+    let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
+    let earliest_job = read_state(|s| s.get_earliest_job());
+    if let Some((job_id, job_execution_time)) = earliest_job {
+        if job_execution_time <= current_timestamp {
+            execute_job(job_id).await;
+            mutate_state(|s| s.remove_job(&job_id)); // remove the job from the queue
+            ic_cdk::println!("Executed job with ID: {:?}", job_id);
+        }
     }
 }
 

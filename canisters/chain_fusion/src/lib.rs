@@ -11,7 +11,7 @@ use std::time::Duration;
 
 use logs::scrape_eth_logs;
 
-use init::{init_latest_block, init_nonce};
+use init::init_nonce;
 
 use lifecycle::InitArg;
 use state::{read_state, State};

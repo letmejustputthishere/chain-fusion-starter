@@ -4,7 +4,7 @@ use candid::{CandidType, Deserialize};
 use ethers_core::types::H256;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use ic_evm_utils::conversions::nat_to_u256;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::BTreeMap;
 use std::str::FromStr;
 
 use evm_rpc_canister_types::{BlockTag, RpcService, RpcServices};

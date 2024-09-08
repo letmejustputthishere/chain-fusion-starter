@@ -56,7 +56,6 @@ pub async fn submit_result(job_id: U256) {
     )
     .await;
 
-    // if the transaction
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
             ic_cdk::println!("Success {transaction_hash:?}");

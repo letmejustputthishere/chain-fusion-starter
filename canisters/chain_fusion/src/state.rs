@@ -97,10 +97,11 @@ impl State {
         self.job_execution_times.remove(job_id)
     }
 
-    pub fn get_earliest_job(&self) -> Option<(&U256, &u64)> {
+    pub fn get_earliest_job(&self) -> Option<(U256, u64)> {
         self.job_execution_times
             .iter()
             .min_by_key(|(_, &execution_time)| execution_time)
+            .map(|(job_id, execution_time)| (job_id.clone(), *execution_time))
     }
 }
 
