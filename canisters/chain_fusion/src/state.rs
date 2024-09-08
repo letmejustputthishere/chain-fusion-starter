@@ -1,7 +1,6 @@
-use evm_rpc_canister_types::{BlockTag, LogEntry, RpcService, RpcServices};
-
 use candid::Nat;
 use ethers_core::types::U256;
+use evm_rpc_canister_types::{BlockTag, LogEntry, RpcService, RpcServices};
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
@@ -28,6 +27,7 @@ pub struct State {
     pub evm_address: Option<String>,
     pub nonce: U256,
     pub block_tag: BlockTag,
+    pub job_execution_times: BTreeMap<U256, u64>,
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -87,6 +87,20 @@ impl State {
 
     pub fn nonce(&self) -> U256 {
         self.nonce
+    }
+
+    pub fn add_job(&mut self, job_id: U256, execution_time: u64) {
+        self.job_execution_times.insert(job_id, execution_time);
+    }
+
+    pub fn remove_job(&mut self, job_id: &U256) -> Option<u64> {
+        self.job_execution_times.remove(job_id)
+    }
+
+    pub fn get_earliest_job(&self) -> Option<(&U256, &u64)> {
+        self.job_execution_times
+            .iter()
+            .min_by_key(|(_, &execution_time)| execution_time)
     }
 }
 

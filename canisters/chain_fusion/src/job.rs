@@ -21,23 +21,27 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
 
     let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
 
-    if job_execution_time <= U256::from(current_timestamp) {
-        println!("Job execution time is in the past, executing job now.");
-        submit_result(job_id).await;
-        return;
-    } else {
-        let job_sleep_interval = job_execution_time.as_u64() - current_timestamp;
-        println!("Job execution time is in the future, starting timer with sleep interval of {job_sleep_interval} seconds for for job ID {job_id} with execution Time {job_execution_time}.");
-        ic_cdk_timers::set_timer(
-            std::time::Duration::from_secs(job_sleep_interval),
-            move || {
-                // clone job_id to be used in the closure
-                let job_id = job_id.clone();
-                println!("Timer has finished, running job {job_id} now.");
-                ic_cdk::spawn(async move { submit_result(job_id.clone()).await })
-            },
-        );
-    }
+    // for now, we don't check if the job is already in the queue. Logically, if it is, it should be with an
+    // earlier execution time, so it's not a problem.
+    mutate_state(|s| s.add_job(job_id, job_execution_time.as_u64()));
+
+    // if job_execution_time <= U256::from(current_timestamp) {
+    //     println!("Job execution time is in the past, executing job now.");
+    //     submit_result(job_id).await;
+    //     return;
+    // } else {
+    //     let job_sleep_interval = job_execution_time.as_u64() - current_timestamp;
+    //     println!("Job execution time is in the future, starting timer with sleep interval of {job_sleep_interval} seconds for for job ID {job_id} with execution Time {job_execution_time}.");
+    //     ic_cdk_timers::set_timer(
+    //         std::time::Duration::from_secs(job_sleep_interval),
+    //         move || {
+    //             // clone job_id to be used in the closure
+    //             let job_id = job_id.clone();
+    //             println!("Timer has finished, running job {job_id} now.");
+    //             ic_cdk::spawn(async move { submit_result(job_id.clone()).await })
+    //         },
+    //     );
+    // }
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
