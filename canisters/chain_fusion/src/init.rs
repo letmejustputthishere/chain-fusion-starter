@@ -12,7 +12,7 @@ use crate::{
     state::{mutate_state, read_state, TaskType},
 };
 
-// after a (re-) install, load the account nonce and the latest block number from the Ethereum network
+// after a (re-) install, load latest block number from the Ethereum network
 #[allow(dead_code)]
 pub async fn init_latest_block() {
     // prevent the scrape_eth_logs task from running until this one is done
