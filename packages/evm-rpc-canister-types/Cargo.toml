@@ -1,6 +1,6 @@
 [package]
 name = "evm-rpc-canister-types"
-version = "0.1.2"
+version = "1.0.0"
 edition = "2021"
 readme = "README.md"
 authors = ["Moritz Fuller moritz.fuller@dfinity.org"]

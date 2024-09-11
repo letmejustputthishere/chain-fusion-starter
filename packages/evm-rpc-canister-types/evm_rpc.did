@@ -36,7 +36,6 @@ type EthMainnetService = variant {
   BlockPi;
   Cloudflare;
   PublicNode;
-  Llama;
 };
 type EthSepoliaService = variant {
   Alchemy;
@@ -49,7 +48,6 @@ type L2MainnetService = variant {
   Ankr;
   BlockPi;
   PublicNode;
-  Llama;
 };
 type FeeHistory = record {
   reward : vec vec nat;
@@ -95,7 +93,6 @@ type LogEntry = record {
 };
 type ManageProviderArgs = record {
   providerId : nat64;
-  chainId: opt nat64;
   "service" : opt RpcService;
   primary : opt bool;
 };
