@@ -249,6 +249,9 @@ impl IntoChainId for RpcServices {
                 services: _,
             } => U64::from(*chainId),
             RpcServices::EthMainnet(_) => U64::from(1),
+            RpcServices::ArbitrumOne(_) => U64::from(42161),
+            RpcServices::OptimismMainnet(_) => U64::from(10),
+            RpcServices::BaseMainnet(_) => U64::from(8453),
         }
     }
 }

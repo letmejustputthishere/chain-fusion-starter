@@ -24,6 +24,14 @@ pub enum EthSepoliaService {
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
+pub enum L2MainnetService {
+    Alchemy,
+    BlockPi,
+    PublicNode,
+    Ankr,
+}
+
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct HttpHeader {
     pub value: String,
     pub name: String,
@@ -47,7 +55,10 @@ pub enum EthMainnetService {
 #[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RpcServices {
     EthSepolia(Option<Vec<EthSepoliaService>>),
+    BaseMainnet(Option<Vec<L2MainnetService>>),
     Custom { chainId: u64, services: Vec<RpcApi> },
+    OptimismMainnet(Option<Vec<L2MainnetService>>),
+    ArbitrumOne(Option<Vec<L2MainnetService>>),
     EthMainnet(Option<Vec<EthMainnetService>>),
 }
 
@@ -149,7 +160,10 @@ pub enum FeeHistoryResult {
 #[derive(CandidType, Deserialize, Debug, Clone)]
 pub enum RpcService {
     EthSepolia(EthSepoliaService),
+    BaseMainnet(L2MainnetService),
     Custom(RpcApi),
+    OptimismMainnet(L2MainnetService),
+    ArbitrumOne(L2MainnetService),
     EthMainnet(EthMainnetService),
     Chain(u64),
     Provider(u64),
@@ -198,12 +212,13 @@ pub enum MultiGetBlockByNumberResult {
     Inconsistent(Vec<(RpcService, GetBlockByNumberResult)>),
 }
 
+pub type Topic = Vec<String>;
 #[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct GetLogsArgs {
     pub fromBlock: Option<BlockTag>,
     pub toBlock: Option<BlockTag>,
     pub addresses: Vec<String>,
-    pub topics: Option<Vec<Vec<String>>>,
+    pub topics: Option<Vec<Topic>>,
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone, PartialEq)]
@@ -540,7 +555,7 @@ fn test_candid_interface() {
 
     // fetch public interface from github
     let client = reqwest::blocking::Client::new();
-    let new_interface = client.get("https://raw.githubusercontent.com/internet-computer-protocol/evm-rpc-canister/main/candid/evm_rpc.did")
+    let new_interface = client.get("https://github.com/internet-computer-protocol/evm-rpc-canister/releases/latest/download/evm_rpc.did")
     .send().unwrap()
     .text().unwrap();
 
