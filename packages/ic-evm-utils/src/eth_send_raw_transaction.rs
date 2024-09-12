@@ -4,8 +4,8 @@
 use ethers_core::abi::{Address, Contract, Function, FunctionExt, Token};
 use ethers_core::types::{Eip1559TransactionRequest, NameOrAddress, U256, U64};
 use evm_rpc_canister_types::{
-    EvmRpcCanister, MultiSendRawTransactionResult, RejectionCode, RpcServices,
-    SendRawTransactionResult, SendRawTransactionStatus,
+    EvmRpcCanister, MultiSendRawTransactionResult, RpcServices, SendRawTransactionResult,
+    SendRawTransactionStatus,
 };
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::str::FromStr;
@@ -232,6 +232,7 @@ pub async fn send_raw_transaction(
         },
         Err(e) => {
             if format!("Error: {:?}", e).as_str().contains("-32010") {
+                // todo: understand how to return SendRawTransactionStatus::AlreadyKnown instead
                 SendRawTransactionStatus::Ok(Some("AlreadyKnown: -32010".to_string()))
             } else {
                 ic_cdk::trap(format!("Error: {:?}", e).as_str())

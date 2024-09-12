@@ -31,7 +31,7 @@ dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/
         "0xd270de418848f07676c092e30c67a99070a18f01b8f573731322eadeea0c1ab8";
       };
     };
-    last_scraped_block_number = 35951313: nat;
+    last_scraped_block_number = 35958318: nat;
     rpc_services = variant {
       Custom = record {
         chainId = 100 : nat64;
