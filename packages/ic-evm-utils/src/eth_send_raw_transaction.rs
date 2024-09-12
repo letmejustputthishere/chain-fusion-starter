@@ -223,7 +223,14 @@ pub async fn send_raw_transaction(
             MultiSendRawTransactionResult::Consistent(status) => match status {
                 SendRawTransactionResult::Ok(status) => status,
                 SendRawTransactionResult::Err(e) => {
-                    ic_cdk::trap(format!("Error: {:?}", e).as_str());
+                    if format!("Error: {:?}", e).as_str().contains("-32010") {
+                        // todo: understand how to return SendRawTransactionStatus::AlreadyKnown instead
+                        return SendRawTransactionStatus::Ok(Some(
+                            "AlreadyKnown: -32010".to_string(),
+                        ));
+                    } else {
+                        ic_cdk::trap(format!("Error with my personal message: {:?}", e).as_str())
+                    }
                 }
             },
             MultiSendRawTransactionResult::Inconsistent(_) => {
@@ -231,14 +238,7 @@ pub async fn send_raw_transaction(
             }
         },
         Err(e) => {
-            ic_cdk::trap(format!("Error with my personal message: {:?}", e).as_str());
-
-            // if format!("Error: {:?}", e).as_str().contains("-32010") {
-            //     // todo: understand how to return SendRawTransactionStatus::AlreadyKnown instead
-            //     return SendRawTransactionStatus::Ok(Some("AlreadyKnown: -32010".to_string()));
-            // } else {
-            //     ic_cdk::trap(format!("Error with my personal message: {:?}", e).as_str())
-            // }
+            ic_cdk::trap(format!("Error 1: {:?}", e).as_str());
         }
     }
 }
