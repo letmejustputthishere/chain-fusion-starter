@@ -307,13 +307,13 @@ version = "0.1.0"
 dependencies = [
  "candid",
  "ethers-core",
- "evm-rpc-canister-types 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "evm-rpc-canister-types",
  "getrandom",
  "hex",
  "ic-canisters-http-types",
  "ic-cdk 0.14.1",
  "ic-cdk-timers",
- "ic-evm-utils 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ic-evm-utils",
  "ic-stable-structures",
  "minicbor",
  "minicbor-derive",
@@ -719,41 +719,10 @@ dependencies = [
 
 [[package]]
 name = "evm-rpc-canister-types"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43365151c7779a57aacf1e4370519c9c1250fd09ca6c02c77e6b6f7a9335052c"
-dependencies = [
- "candid",
- "candid_parser",
- "ic-cdk 0.14.1",
- "reqwest",
- "serde",
- "serde_bytes",
- "serde_json",
-]
-
-[[package]]
-name = "evm-rpc-canister-types"
 version = "1.0.0"
 dependencies = [
  "candid",
  "candid_parser",
- "ic-cdk 0.14.1",
- "reqwest",
- "serde",
- "serde_bytes",
- "serde_json",
-]
-
-[[package]]
-name = "evm-rpc-canister-types"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7b0da276d418ffaad13b7348d94182b597a43339b6852806dbdcdadb6749d31"
-dependencies = [
- "candid",
- "candid_parser",
- "evm-rpc-canister-types 0.1.3",
  "ic-cdk 0.14.1",
  "reqwest",
  "serde",
@@ -938,8 +907,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1247,23 +1218,8 @@ version = "1.0.0"
 dependencies = [
  "candid",
  "ethers-core",
- "evm-rpc-canister-types 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "ic-cdk 0.14.1",
- "num-traits",
- "serde",
- "serde_bytes",
- "serde_json",
-]
-
-[[package]]
-name = "ic-evm-utils"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae5163ad493747b9c2e29b09ba2c22b2800545c2030d29a01309eada92ab8179"
-dependencies = [
- "candid",
- "ethers-core",
- "evm-rpc-canister-types 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "evm-rpc-canister-types",
+ "getrandom",
  "ic-cdk 0.14.1",
  "num-traits",
  "serde",

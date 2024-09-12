@@ -59,11 +59,26 @@ pub async fn submit_result(job_id: U256) {
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
             ic_cdk::println!("Success {transaction_hash:?}");
+            if transaction_hash
+                .expect("transaction hash should be present")
+                .contains("-32010")
+            {
+                ic_cdk::println!("Transaction already known, assuming success");
+            }
             ic_cdk::println!("Used nonce {nonce}");
             mutate_state(|s| {
                 s.nonce += U256::from(1);
             });
         }
+
+        SendRawTransactionStatus::AlreadyKnown => {
+            ic_cdk::println!("Transaction already known, assuming success");
+            ic_cdk::println!("Used nonce {nonce}");
+            mutate_state(|s| {
+                s.nonce += U256::from(1);
+            });
+        }
+
         SendRawTransactionStatus::NonceTooLow => {
             ic_cdk::println!("Nonce too low");
         }
