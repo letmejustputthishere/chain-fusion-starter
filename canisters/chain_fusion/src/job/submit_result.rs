@@ -59,13 +59,6 @@ pub async fn submit_result(job_id: U256) {
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
             ic_cdk::println!("Success {transaction_hash:?}");
-            // todo: remove this abuse of the Ok status in favor of the AlreadyKnown status
-            if transaction_hash
-                .expect("transaction hash should be present")
-                .contains("-32010")
-            {
-                ic_cdk::println!("Transaction already known, assuming success");
-            }
             ic_cdk::println!("Used nonce {nonce}");
             mutate_state(|s| {
                 s.nonce += U256::from(1);
@@ -73,7 +66,6 @@ pub async fn submit_result(job_id: U256) {
         }
 
         SendRawTransactionStatus::AlreadyKnown => {
-            ic_cdk::println!("Better Code :)");
             ic_cdk::println!("Transaction already known, assuming success");
             ic_cdk::println!("Used nonce {nonce}");
             mutate_state(|s| {
