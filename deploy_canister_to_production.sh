@@ -31,16 +31,16 @@ dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/
         "0xd270de418848f07676c092e30c67a99070a18f01b8f573731322eadeea0c1ab8";
       };
     };
-    last_scraped_block_number = 35958318: nat;
+    last_scraped_block_number = 35975904: nat;
     rpc_services = variant {
       Custom = record {
         chainId = 100 : nat64;
-        services = vec { record { url = "https://gnosis.drpc.org"; headers = null } };
+        services = vec { record { url = "https://gnosis-rpc.publicnode.com"; headers = null } };
       }
     };
     rpc_service = variant {
       Custom = record {
-        url = "https://gnosis.drpc.org";
+        url = "https://gnosis-rpc.publicnode.com";
         headers = null;
       }
     };
