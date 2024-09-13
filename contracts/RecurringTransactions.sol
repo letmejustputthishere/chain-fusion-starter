@@ -188,7 +188,8 @@ contract RecurringTransactions {
 
         // update the number of remaining executions, unless it's infinite.
         // can not be 0, as we check for that above
-        _job.numberOfRemainingExecutions == type(uint64).max
+        _job.numberOfRemainingExecutions = _job.numberOfRemainingExecutions ==
+            type(uint64).max
             ? _job.numberOfRemainingExecutions
             : _job.numberOfRemainingExecutions - 1;
         jobs[_job_id] = _job;

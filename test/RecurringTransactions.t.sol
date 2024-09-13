@@ -89,4 +89,72 @@ contract RecurringTransactionsTest is Test {
             "Incorrect amount of ETH transferred to executor"
         );
     }
+
+    function testRemainingExecutions() public {
+        address trigger = address(123);
+        address sender = address(2);
+        address recipient = address(3);
+
+        ERC20MintableByAnyone token = new ERC20MintableByAnyone(
+            "Test Token",
+            "TST"
+        );
+        RecurringTransactions recurringTransactions = new RecurringTransactions(
+            trigger
+        );
+
+        uint256 aBunchOfTokens = 1e30;
+        token.mint(sender, aBunchOfTokens);
+        uint128 amountToTransfer = 0.3 ether;
+
+        vm.deal(sender, 2 ether);
+
+        vm.startPrank(sender);
+        token.approve(address(recurringTransactions), aBunchOfTokens);
+
+        // Create a job with finite executions
+        recurringTransactions.createJob{value: 0.1 ether}(
+            20,
+            10,
+            amountToTransfer,
+            recipient,
+            address(token)
+        );
+
+        vm.stopPrank();
+
+        // Execute the finite job multiple times
+        for (uint i = 0; i < 8; i++) {
+            vm.warp((i + 1) * 25);
+            vm.prank(trigger);
+            recurringTransactions.executeJob(0);
+        }
+
+        // Check remaining executions for finite job
+        (, uint64 remainingFinite, , , , , ) = recurringTransactions.jobs(0);
+        assertEq(
+            remainingFinite,
+            1,
+            "Incorrect remaining executions for finite job"
+        );
+
+        // execute the last one, which should not emit an nextExecutionTimestamp event
+        // todo: check that the event is not emitted
+        vm.warp(1000);
+        vm.prank(trigger);
+        recurringTransactions.executeJob(0);
+
+        (, remainingFinite, , , , , ) = recurringTransactions.jobs(0);
+        assertEq(
+            remainingFinite,
+            0,
+            "Incorrect remaining executions for finite job"
+        );
+
+        // ensure next execution reverts
+        vm.warp(10000);
+        vm.prank(trigger);
+        vm.expectRevert();
+        recurringTransactions.executeJob(0);
+    }
 }
