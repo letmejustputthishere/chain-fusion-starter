@@ -1109,6 +1109,7 @@ dependencies = [
  "candid",
  "ethers-core",
  "evm-rpc-canister-types 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "getrandom",
  "ic-cdk 0.14.0",
  "num-traits",
  "serde",
