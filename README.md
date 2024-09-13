@@ -31,6 +31,12 @@ From there, adapting the code can be done within a reasonable amount of time. Th
 To verify on another block explorer, use this:
 `forge script script/DeployContract.s.sol --private-key $PRIVATE_KEY --rpc-url $GNOSIS_RPC_URL --verify --verifier-url https://api.gnosisscan.io/api\? --etherscan-api-key $GNOSISSCAN_API_KEY --resume`
 
+Smart contract deployments:
+
+- 0x5C5BB452Ffa9853B0688B3f45a6fF2113d2941fC
+- https://gnosis.blockscout.com/address/0x5C5BB452Ffa9853B0688B3f45a6fF2113d2941fC
+- https://gnosisscan.io/address/0x5C5BB452Ffa9853B0688B3f45a6fF2113d2941fC
+
 #### Deploying the canister on the Internet Computer
 
 Edit the `deploy_canister_to_production.sh` script to include your smart contracts address and topic hash.
