@@ -225,9 +225,7 @@ pub async fn send_raw_transaction(
                 SendRawTransactionResult::Err(e) => {
                     if format!("Error: {:?}", e).as_str().contains("-32010") {
                         // todo: understand how to return SendRawTransactionStatus::AlreadyKnown instead
-                        return SendRawTransactionStatus::Ok(Some(
-                            "AlreadyKnown: -32010".to_string(),
-                        ));
+                        return SendRawTransactionStatus::AlreadyKnown;
                     } else {
                         ic_cdk::trap(format!("Error with my personal message: {:?}", e).as_str())
                     }

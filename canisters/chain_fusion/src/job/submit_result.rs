@@ -73,6 +73,7 @@ pub async fn submit_result(job_id: U256) {
         }
 
         SendRawTransactionStatus::AlreadyKnown => {
+            ic_cdk::println!("Better Code :)");
             ic_cdk::println!("Transaction already known, assuming success");
             ic_cdk::println!("Used nonce {nonce}");
             mutate_state(|s| {
