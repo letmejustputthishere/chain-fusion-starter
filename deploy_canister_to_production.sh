@@ -44,7 +44,7 @@ dfx canister install --mode reinstall --ic --wasm target/wasm32-unknown-unknown/
         headers = null;
       }
     };
-    get_logs_addresses = vec { "0x01cb990594bA229EacE4A339D3C83E2e11ACA111" };
+    get_logs_addresses = vec { "0x5C5BB452Ffa9853B0688B3f45a6fF2113d2941fC" };
     block_tag = variant { Latest = null };
     nonce = 301 : nat;
   },
