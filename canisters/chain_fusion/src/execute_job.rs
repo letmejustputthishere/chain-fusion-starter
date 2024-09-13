@@ -22,14 +22,22 @@ pub async fn execute_jobs() {
 
     // check if there are any jobs to execute, and execute them if they are ready
     let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
-    let earliest_job = read_state(|s| s.get_earliest_job());
-    if let Some((job_id, job_execution_time)) = earliest_job {
-        if job_execution_time <= current_timestamp {
-            ic_cdk::println!("Executing job with ID: {:?}", job_id);
-            execute_job(job_id).await;
-            mutate_state(|s| s.remove_job(&job_id)); // remove the job from the queue
-            ic_cdk::println!("Executed job with ID: {:?}", job_id);
+    let mut jobs_executed = 0;
+    loop {
+        let earliest_job = read_state(|s| s.get_earliest_job());
+        match earliest_job {
+            Some((job_id, job_execution_time)) if job_execution_time <= current_timestamp => {
+                ic_cdk::println!("Executing job with ID: {:?}", job_id);
+                execute_job(job_id).await;
+                mutate_state(|s| s.remove_job(&job_id)); // remove the job from the queue
+                ic_cdk::println!("Executed job with ID: {:?}", job_id);
+                jobs_executed += 1;
+            }
+            _ => break,
         }
+    }
+    if jobs_executed > 0 {
+        ic_cdk::println!("Executed {} jobs", jobs_executed);
     } else {
         ic_cdk::println!("No jobs to execute");
     }
