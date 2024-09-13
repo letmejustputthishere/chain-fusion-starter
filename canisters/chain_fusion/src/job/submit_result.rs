@@ -64,6 +64,15 @@ pub async fn submit_result(job_id: U256) {
                 s.nonce += U256::from(1);
             });
         }
+
+        SendRawTransactionStatus::AlreadyKnown => {
+            ic_cdk::println!("Transaction already known, assuming success");
+            ic_cdk::println!("Used nonce {nonce}");
+            mutate_state(|s| {
+                s.nonce += U256::from(1);
+            });
+        }
+
         SendRawTransactionStatus::NonceTooLow => {
             ic_cdk::println!("Nonce too low");
         }

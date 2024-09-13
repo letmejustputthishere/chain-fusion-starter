@@ -223,14 +223,20 @@ pub async fn send_raw_transaction(
             MultiSendRawTransactionResult::Consistent(status) => match status {
                 SendRawTransactionResult::Ok(status) => status,
                 SendRawTransactionResult::Err(e) => {
-                    ic_cdk::trap(format!("Error: {:?}", e).as_str());
+                    if format!("Error: {:?}", e).as_str().contains("-32010") {
+                        return SendRawTransactionStatus::AlreadyKnown;
+                    } else {
+                        ic_cdk::trap(format!("Error: {:?}", e).as_str())
+                    }
                 }
             },
             MultiSendRawTransactionResult::Inconsistent(_) => {
                 ic_cdk::trap("Status is inconsistent");
             }
         },
-        Err(e) => ic_cdk::trap(format!("Error: {:?}", e).as_str()),
+        Err(e) => {
+            ic_cdk::trap(format!("Error 1: {:?}", e).as_str());
+        }
     }
 }
 
