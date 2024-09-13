@@ -124,7 +124,7 @@ contract RecurringTransactionsTest is Test {
         vm.stopPrank();
 
         // Execute the finite job multiple times
-        for (uint i = 0; i < 6; i++) {
+        for (uint i = 0; i < 8; i++) {
             vm.warp((i + 1) * 25);
             vm.prank(trigger);
             recurringTransactions.executeJob(0);
@@ -134,16 +134,15 @@ contract RecurringTransactionsTest is Test {
         (, uint64 remainingFinite, , , , , ) = recurringTransactions.jobs(0);
         assertEq(
             remainingFinite,
-            3,
+            1,
             "Incorrect remaining executions for finite job"
         );
 
-        // Execute the finite job multiple times
-        for (uint i = 5; i < 8; i++) {
-            vm.warp((i + 1) * 25);
-            vm.prank(trigger);
-            recurringTransactions.executeJob(0);
-        }
+        // execute the last one, which should not emit an nextExecutionTimestamp event
+        // todo: check that the event is not emitted
+        vm.warp(1000);
+        vm.prank(trigger);
+        recurringTransactions.executeJob(0);
 
         (, remainingFinite, , , , , ) = recurringTransactions.jobs(0);
         assertEq(
