@@ -1,11 +1,7 @@
-mod submit_result;
-
 use std::fmt;
 
 use ethers_core::types::U256;
 use evm_rpc_canister_types::LogEntry;
-use ic_cdk::println;
-use submit_result::submit_result;
 
 use crate::state::{mutate_state, LogSource};
 
@@ -41,11 +37,6 @@ pub async fn job(event_source: LogSource, event: LogEntry) {
     //         },
     //     );
     // }
-}
-
-pub async fn execute_job(job_id: U256) {
-    println!("Executing job {job_id} now.");
-    submit_result(job_id).await;
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]

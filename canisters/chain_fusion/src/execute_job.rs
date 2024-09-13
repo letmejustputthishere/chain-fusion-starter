@@ -1,10 +1,43 @@
 use ethers_core::{abi::Token, types::U256};
 use evm_rpc_canister_types::{SendRawTransactionStatus, EVM_RPC};
+use ic_cdk::api;
 use ic_evm_utils::eth_send_raw_transaction::{contract_interaction, ContractDetails};
 
-use crate::state::{mutate_state, read_state, State};
+use crate::guard::TimerGuard;
+use crate::state::{mutate_state, read_state, State, TaskType};
 
-pub async fn submit_result(job_id: U256) {
+pub async fn execute_jobs() {
+    // the timer guard prevent simultaneous execution of multiple instances of the same task
+    let _guard = match TimerGuard::new(TaskType::ExecuteJobs) {
+        Ok(guard) => guard,
+        Err(_) => return,
+    };
+
+    // check if all logs have been processed
+    let logs_to_process = read_state(|s| (s.logs_to_process.clone()));
+    if !logs_to_process.is_empty() {
+        ic_cdk::println!("Skipping execution of jobs because there are logs to process");
+        return;
+    }
+
+    // check if there are any jobs to execute, and execute them if they are ready
+    let current_timestamp = api::time() / 1_000_000_000; // converted to seconds
+    let earliest_job = read_state(|s| s.get_earliest_job());
+    if let Some((job_id, job_execution_time)) = earliest_job {
+        if job_execution_time <= current_timestamp {
+            ic_cdk::println!("Executing job with ID: {:?}", job_id);
+            execute_job(job_id).await;
+            mutate_state(|s| s.remove_job(&job_id)); // remove the job from the queue
+            ic_cdk::println!("Executed job with ID: {:?}", job_id);
+        }
+    } else {
+        ic_cdk::println!("No jobs to execute");
+    }
+}
+
+pub async fn execute_job(job_id: U256) {
+    println!("Executing job {job_id} now.");
+
     // get necessary global state
     let contract_address = &read_state(State::get_logs_addresses)[0];
     let rpc_services = read_state(State::rpc_services);

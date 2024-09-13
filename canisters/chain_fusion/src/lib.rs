@@ -1,3 +1,4 @@
+mod execute_job;
 mod guard;
 mod init;
 mod job;
@@ -17,6 +18,7 @@ use lifecycle::InitArg;
 use state::{read_state, State};
 
 use crate::state::{initialize_state, mutate_state};
+use execute_job::execute_jobs;
 
 pub const SCRAPING_LOGS_INTERVAL: Duration = Duration::from_secs(15 * 60);
 
@@ -46,7 +48,11 @@ fn setup_timers() {
     ic_cdk_timers::set_timer(Duration::from_secs(40), || ic_cdk::spawn(scrape_eth_logs()));
     ic_cdk_timers::set_timer_interval(SCRAPING_LOGS_INTERVAL, || ic_cdk::spawn(scrape_eth_logs()));
 
-    // todo: add a timer that checks if a job is ready to be executed?
+    // Start executing jobs almost immediately after the install, then repeat with the interval.
+    ic_cdk_timers::set_timer(Duration::from_secs(120), || ic_cdk::spawn(execute_jobs()));
+    ic_cdk_timers::set_timer_interval(SCRAPING_LOGS_INTERVAL + Duration::from_secs(120), || {
+        ic_cdk::spawn(execute_jobs())
+    });
 }
 
 #[ic_cdk::init]

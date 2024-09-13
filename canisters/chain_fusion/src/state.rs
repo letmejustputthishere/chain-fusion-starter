@@ -172,6 +172,7 @@ pub fn initialize_state(state: State) {
 pub enum TaskType {
     ProcessLogs,
     ScrapeLogs,
+    ExecuteJobs,
 }
 
 #[ic_cdk::pre_upgrade]
