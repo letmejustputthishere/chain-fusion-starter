@@ -47,7 +47,7 @@ pub async fn submit_result(result: String, job_id: U256) {
     // set the gas
     let gas = Some(U256::from(5000000));
 
-    // interac with the contract, this calls `eth_sendRawTransaction` under the hood
+    // interact with the contract, this calls `eth_sendRawTransaction` under the hood
     let status = contract_interaction(
         contract_details,
         gas,
@@ -59,7 +59,7 @@ pub async fn submit_result(result: String, job_id: U256) {
     )
     .await;
 
-    // if the transaction
+    // check the status of the transaction
     match status {
         SendRawTransactionStatus::Ok(transaction_hash) => {
             ic_cdk::println!("Success {transaction_hash:?}");
@@ -75,6 +75,9 @@ pub async fn submit_result(result: String, job_id: U256) {
         }
         SendRawTransactionStatus::InsufficientFunds => {
             ic_cdk::println!("Insufficient funds");
+        }
+        SendRawTransactionStatus::AlreadyKnown=> {
+            ic_cdk::println!("Already known");
         }
     }
 }
