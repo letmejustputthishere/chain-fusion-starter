@@ -14,10 +14,6 @@ fi
 
 # start anvil with slots in an epoch send to 1 for faster finalised blocks
 anvil --slots-in-an-epoch 1 &
-# kill caddyserver
-caddy stop
-# start caddyserver
-caddy start
 dfx stop
 # Find process IDs listening on port 4943 (dfx)
 dfx=$(lsof -t -i:4943)
@@ -52,12 +48,12 @@ dfx canister install --wasm target/wasm32-unknown-unknown/release/chain_fusion.w
     rpc_services = variant {
       Custom = record {
         chainId = 31_337 : nat64;
-        services = vec { record { url = "https://localhost:8546"; headers = null } };
+        services = vec { record { url = "http://localhost:8545"; headers = null } };
       }
     };
     rpc_service = variant {
       Custom = record {
-        url = "https://localhost:8546";
+        url = "http://localhost:8545";
         headers = null;
       }
     };
