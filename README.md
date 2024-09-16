@@ -86,8 +86,7 @@ Ensure the following are installed on your system:
 
 -   [Node.js](https://nodejs.org/en/) `>= 21`
 -   [Foundry](https://github.com/foundry-rs/foundry)
--   [Caddy](https://caddyserver.com/docs/install#install)
--   [DFX](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove) `>= 0.18`
+-   [DFX](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove) `>= 0.23`
 
 Run these commands in a new, empty project directory:
 
