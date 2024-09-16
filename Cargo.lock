@@ -625,7 +625,7 @@ dependencies = [
 
 [[package]]
 name = "evm-rpc-canister-types"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "candid",
  "candid_parser",
@@ -1073,7 +1073,7 @@ dependencies = [
 
 [[package]]
 name = "ic-evm-utils"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "candid",
  "ethers-core",
