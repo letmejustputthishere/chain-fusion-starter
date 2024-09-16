@@ -223,7 +223,18 @@ pub async fn send_raw_transaction(
             MultiSendRawTransactionResult::Consistent(status) => match status {
                 SendRawTransactionResult::Ok(status) => status,
                 SendRawTransactionResult::Err(e) => {
-                    ic_cdk::trap(format!("Error: {:?}", e).as_str());
+                    let error_message = format!("{:?}", e).to_lowercase();
+                    // add more keywords depending on the error message return by different RPC providers
+                    let keywords = ["already known", "alreadyknown"];
+
+                    if keywords
+                        .iter()
+                        .any(|&keyword| error_message.contains(keyword))
+                    {
+                        SendRawTransactionStatus::AlreadyKnown
+                    } else {
+                        ic_cdk::trap(format!("Error: {:?}", e).as_str())
+                    }
                 }
             },
             MultiSendRawTransactionResult::Inconsistent(_) => {
