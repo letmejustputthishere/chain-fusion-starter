@@ -297,7 +297,7 @@ dependencies = [
  "ic-canisters-http-types",
  "ic-cdk 0.14.0",
  "ic-cdk-timers",
- "ic-evm-utils 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ic-evm-utils 3.1.0",
  "ic-stable-structures",
  "minicbor",
  "minicbor-derive",
@@ -1089,6 +1089,8 @@ dependencies = [
 [[package]]
 name = "ic-evm-utils"
 version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e34c460fa0f3abcbbd1bf3c7d87faae71a0d880b973e66a3848b31c83064b18"
 dependencies = [
  "candid",
  "ethers-core",
@@ -1102,9 +1104,7 @@ dependencies = [
 
 [[package]]
 name = "ic-evm-utils"
-version = "3.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e34c460fa0f3abcbbd1bf3c7d87faae71a0d880b973e66a3848b31c83064b18"
+version = "3.2.0"
 dependencies = [
  "candid",
  "ethers-core",
