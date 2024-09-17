@@ -22,6 +22,8 @@ pub struct TransferArgs {
     pub gas: Option<U256>,
 }
 
+pub type TransactionHash = String;
+
 /// Transfers ETH from one account to another.
 ///
 /// # Warning
@@ -47,7 +49,7 @@ pub async fn transfer_eth(
     derivation_path: Vec<Vec<u8>>,
     nonce: U256,
     evm_rpc: EvmRpcCanister,
-) -> CallResult<String> {
+) -> CallResult<TransactionHash> {
     // use the user provided gas_limit or fallback to default 210000
     let gas = transfer_args.gas.unwrap_or(U256::from(21000));
     // estimate the transaction fees by calling eth_feeHistory
@@ -163,7 +165,7 @@ pub async fn contract_interaction(
     key_id: EcdsaKeyId,
     derivation_path: Vec<Vec<u8>>,
     evm_rpc: EvmRpcCanister,
-) -> CallResult<String> {
+) -> CallResult<TransactionHash> {
     let function = get_function(&contract_details);
     let data = get_data(function, &contract_details);
 
@@ -207,12 +209,12 @@ pub async fn contract_interaction(
 ///
 /// # Returns
 ///
-/// The transaction hash.
+/// CallResult containing the transaction hash.
 pub async fn send_raw_transaction(
     tx: SignedTransaction,
     rpc_services: RpcServices,
     evm_rpc: EvmRpcCanister,
-) -> CallResult<String> {
+) -> CallResult<TransactionHash> {
     let cycles = 10_000_000_000;
 
     match evm_rpc

@@ -4,6 +4,21 @@ use evm_rpc_canister_types::{
     MultiGetTransactionCountResult, RpcServices,
 };
 
+/// Gets the transaction count of an account.
+///
+/// # Arguments
+///
+/// * `rpc_services` - The RPC services used to interact with the EVM.
+/// * `get_transaction_count_args` - The arguments for getting the transaction count.
+/// * `evm_rpc` - The EVM RPC canister used to send the transaction.
+///
+/// # Returns
+///
+/// The transaction count of the account.
+///
+/// # Panics
+///
+/// If the call fails on the system level, the responses are inconsistent or there is an RPC error.
 pub async fn get_transaction_count(
     rpc_services: RpcServices,
     get_transaction_count_args: GetTransactionCountArgs,
