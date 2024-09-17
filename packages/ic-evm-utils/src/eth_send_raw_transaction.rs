@@ -3,13 +3,13 @@
 //! The transactions are signed using t-ECDSA and sent via the EVM RPC canister.
 use ethers_core::abi::{Address, Contract, Function, FunctionExt, Token};
 use ethers_core::types::{Eip1559TransactionRequest, NameOrAddress, U256, U64};
-use evm_rpc_canister_types::{
-    EvmRpcCanister, MultiSendRawTransactionResult, RpcServices, SendRawTransactionResult,
-    SendRawTransactionStatus,
-};
+use evm_rpc_canister_types::{EvmRpcCanister, RpcServices};
+use ic_cdk::api::call::CallResult;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
+
 use std::str::FromStr;
 
+use crate::evm_signer::SignedTransaction;
 use crate::{
     evm_signer::sign_eip1559_transaction,
     fees::{estimate_transaction_fees, FeeEstimates},
@@ -47,7 +47,7 @@ pub async fn transfer_eth(
     derivation_path: Vec<Vec<u8>>,
     nonce: U256,
     evm_rpc: EvmRpcCanister,
-) -> SendRawTransactionStatus {
+) -> CallResult<String> {
     // use the user provided gas_limit or fallback to default 210000
     let gas = transfer_args.gas.unwrap_or(U256::from(21000));
     // estimate the transaction fees by calling eth_feeHistory
@@ -151,6 +151,10 @@ pub fn get_data<'a>(function: &Function, contract_details: &'a ContractDetails<'
 /// * `key_id` - The ID of the ECDSA key used for signing the transaction.
 /// * `derivation_path` - The derivation path of the ECDSA key.
 /// * `evm_rpc` - The EVM RPC canister used to send the transaction.
+///
+/// # Returns
+///
+/// The transaction hash CallResult.
 pub async fn contract_interaction(
     contract_details: ContractDetails<'_>,
     gas: Option<U256>,
@@ -159,7 +163,7 @@ pub async fn contract_interaction(
     key_id: EcdsaKeyId,
     derivation_path: Vec<Vec<u8>>,
     evm_rpc: EvmRpcCanister,
-) -> SendRawTransactionStatus {
+) -> CallResult<String> {
     let function = get_function(&contract_details);
     let data = get_data(function, &contract_details);
 
@@ -203,45 +207,23 @@ pub async fn contract_interaction(
 ///
 /// # Returns
 ///
-/// The status of the raw transaction send operation.
-///
-/// # Panics
-///
-/// If there is an error while sending the raw transaction.
+/// The transaction hash.
 pub async fn send_raw_transaction(
-    tx: String,
+    tx: SignedTransaction,
     rpc_services: RpcServices,
     evm_rpc: EvmRpcCanister,
-) -> SendRawTransactionStatus {
+) -> CallResult<String> {
     let cycles = 10_000_000_000;
 
     match evm_rpc
-        .eth_send_raw_transaction(rpc_services, None, tx, cycles)
+        .eth_send_raw_transaction(rpc_services, None, tx.tx_hex, cycles)
         .await
     {
-        Ok((res,)) => match res {
-            MultiSendRawTransactionResult::Consistent(status) => match status {
-                SendRawTransactionResult::Ok(status) => status,
-                SendRawTransactionResult::Err(e) => {
-                    let error_message = format!("{:?}", e).to_lowercase();
-                    // add more keywords depending on the error message return by different RPC providers
-                    let keywords = ["already known", "alreadyknown"];
-
-                    if keywords
-                        .iter()
-                        .any(|&keyword| error_message.contains(keyword))
-                    {
-                        SendRawTransactionStatus::AlreadyKnown
-                    } else {
-                        ic_cdk::trap(format!("Error: {:?}", e).as_str())
-                    }
-                }
-            },
-            MultiSendRawTransactionResult::Inconsistent(_) => {
-                ic_cdk::trap("Status is inconsistent");
-            }
-        },
-        Err(e) => ic_cdk::trap(format!("Error: {:?}", e).as_str()),
+        Ok((_res,)) => {
+            ic_cdk::println!("Transaction hash: {}", tx.tx_hash);
+            Ok(tx.tx_hash)
+        }
+        Err(e) => Err(e),
     }
 }
 

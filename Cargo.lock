@@ -291,13 +291,13 @@ version = "0.1.0"
 dependencies = [
  "candid",
  "ethers-core",
- "evm-rpc-canister-types",
+ "evm-rpc-canister-types 2.0.0",
  "getrandom",
  "hex",
  "ic-canisters-http-types",
  "ic-cdk 0.14.0",
  "ic-cdk-timers",
- "ic-evm-utils",
+ "ic-evm-utils 2.0.0",
  "ic-stable-structures",
  "minicbor",
  "minicbor-derive",
@@ -626,6 +626,21 @@ dependencies = [
 [[package]]
 name = "evm-rpc-canister-types"
 version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13d4a01a66e195149bc887cab1cb642080ca5b2129901d30e3c9c74fb37ea2a5"
+dependencies = [
+ "candid",
+ "candid_parser",
+ "ic-cdk 0.14.0",
+ "reqwest",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+]
+
+[[package]]
+name = "evm-rpc-canister-types"
+version = "3.0.0"
 dependencies = [
  "candid",
  "candid_parser",
@@ -1074,10 +1089,26 @@ dependencies = [
 [[package]]
 name = "ic-evm-utils"
 version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c224d0bd2a3f23cd0739d7e38a8b82c51ed95ddd11ef59b731403c6f36d3df4b"
 dependencies = [
  "candid",
  "ethers-core",
- "evm-rpc-canister-types",
+ "evm-rpc-canister-types 2.0.0",
+ "ic-cdk 0.14.0",
+ "num-traits",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+]
+
+[[package]]
+name = "ic-evm-utils"
+version = "3.0.0"
+dependencies = [
+ "candid",
+ "ethers-core",
+ "evm-rpc-canister-types 2.0.0",
  "ic-cdk 0.14.0",
  "num-traits",
  "serde",

@@ -15,5 +15,5 @@ serde_json = "1.0.116"
 ethers-core = "2.0.14"
 # ic-evm-utils = { path = "packages/ic-evm-utils" }
 # evm-rpc-canister-types = { path = "packages/evm-rpc-canister-types" }
-ic-evm-utils = "2.0.0"
-evm-rpc-canister-types = "2.0.0"
+ic-evm-utils = "3.0.0"
+evm-rpc-canister-types = "3.0.0"

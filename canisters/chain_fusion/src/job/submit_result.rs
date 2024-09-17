@@ -1,6 +1,10 @@
 use ethers_core::{abi::Token, types::U256};
-use evm_rpc_canister_types::{SendRawTransactionStatus, EVM_RPC};
-use ic_evm_utils::eth_send_raw_transaction::{contract_interaction, ContractDetails};
+use evm_rpc_canister_types::{BlockTag, GetTransactionCountArgs, EVM_RPC};
+use ic_evm_utils::{
+    conversions::nat_to_u256,
+    eth_get_transaction_count::get_transaction_count,
+    eth_send_raw_transaction::{contract_interaction, ContractDetails},
+};
 
 use crate::state::{mutate_state, read_state, State};
 
@@ -51,7 +55,7 @@ pub async fn submit_result(result: String, job_id: U256) {
     let status = contract_interaction(
         contract_details,
         gas,
-        rpc_services,
+        rpc_services.clone(),
         nonce,
         key_id,
         vec![],
@@ -61,23 +65,28 @@ pub async fn submit_result(result: String, job_id: U256) {
 
     // check the status of the transaction
     match status {
-        SendRawTransactionStatus::Ok(transaction_hash) => {
-            ic_cdk::println!("Success {transaction_hash:?}");
-            mutate_state(|s| {
-                s.nonce += U256::from(1);
-            });
+        Ok(transaction_hash) => {
+            let evm_address = read_state(|s| s.evm_address.clone());
+
+            let get_transaction_count_args = GetTransactionCountArgs {
+                address: evm_address.expect("EVM address should be set"),
+                block: BlockTag::Latest,
+            };
+
+            let transaction_count =
+                get_transaction_count(rpc_services, get_transaction_count_args, EVM_RPC).await;
+
+            if nat_to_u256(&transaction_count) > nonce {
+                ic_cdk::println!("Success {transaction_hash:?}");
+                mutate_state(|s| {
+                    s.nonce += U256::from(1);
+                });
+            } else {
+                // TODO: handle resubmission in the case of failure
+            }
         }
-        SendRawTransactionStatus::NonceTooLow => {
-            ic_cdk::println!("Nonce too low");
-        }
-        SendRawTransactionStatus::NonceTooHigh => {
-            ic_cdk::println!("Nonce too high");
-        }
-        SendRawTransactionStatus::InsufficientFunds => {
-            ic_cdk::println!("Insufficient funds");
-        }
-        SendRawTransactionStatus::AlreadyKnown=> {
-            ic_cdk::println!("Already known");
+        Err(e) => {
+            ic_cdk::println!("Error {e:?}");
         }
     }
 }
