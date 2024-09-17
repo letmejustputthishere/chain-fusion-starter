@@ -10,7 +10,11 @@ use ic_cdk::api::management_canister::ecdsa::{
 };
 
 /// A signed transaction.
-type SignedTransaction = String;
+#[derive(Debug, Clone)]
+pub struct SignedTransaction {
+    pub tx_hex: String,
+    pub tx_hash: String,
+}
 
 /// Gets the canister's ECDSA public key.
 ///
@@ -83,7 +87,10 @@ pub async fn sign_eip1559_transaction(
     let mut signed_tx_bytes = tx.rlp_signed(&signature).to_vec();
     signed_tx_bytes.insert(0, EIP1559_TX_ID);
 
-    format!("0x{}", hex::encode(&signed_tx_bytes))
+    SignedTransaction {
+        tx_hex: format!("0x{}", hex::encode(&signed_tx_bytes)),
+        tx_hash: format!("0x{}", hex::encode(keccak256(&signed_tx_bytes))),
+    }
 }
 
 /// Converts the public key bytes to an Ethereum address with a checksum.
