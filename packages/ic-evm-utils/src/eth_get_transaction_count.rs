@@ -25,19 +25,33 @@ pub async fn get_transaction_count(
     evm_rpc: EvmRpcCanister,
 ) -> Nat {
     let cycles = 10_000_000_000;
+    let mut retry_counter = 0;
 
-    let (result,) = evm_rpc
-        .eth_get_transaction_count(rpc_services, None, get_transaction_count_args, cycles)
-        .await
-        .expect("Call failed");
-
-    match result {
-        MultiGetTransactionCountResult::Consistent(r) => match r {
-            GetTransactionCountResult::Ok(n) => n,
-            GetTransactionCountResult::Err(e) => ic_cdk::trap(format!("Error: {:?}", e).as_str()),
-        },
-        MultiGetTransactionCountResult::Inconsistent(_) => {
-            ic_cdk::trap("Status is inconsistent");
+    loop {
+        match evm_rpc
+            .eth_get_transaction_count(
+                rpc_services.clone(),
+                None,
+                get_transaction_count_args.clone(),
+                cycles,
+            )
+            .await
+            .expect("Call failed")
+            .0
+        {
+            MultiGetTransactionCountResult::Consistent(r) => match r {
+                GetTransactionCountResult::Ok(n) => break n,
+                GetTransactionCountResult::Err(e) => {
+                    ic_cdk::trap(format!("Error: {:?}", e).as_str())
+                }
+            },
+            MultiGetTransactionCountResult::Inconsistent(_) => {
+                if retry_counter == 3 {
+                    ic_cdk::trap("Status is inconsistent");
+                }
+                retry_counter += 1;
+                continue;
+            }
         }
     }
 }
