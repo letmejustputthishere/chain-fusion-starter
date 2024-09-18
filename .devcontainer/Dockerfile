@@ -1,4 +1,6 @@
 FROM ghcr.io/dfinity/icp-dev-env:10
+# Install caddy
+RUN apt -yqq install --no-install-recommends debian-keyring debian-archive-keyring apt-transport-https gpg lsof pkg-config libssl-dev
 
 RUN rustup install stable
 RUN rustup default stable
