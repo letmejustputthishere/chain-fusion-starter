@@ -1,4 +1,4 @@
-FROM ghcr.io/dfinity/icp-dev-env:7
+FROM ghcr.io/dfinity/icp-dev-env:10
 
 RUN rustup install stable
 RUN rustup default stable
